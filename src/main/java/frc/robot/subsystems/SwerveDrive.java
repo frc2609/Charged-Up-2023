@@ -52,7 +52,7 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveModule m_rearLeft = new SwerveModule("Rear Left", CanID.rearLeftDrive, CanID.rearLeftRotation);
   private final SwerveModule m_rearRight = new SwerveModule("Rear Right", CanID.rearRightDrive, CanID.rearRightRotation);
 
-  private final SwerveDriveKinematics m_kinematics =
+  public final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
           m_frontLeftLocation, m_frontRightLocation, m_rearLeftLocation, m_rearRightLocation);
   
@@ -233,6 +233,13 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.resetEncoders();
     m_rearLeft.resetEncoders();
     m_rearRight.resetEncoders();
+  }
+
+  /** 
+   * 
+  */
+  public void resetPose(Pose2d pose) {
+    m_odometry.resetPosition(m_gyro.getRotation2d(), getModulePositions(), pose);
   }
 
   /**

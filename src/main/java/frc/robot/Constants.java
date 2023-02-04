@@ -18,6 +18,14 @@ public final class Constants {
 //        public static final String gyroLayout = "NavX";
 //        public static final String drivetrainTab = "Drivetrain";
 //    }
+    /** Autonomous-Related Constants */
+    public final class Autonomous {
+        /** The NAME of the path, excluding its filepath and extension.
+         * Path assumed to be `src/main/deploy/pathplanner/`.
+         * Extension assumed to be `.path`.
+        */
+        public static final String pathName = "ExamplePath";
+    }
     /** Swerve drive related constants. */
     public final class Swerve {
         /** CAN IDs of swerve module motor controllers. */
@@ -89,12 +97,12 @@ public final class Constants {
             public static final double rearRightY   = -Y_FROM_CENTRE;
         }
         /** Autonomous acceleration and speed limits. */
-        // public final class AutonomousLimits {
-        //     /** The maximum linear acceleration the robot should achieve in m/s^2. */
-        //     public static final double MAX_LINEAR_ACCELERATION = 0; // TODO: adjust value
-        //     /** The maximum speed the drivetrain should go in autonomous in m/s. */
-        //     public static final double MAX_LINEAR_SPEED = 3.8;
-        // }
+        public final class AutonomousLimits {
+            /** The maximum linear acceleration the robot should achieve in m/s^2. */
+            public static final double MAX_LINEAR_ACCELERATION = 3.0; // TODO: adjust value
+            /** The maximum speed the drivetrain should go in autonomous in m/s. */
+            public static final double MAX_LINEAR_SPEED = 3.8;
+        }
         /** Teleop acceleration and speed limits */
         public final class TeleopLimits {
             /** The maximum speed the robot should spin in teleop in radians/s. */
