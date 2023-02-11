@@ -4,11 +4,15 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import com.pathplanner.lib.server.PathPlannerServer;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.utils.BeaverLogger;
+import frc.robot.utils.PathLogger;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -20,7 +24,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-
+  private PathLogger m_PathLogger;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -64,6 +68,13 @@ public class Robot extends TimedRobot {
     m_robotContainer.disableTeleopControl();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
+    if(m_autonomousCommand instanceof PPSwerveControllerCommand){
+      m_PathLogger = new PathLogger(m_robotContainer::getSwervePose2d);
+    }else{
+      DriverStation.reportError("AUTONOMOUS COMMAND IS NOT A SWERVECONTROLLER COMMAND", null);
+      DriverStation.reportError("it is " + m_autonomousCommand.getClass().getName(),null);
+    }
+
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -72,7 +83,14 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    if(m_autonomousCommand instanceof PPSwerveControllerCommand){
+      m_PathLogger.logPathProgress();
+    }else{
+      DriverStation.reportError("AUTONOMOUS COMMAND IS NOT A SWERVECONTROLLER COMMAND", null);
+      DriverStation.reportError("it is " + m_autonomousCommand.getClass().getName(),null);
+    }
+  }
 
   @Override
   public void teleopInit() {

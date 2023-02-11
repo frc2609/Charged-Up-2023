@@ -17,6 +17,7 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
+import edu.wpi.first.math.geometry.Pose2d;
 //import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
@@ -191,4 +192,8 @@ public class RobotContainer {
   //     zeroYaw.setBoolean(false); // reset the button
   //   }
   // }
+
+  public Pose2d getSwervePose2d(){
+    return m_swerveDrive.getPose();
+  }
 }
