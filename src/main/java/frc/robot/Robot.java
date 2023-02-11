@@ -85,12 +85,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    if(m_autonomousCommand instanceof PPSwerveControllerCommand){
-      m_PathLogger.logPathProgress();
-    }else{
-      DriverStation.reportError("AUTONOMOUS COMMAND IS NOT A SWERVECONTROLLER COMMAND", null);
-      DriverStation.reportError("it is " + m_autonomousCommand.getClass().getName(),null);
-    }
+    m_PathLogger.logPathProgress();
   }
 
   @Override
