@@ -9,6 +9,7 @@ import static frc.robot.Constants.Swerve.*;
 import frc.robot.Constants.Swerve.CanID;
 import frc.robot.Constants.Swerve.Position;
 import frc.robot.Constants.Swerve.TeleopLimits;
+import frc.robot.utils.PathLogger;
 import frc.robot.Constants.Xbox;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -58,6 +59,9 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveModule m_rearLeft = new SwerveModule("Rear Left", CanID.rearLeftDrive, CanID.rearLeftRotation);
   private final SwerveModule m_rearRight = new SwerveModule("Rear Right", CanID.rearRightDrive, CanID.rearRightRotation);
 
+  
+  private PathLogger m_PathLogger;
+
   public final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
           m_frontLeftLocation, m_frontRightLocation, m_rearLeftLocation, m_rearRightLocation);
@@ -73,6 +77,7 @@ public class SwerveDrive extends SubsystemBase {
   public SwerveDrive(AHRS gyro, XboxController driverController) {
     m_driverController = driverController;
     m_gyro = gyro;
+    m_PathLogger = new PathLogger(this::getPose);
     if (!m_gyro.isConnected()) {
       DriverStation.reportError(
         "Navx not initialized - Could not setup SwerveDriveOdometry", false);
@@ -165,14 +170,7 @@ public class SwerveDrive extends SubsystemBase {
 
   /** (Add javadoc) */
   public Command followTrajectoryCommand(PathPlannerTrajectory trajectory, boolean isFirstPath) {
-    return new SequentialCommandGroup(
-        new InstantCommand(() -> {
-          // Reset odometry for the first path you run during auto
-          if(isFirstPath){
-              resetPose(trajectory.getInitialHolonomicPose());
-          } // not sure if this works correctly when on red team
-        }),
-        new PPSwerveControllerCommand(
+    PPSwerveControllerCommand MP = new PPSwerveControllerCommand(
             trajectory,
             this::getPose, // Pose supplier
             this.m_kinematics, // SwerveDriveKinematics
@@ -182,7 +180,16 @@ public class SwerveDrive extends SubsystemBase {
             this::setDesiredStates, // Module states consumer
             true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
             this // Requires this drive subsystem
-        )
+        );
+    MP.setLoggingCallbacks(this.m_PathLogger::setActiveTrajectory, this.m_PathLogger::setTargetPose, this.m_PathLogger::setSetpoint, this.m_PathLogger::setError);
+    return new SequentialCommandGroup(
+        new InstantCommand(() -> {
+          // Reset odometry for the first path you run during auto
+          if(isFirstPath){
+              resetPose(trajectory.getInitialHolonomicPose());
+          } // not sure if this works correctly when on red team
+        }),
+        MP
     );
   }
 

@@ -24,7 +24,6 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-  private PathLogger m_PathLogger;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -68,7 +67,6 @@ public class Robot extends TimedRobot {
     m_robotContainer.disableTeleopControl();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    m_PathLogger = new PathLogger(m_robotContainer::getSwervePose2d);
     // if(m_autonomousCommand instanceof PPSwerveControllerCommand){
 
     // }else{
@@ -85,7 +83,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    m_PathLogger.logPathProgress();
   }
 
   @Override
