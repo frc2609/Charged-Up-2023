@@ -68,12 +68,13 @@ public class Robot extends TimedRobot {
     m_robotContainer.disableTeleopControl();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    if(m_autonomousCommand instanceof PPSwerveControllerCommand){
-      m_PathLogger = new PathLogger(m_robotContainer::getSwervePose2d);
-    }else{
-      DriverStation.reportError("AUTONOMOUS COMMAND IS NOT A SWERVECONTROLLER COMMAND", null);
-      DriverStation.reportError("it is " + m_autonomousCommand.getClass().getName(),null);
-    }
+    m_PathLogger = new PathLogger(m_robotContainer::getSwervePose2d);
+    // if(m_autonomousCommand instanceof PPSwerveControllerCommand){
+
+    // }else{
+    //   DriverStation.reportError("AUTONOMOUS COMMAND IS NOT A SWERVECONTROLLER COMMAND", null);
+    //   DriverStation.reportError("it is " + m_autonomousCommand.getClass().getName(),null);
+    // }
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
