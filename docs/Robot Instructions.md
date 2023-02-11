@@ -31,6 +31,8 @@ You have to look at the gears to verify the wheels are aligned correctly. The wh
 
 To line up the wheels, lift up the corner of the robot and turn the wheel by hand. Once the module faces the correct direction, spin the small NEO on the module to make fine adjustments.
 
+If the robot is already turned on, disable it and line up the wheels, then press "Reset Encoders" in Shuffleboard or reset the robot code (either through the driver station or by pressing the "Reset" button on the roboRIO).
+
 ## Using the robot
 ### Field Relative (Field Oriented) Drive
 When the robot is driven with field-relative (or field oriented) drive turned off, horizontal and vertical movement is relative to the robot. For example, if the robot is facing to the right of the field, pushing the joystick forward will move the robot towards the right (where it is facing).

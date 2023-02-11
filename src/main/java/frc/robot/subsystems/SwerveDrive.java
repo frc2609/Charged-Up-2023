@@ -12,8 +12,11 @@ import frc.robot.Constants.Swerve.TeleopLimits;
 import frc.robot.Constants.Xbox;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -28,6 +31,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
@@ -157,6 +163,29 @@ public class SwerveDrive extends SubsystemBase {
     set(velocity, m_debugAngleSetpoint);
   }
 
+  /** (Add javadoc) */
+  public Command followTrajectoryCommand(PathPlannerTrajectory trajectory, boolean isFirstPath) {
+    return new SequentialCommandGroup(
+        new InstantCommand(() -> {
+          // Reset odometry for the first path you run during auto
+          if(isFirstPath){
+              resetPose(trajectory.getInitialHolonomicPose());
+          } // not sure if this works correctly when on red team
+        }),
+        new PPSwerveControllerCommand(
+            trajectory,
+            this::getPose, // Pose supplier
+            this.m_kinematics, // SwerveDriveKinematics
+            new PIDController(0.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+            new PIDController(-1, -0., 0), // Y controller (usually the same values as X controller)
+            new PIDController(0.5, 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+            this::setDesiredStates, // Module states consumer
+            true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+            this // Requires this drive subsystem
+        )
+    );
+  }
+
   /**
    * Drive the robot using joystick inputs from the driver's Xbox controller 
    * (controller specified in class constructor).
@@ -236,7 +265,12 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /** 
+   * Reset the position (relative to the field) of the robot.
    * 
+   * It is not necessary to reset the rotation or distance encoders, or the
+   * gyro angle before calling this function (this should not be done).
+   * 
+   * @param pose The new position of the robot.
   */
   public void resetPose(Pose2d pose) {
     m_odometry.resetPosition(m_gyro.getRotation2d(), getModulePositions(), pose);
