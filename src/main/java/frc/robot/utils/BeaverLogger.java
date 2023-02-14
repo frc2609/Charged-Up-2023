@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+
 import edu.wpi.first.wpilibj.DriverStation;
 //taken from https://github.com/TripleHelixProgramming/HelixUtilities
 import edu.wpi.first.wpilibj.Timer;
@@ -85,6 +87,25 @@ public class BeaverLogger {
 			data.append(Instant.now().toString()).append(",");
 			data.append(Timer.getFPGATimestamp()).append(",");
 			data.append(getValues());
+			Files.write(file, Collections.singletonList(data.toString()), StandardOpenOption.APPEND);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void logMP(PathLogger path) {
+		try {
+			if (file == null) {
+				createFile();
+			}
+
+			StringBuilder data = new StringBuilder();
+			data.append(Instant.now().toString()).append(",");
+			data.append(Timer.getFPGATimestamp()).append(",");
+			data.append(Double.toString(path.getCurrentX()) + ',');
+			data.append(Double.toString(path.getCurrentY()) + ',');
+			data.append(Double.toString(path.getTargetX()) + ',');
+			data.append(Double.toString(path.getTargetY()) + ',');
 			Files.write(file, Collections.singletonList(data.toString()), StandardOpenOption.APPEND);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -9,6 +9,7 @@ import static frc.robot.Constants.Swerve.*;
 import frc.robot.Constants.Swerve.CanID;
 import frc.robot.Constants.Swerve.Position;
 import frc.robot.Constants.Swerve.TeleopLimits;
+import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.PathLogger;
 import frc.robot.Constants.Xbox;
 
@@ -315,6 +316,7 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.setDesiredState(states[1]);
     m_rearLeft.setDesiredState(states[2]);
     m_rearRight.setDesiredState(states[3]);
+    BeaverLogger.getInstance().logMP(this.m_PathLogger);
   }
 
   /**

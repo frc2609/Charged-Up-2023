@@ -20,15 +20,15 @@ public class PathLogger {
     public static ChassisSpeeds setpoint;
     public static Translation2d translationError;
     public static Rotation2d rotationError;
-    public PathLogger(){
-    }
+    public static Supplier<Pose2d> currentPoseSupplier;
+    public PathLogger(){}
     
     public void setSources(Supplier<Pose2d> currentPoseSupplier){
-        this.currentPose = currentPoseSupplier.get();
-        BeaverLogger.getInstance().addSource("Target X", this::getTargetX);
-        // BeaverLogger.getInstance().addSource("Target Y", this.targetPose::getY);
-        // BeaverLogger.getInstance().addSource("Current X", this.currentPose::getX);
-        // BeaverLogger.getInstance().addSource("Current Y", this.currentPose::getY);
+        this.currentPoseSupplier = currentPoseSupplier;
+        // BeaverLogger.getInstance().addSource("Target X", this::getTargetX);
+        // BeaverLogger.getInstance().addSource("Target Y", this::getTargetY);
+        // BeaverLogger.getInstance().addSource("Current X", this::getCurrentX);
+        // BeaverLogger.getInstance().addSource("Current Y", this::getCurrentY);
     }
     public void logPathProgress(){
         BeaverLogger.getInstance().saveLogs();
@@ -38,6 +38,26 @@ public class PathLogger {
             return targetPose.getX();
         }
         return 0;
+    }
+    public double getTargetY(){
+        if(targetPose != null){
+            return targetPose.getY();
+        }
+        return 0;
+    }
+    double getCurrentX(){
+        Pose2d pose = currentPoseSupplier.get();
+        if(pose != null){
+            return pose.getX();
+        }
+        return 0;        
+    }
+    double getCurrentY(){
+        Pose2d pose = currentPoseSupplier.get();
+        if(pose != null){
+            return pose.getY();
+        }
+        return 0;        
     }
 
     
