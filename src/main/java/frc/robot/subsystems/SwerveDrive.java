@@ -77,7 +77,6 @@ public class SwerveDrive extends SubsystemBase {
   public SwerveDrive(AHRS gyro, XboxController driverController) {
     m_driverController = driverController;
     m_gyro = gyro;
-    m_PathLogger = new PathLogger(this::getPose);
     if (!m_gyro.isConnected()) {
       DriverStation.reportError(
         "Navx not initialized - Could not setup SwerveDriveOdometry", false);
@@ -99,6 +98,8 @@ public class SwerveDrive extends SubsystemBase {
      * autonomous programming. */
     SmartDashboard.putData("Field", m_field);
     SmartDashboard.putBoolean("Reset Encoders", false); // display button
+    
+    m_PathLogger = new PathLogger(this::getPose);
   }
 
   /** Configure data being sent and recieved from NetworkTables. */
