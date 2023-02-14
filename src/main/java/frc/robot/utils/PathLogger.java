@@ -20,17 +20,27 @@ public class PathLogger {
     public static ChassisSpeeds setpoint;
     public static Translation2d translationError;
     public static Rotation2d rotationError;
-    public PathLogger(){}
+    public PathLogger(){
+    }
+    
     public void setSources(Supplier<Pose2d> currentPoseSupplier){
         this.currentPose = currentPoseSupplier.get();
-        BeaverLogger.getInstance().addSource("Target X", this.targetPose::getX);
-        BeaverLogger.getInstance().addSource("Target Y", this.targetPose::getY);
-        BeaverLogger.getInstance().addSource("Current X", this.currentPose::getX);
-        BeaverLogger.getInstance().addSource("Current Y", this.currentPose::getY);
+        BeaverLogger.getInstance().addSource("Target X", this::getTargetX);
+        // BeaverLogger.getInstance().addSource("Target Y", this.targetPose::getY);
+        // BeaverLogger.getInstance().addSource("Current X", this.currentPose::getX);
+        // BeaverLogger.getInstance().addSource("Current Y", this.currentPose::getY);
     }
     public void logPathProgress(){
         BeaverLogger.getInstance().saveLogs();
     }
+    public double getTargetX(){
+        if(targetPose != null){
+            return targetPose.getX();
+        }
+        return 0;
+    }
+
+    
 
     public void setActiveTrajectory(PathPlannerTrajectory activeTrajectory){
         this.trajectory = activeTrajectory;
@@ -49,5 +59,6 @@ public class PathLogger {
         this.translationError = translationError;
         this.rotationError = rotationError;
     }
+    
 
 }
