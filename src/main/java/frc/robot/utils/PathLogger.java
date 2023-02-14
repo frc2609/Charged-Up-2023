@@ -15,11 +15,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 /** Add your docs here. */
 public class PathLogger {
-    public PathPlannerTrajectory trajectory;
-    public Pose2d targetPose, currentPose;
-    public ChassisSpeeds setpoint;
-    public Translation2d translationError;
-    public Rotation2d rotationError;
+    public static PathPlannerTrajectory trajectory;
+    public static Pose2d targetPose, currentPose;
+    public static ChassisSpeeds setpoint;
+    public static Translation2d translationError;
+    public static Rotation2d rotationError;
     public PathLogger(Supplier<Pose2d> currentPoseSupplier){
         this.currentPose = currentPoseSupplier.get();
         BeaverLogger.getInstance().addSource("Target X", this.targetPose::getX);
@@ -34,14 +34,18 @@ public class PathLogger {
 
     public void setActiveTrajectory(PathPlannerTrajectory activeTrajectory){
         this.trajectory = activeTrajectory;
+        System.out.println("Recieved trajectory");
     }
     public void setTargetPose(Pose2d targetPose){
         this.targetPose = targetPose;
+        System.out.println("Recieved pose");
     }
     public void setSetpoint(ChassisSpeeds setpoint){
         this.setpoint = setpoint;
+        System.out.println("Recieved setpoint");
     }
     public void setError(Translation2d translationError, Rotation2d rotationError){
+        System.out.println("Recieved error");
         this.translationError = translationError;
         this.rotationError = rotationError;
     }

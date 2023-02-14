@@ -181,7 +181,7 @@ public class SwerveDrive extends SubsystemBase {
             true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
             this // Requires this drive subsystem
         );
-    MP.setLoggingCallbacks(this.m_PathLogger::setActiveTrajectory, this.m_PathLogger::setTargetPose, this.m_PathLogger::setSetpoint, this.m_PathLogger::setError);
+    PPSwerveControllerCommand.setLoggingCallbacks(this.m_PathLogger::setActiveTrajectory, this.m_PathLogger::setTargetPose, this.m_PathLogger::setSetpoint, this.m_PathLogger::setError);
     return new SequentialCommandGroup(
         new InstantCommand(() -> {
           // Reset odometry for the first path you run during auto
