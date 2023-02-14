@@ -99,7 +99,7 @@ public class SwerveDrive extends SubsystemBase {
     SmartDashboard.putData("Field", m_field);
     SmartDashboard.putBoolean("Reset Encoders", false); // display button
     
-    m_PathLogger = new PathLogger(this::getPose);
+    m_PathLogger = new PathLogger();
   }
 
   /** Configure data being sent and recieved from NetworkTables. */
@@ -182,6 +182,7 @@ public class SwerveDrive extends SubsystemBase {
             true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
             this // Requires this drive subsystem
         );
+    m_PathLogger.setSources(this::getPose);
     PPSwerveControllerCommand.setLoggingCallbacks(this.m_PathLogger::setActiveTrajectory, this.m_PathLogger::setTargetPose, this.m_PathLogger::setSetpoint, this.m_PathLogger::setError);
     return new SequentialCommandGroup(
         new InstantCommand(() -> {
