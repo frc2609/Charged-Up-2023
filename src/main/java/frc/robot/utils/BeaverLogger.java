@@ -14,9 +14,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
-
-import edu.wpi.first.wpilibj.DriverStation;
 //taken from https://github.com/TripleHelixProgramming/HelixUtilities
 import edu.wpi.first.wpilibj.Timer;
 
@@ -104,8 +101,13 @@ public class BeaverLogger {
 			data.append(Timer.getFPGATimestamp()).append(",");
 			data.append(Double.toString(path.getCurrentX()) + ',');
 			data.append(Double.toString(path.getCurrentY()) + ',');
+			data.append(Double.toString(path.getCurrentAngle()) + ',');
 			data.append(Double.toString(path.getTargetX()) + ',');
 			data.append(Double.toString(path.getTargetY()) + ',');
+			data.append(Double.toString(path.getTargetAngle()) + ',');
+			data.append(Double.toString(path.getXError()) + ',');
+			data.append(Double.toString(path.getYError()) + ',');
+			data.append(Double.toString(path.getRotationError()) + ',');
 			Files.write(file, Collections.singletonList(data.toString()), StandardOpenOption.APPEND);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -116,6 +118,15 @@ public class BeaverLogger {
 		StringBuilder titles = new StringBuilder();
 		titles.append("Timestamp,");
 		titles.append("match_time,");
+		titles.append("current_x,");
+		titles.append("current_y,");
+		titles.append("current_angle,");
+		titles.append("target_x,");
+		titles.append("target_y,");
+		titles.append("target_angle,");
+		titles.append("x_error,");
+		titles.append("y_error,");
+		titles.append("angle_error,");
 		titles.append(dataSources.stream().map(t -> t.name).collect(Collectors.joining(","))).append(",");
 		Files.write(file, Collections.singletonList(titles.toString()), StandardOpenOption.APPEND);
 	}

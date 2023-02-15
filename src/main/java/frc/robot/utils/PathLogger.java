@@ -16,6 +16,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 /** Add your docs here. */
 public class PathLogger {
     public static PathPlannerTrajectory trajectory;
+    // Should current pose be used the same way as targetPose
+    // (Have a setCurrentPose function?)
     public static Pose2d targetPose, currentPose;
     public static ChassisSpeeds setpoint;
     public static Translation2d translationError;
@@ -45,23 +47,51 @@ public class PathLogger {
         }
         return 0;
     }
-    double getCurrentX(){
+    public double getTargetAngle(){
+        if(targetPose != null){
+            return targetPose.getRotation().getRadians();
+        }
+        return 0;
+    }
+    public double getCurrentX(){
         Pose2d pose = currentPoseSupplier.get();
         if(pose != null){
             return pose.getX();
         }
         return 0;        
     }
-    double getCurrentY(){
+    public double getCurrentY(){
         Pose2d pose = currentPoseSupplier.get();
         if(pose != null){
             return pose.getY();
         }
         return 0;        
     }
-
-    
-
+    public double getCurrentAngle(){
+        Pose2d pose = currentPoseSupplier.get();
+        if(pose != null){
+            return pose.getRotation().getRadians();
+        }
+        return 0;
+    }
+    public double getXError(){
+        if(translationError != null){
+            return translationError.getX();
+        }
+        return 0;
+    }
+    public double getYError(){
+        if(translationError != null){
+            return translationError.getY();
+        }
+        return 0;
+    }
+    public double getRotationError(){
+        if(rotationError != null){
+            return rotationError.getRadians();
+        }
+        return 0;
+    }
     public void setActiveTrajectory(PathPlannerTrajectory activeTrajectory){
         this.trajectory = activeTrajectory;
         System.out.println("Recieved trajectory");
@@ -79,6 +109,4 @@ public class PathLogger {
         this.translationError = translationError;
         this.rotationError = rotationError;
     }
-    
-
 }
