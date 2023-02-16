@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 //taken from https://github.com/TripleHelixProgramming/HelixUtilities
 import edu.wpi.first.wpilibj.Timer;
 
@@ -90,7 +91,7 @@ public class BeaverLogger {
 		}
 	}
 
-	public void logMP(PathLogger path) {
+	public void logMP(PathLogger path, SwerveModuleState[] targetStates, SwerveModuleState[] currentStates) {
 		try {
 			if (file == null) {
 				createFile();
@@ -108,6 +109,14 @@ public class BeaverLogger {
 			data.append(Double.toString(path.getXError()) + ',');
 			data.append(Double.toString(path.getYError()) + ',');
 			data.append(Double.toString(path.getRotationError()) + ',');
+			data.append(Double.toString(currentStates[0].angle.getDegrees()) + ',');
+			data.append(Double.toString(targetStates[0].angle.getDegrees()) + ',');
+			data.append(Double.toString(currentStates[1].angle.getDegrees()) + ',');
+			data.append(Double.toString(targetStates[1].angle.getDegrees()) + ',');
+			data.append(Double.toString(currentStates[2].angle.getDegrees()) + ',');
+			data.append(Double.toString(targetStates[2].angle.getDegrees()) + ',');
+			data.append(Double.toString(currentStates[3].angle.getDegrees()) + ',');
+			data.append(Double.toString(targetStates[3].angle.getDegrees()) + ',');
 			Files.write(file, Collections.singletonList(data.toString()), StandardOpenOption.APPEND);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -127,6 +136,10 @@ public class BeaverLogger {
 		titles.append("x_error,");
 		titles.append("y_error,");
 		titles.append("angle_error,");
+		titles.append("leftFrontCurrentAngle,");
+		titles.append("leftFrontDesiredAngle,");
+		titles.append("rightFrontCurrentAngle,");
+		titles.append("rightFrontDesiredAngle,");
 		titles.append(dataSources.stream().map(t -> t.name).collect(Collectors.joining(","))).append(",");
 		Files.write(file, Collections.singletonList(titles.toString()), StandardOpenOption.APPEND);
 	}
