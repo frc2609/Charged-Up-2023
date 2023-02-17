@@ -94,18 +94,14 @@ public class PathLogger {
     }
     public void setActiveTrajectory(PathPlannerTrajectory activeTrajectory){
         this.trajectory = activeTrajectory;
-        System.out.println("Recieved trajectory");
     }
     public void setTargetPose(Pose2d targetPose){
         this.targetPose = targetPose;
-        System.out.println("Recieved pose");
     }
     public void setSetpoint(ChassisSpeeds setpoint){
         this.setpoint = setpoint;
-        System.out.println("Recieved setpoint");
     }
     public void setError(Translation2d translationError, Rotation2d rotationError){
-        System.out.println("Recieved error");
         this.translationError = translationError;
         this.rotationError = rotationError;
     }
