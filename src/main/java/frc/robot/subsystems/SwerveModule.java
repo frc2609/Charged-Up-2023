@@ -61,6 +61,7 @@ public class SwerveModule {//implements Sendable {
 
     m_driveMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     m_rotationMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    m_rotationMotor.setInverted(true);
 
     m_name = name;
 
@@ -216,17 +217,9 @@ public class SwerveModule {//implements Sendable {
       return;
     }
     
-    /* Invert the rotation setpoint because the modules spin clockwise when
-     * the rotation setpoint is positive (clockwise-positive) whereas
-     * SwerveModuleState specifies counterclockwise-positive angles.
-     */
-    SwerveModuleState invertedState =
-        new SwerveModuleState(desiredState.speedMetersPerSecond, 
-            new Rotation2d(-desiredState.angle.getRadians()));
-    
-    // Optimize the desired (inverted) state to avoid spinning further than 90 degrees
+    // Optimize the desired state to avoid spinning further than 90 degrees
     SwerveModuleState optimizedState =
-        SwerveModuleState.optimize(invertedState, new Rotation2d(m_rotationEncoder.getPosition()));
+        SwerveModuleState.optimize(desiredState, new Rotation2d(m_rotationEncoder.getPosition()));
 
     // Calculate the drive output from the drive PID controller.
     final double driveOutput =

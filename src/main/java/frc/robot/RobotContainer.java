@@ -64,9 +64,9 @@ public class RobotContainer {
       new JoystickButton(
           m_driverController, XboxController.Button.kStart.value);
   
-  // this line could be shorter
-  PathPlannerTrajectory path = PathPlanner.loadPath(Constants.Autonomous.pathName, new PathConstraints(Constants.Swerve.AutonomousLimits.MAX_LINEAR_SPEED, Constants.Swerve.AutonomousLimits.MAX_LINEAR_ACCELERATION));
-  
+  // place into command
+  PathPlannerTrajectory path = PathPlanner.loadPath(Constants.Autonomous.pathName, new PathConstraints(Constants.Swerve.AutonomousLimits.MAX_LINEAR_VELOCITY, Constants.Swerve.AutonomousLimits.MAX_LINEAR_ACCELERATION));
+
   HashMap<String, Command> eventMap = new HashMap<>();
   //eventMap.put
 

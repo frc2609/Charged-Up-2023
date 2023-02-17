@@ -152,7 +152,7 @@ public class SwerveDrive extends SubsystemBase {
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, m_gyro.getRotation2d())
                 : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
     // Prevent robot from going faster than it should.
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_POSSIBLE_LINEAR_SPEED);
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_POSSIBLE_LINEAR_VELOCITY);
     setDesiredStates(states);
   }
 
@@ -176,9 +176,9 @@ public class SwerveDrive extends SubsystemBase {
             trajectory,
             this::getPose, // Pose supplier
             this.m_kinematics, // SwerveDriveKinematics
-            new PIDController(0, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-            new PIDController(0, 0, 0), // Y controller (usually the same values as X controller)
-            new PIDController(0, 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+            new PIDController(1, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+            new PIDController(1, 0, 0), // Y controller (usually the same values as X controller)
+            new PIDController(1, 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
             this::setDesiredStates, // Module states consumer
             true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
             this // Requires this drive subsystem
@@ -212,13 +212,13 @@ public class SwerveDrive extends SubsystemBase {
     final double xSpeed =
         -m_xSpeedLimiter.calculate(MathUtil.applyDeadband(
             m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_LINEAR_SPEED; // m/s
+                * TeleopLimits.MAX_LINEAR_VELOCITY; // m/s
                 // scale value from 0-1 to 0-MAX_LINEAR_SPEED
 
     final double ySpeed =
         -m_ySpeedLimiter.calculate(MathUtil.applyDeadband(
             m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_LINEAR_SPEED;
+                * TeleopLimits.MAX_LINEAR_VELOCITY;
 
     final double rotationSpeed =
         -m_rotationLimiter.calculate(MathUtil.applyDeadband(

@@ -24,7 +24,7 @@ public final class Constants {
          * Path assumed to be `src/main/deploy/pathplanner/`.
          * Extension assumed to be `.path`.
         */
-        public static final String pathName = "ExamplePath";
+        public static final String pathName = "Triangle";
     }
     /** Swerve drive related constants. */
     public final class Swerve {
@@ -99,16 +99,16 @@ public final class Constants {
         /** Autonomous acceleration and speed limits. */
         public final class AutonomousLimits {
             /** The maximum linear acceleration the robot should achieve in m/s^2. */
-            public static final double MAX_LINEAR_ACCELERATION = 0.1; // TODO: adjust value
+            public static final double MAX_LINEAR_ACCELERATION = 1.0; // TODO: adjust value
             /** The maximum speed the drivetrain should go in autonomous in m/s. */
-            public static final double MAX_LINEAR_SPEED = 0.5;
+            public static final double MAX_LINEAR_VELOCITY = 2.0;
         }
         /** Teleop acceleration and speed limits */
         public final class TeleopLimits {
             /** The maximum speed the robot should spin in teleop in radians/s. */
             public static final double MAX_ANGULAR_VELOCITY = 4 * Math.PI; // TODO: adjust value
             /** The maximum speed the drivetrain should go in teleop in m/s. */
-            public static final double MAX_LINEAR_SPEED = 3.8;
+            public static final double MAX_LINEAR_VELOCITY = 3.8;
         }
         // Miscellaneous:
         public static final double DEBUG_DRIVE_ANGLE_SENSITIVITY = 0.25;
@@ -117,7 +117,7 @@ public final class Constants {
         /** The maximum speed the robot can spin in radians/s. */
         // public static final double MAX_POSSIBLE_ANGULAR_VELOCITY = 4 * Math.PI; // unused
         /** The maximum linear speed a swerve module can achieve in m/s. */
-        public static final double MAX_POSSIBLE_LINEAR_SPEED = 3.8;
+        public static final double MAX_POSSIBLE_LINEAR_VELOCITY = 3.8;
         /** Any speeds below this value will not cause the module to move. */
         public static final double MODULE_SPEED_DEADBAND = 0.001; // m/s
         /** 56.6409 rotations of motor = 1.0 rotation of module 
