@@ -168,7 +168,9 @@ public class SwerveModule {//implements Sendable {
   }
 
   /**
-   * Returns Position of the module
+   * Returns the position of the module
+   * This is similar to `getState()`, but returns the position of the drive
+   * motor instead of its velocity.
    * 
    * @return Position of the module
    */
@@ -181,6 +183,8 @@ public class SwerveModule {//implements Sendable {
 
   /**
    * Returns the current state of the module.
+   * This is similar to `getPosition()`, but returns the velocity of the drive
+   * motor instead of its position.
    * 
    * @return The current state of the module.
    */
@@ -270,5 +274,4 @@ public class SwerveModule {//implements Sendable {
     m_driveMotor.setVoltage(0);
     m_rotationMotor.setVoltage(0);
   }
-
 }

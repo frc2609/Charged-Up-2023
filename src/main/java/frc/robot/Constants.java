@@ -4,6 +4,15 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.pathplanner.lib.auto.PIDConstants;
+
+import static java.util.Map.entry;
+
+import edu.wpi.first.wpilibj2.command.Command;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -19,12 +28,27 @@ public final class Constants {
 //        public static final String drivetrainTab = "Drivetrain";
 //    }
     /** Autonomous-Related Constants */
-    public final class Autonomous {
+    public static final class Autonomous {
         /** The NAME of the path, excluding its filepath and extension.
          * Path assumed to be `src/main/deploy/pathplanner/`.
          * Extension assumed to be `.path`.
         */
-        public static final String pathName = "Triangle";
+        public static final String PATH_NAME = "Triangle";
+        /** Which port PathPlannerServer should connect to on the RoboRIO. */
+        public static final int PATHPLANNER_SERVER_PORT = 5811;
+        public static final HashMap<String, Command> eventMap = new HashMap<>(
+            Map.ofEntries(
+                entry("MarkerName", null) // markerName, Command
+            )
+        );
+        /** X and Y PID constants for path following. 
+         * Setting these to 0 will use only feedforward.
+         */
+        public static final PIDConstants translationPIDConstants = new PIDConstants(1, 0, 0);
+        /** Rotation PID constants for path following.
+         * Setting these to 0 will use only feedforward.
+        */
+        public static final PIDConstants rotationPIDConstants = new PIDConstants(1, 0, 0);
     }
     /** Swerve drive related constants. */
     public final class Swerve {

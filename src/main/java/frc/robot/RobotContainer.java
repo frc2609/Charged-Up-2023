@@ -10,14 +10,8 @@
 
 package frc.robot;
 
-import java.util.HashMap;
-
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
 
-import edu.wpi.first.math.geometry.Pose2d;
 //import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
@@ -31,6 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.TimedDriveForward;
 // import frc.robot.Constants.Dashboard;
@@ -63,14 +58,7 @@ public class RobotContainer {
   private final JoystickButton m_startCommand =
       new JoystickButton(
           m_driverController, XboxController.Button.kStart.value);
-  
-  // place into command
-  PathPlannerTrajectory path = PathPlanner.loadPath(Constants.Autonomous.pathName, new PathConstraints(Constants.Swerve.AutonomousLimits.MAX_LINEAR_VELOCITY, Constants.Swerve.AutonomousLimits.MAX_LINEAR_ACCELERATION));
 
-  HashMap<String, Command> eventMap = new HashMap<>();
-  //eventMap.put
-
-  Command m_exampleAuto;
 /*
   // Hardcoded Shuffleboard layout did not work.
   private final ShuffleboardTab drivetrainTab = Shuffleboard.getTab(Dashboard.drivetrainTab);
@@ -115,8 +103,6 @@ public class RobotContainer {
       DriverStation.reportError("Navx initialization failed", false);
     }
     m_swerveDrive = new SwerveDrive(m_navx, m_driverController);
-    // create the auto command
-    m_exampleAuto = m_swerveDrive.followTrajectoryCommand(path, true);
     configureButtonBindings();
     SmartDashboard.putBoolean("Zero Yaw", false); // display the button
   }
@@ -170,7 +156,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_exampleAuto;
+    return new ExampleAuto(m_swerveDrive);
   }
 
   /**
@@ -192,8 +178,4 @@ public class RobotContainer {
   //     zeroYaw.setBoolean(false); // reset the button
   //   }
   // }
-
-  public Pose2d getSwervePose2d(){
-    return m_swerveDrive.getPose();
-  }
 }

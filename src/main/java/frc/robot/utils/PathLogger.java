@@ -13,96 +13,117 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
-/** Add your docs here. */
+/** Collects autonomous path-related data. */
 public class PathLogger {
-    public static PathPlannerTrajectory trajectory;
-    // Should current pose be used the same way as targetPose
-    // (Have a setCurrentPose function?)
-    public static Pose2d targetPose, currentPose;
-    public static ChassisSpeeds setpoint;
-    public static Translation2d translationError;
-    public static Rotation2d rotationError;
-    public static Supplier<Pose2d> currentPoseSupplier;
-    public PathLogger(){}
+    public static PathPlannerTrajectory m_trajectory;
+    public static Pose2d m_targetPose;
+    public static Pose2d m_currentPose;
+    public static ChassisSpeeds m_setpoint;
+    public static Translation2d m_translationError;
+    public static Rotation2d m_rotationError;
+    public static Supplier<Pose2d> m_currentPoseSupplier;
+
+    public PathLogger() {}
     
-    public void setSources(Supplier<Pose2d> currentPoseSupplier){
-        this.currentPoseSupplier = currentPoseSupplier;
-        // BeaverLogger.getInstance().addSource("Target X", this::getTargetX);
-        // BeaverLogger.getInstance().addSource("Target Y", this::getTargetY);
-        // BeaverLogger.getInstance().addSource("Current X", this::getCurrentX);
-        // BeaverLogger.getInstance().addSource("Current Y", this::getCurrentY);
+    /**
+     * Register a Pose2D supplier providing the current pose of the robot.
+     * 
+     * @param currentPoseSupplier A Supplier<Pose2d> which returns the current
+     * position of the robot.
+     */
+    public void setSources(Supplier<Pose2d> currentPoseSupplier) {
+        m_currentPoseSupplier = currentPoseSupplier;
     }
-    public void logPathProgress(){
-        BeaverLogger.getInstance().saveLogs();
+    /**
+     * Call currentPoseSupplier if it is registered, or return a new Pose2d if
+     * it is not.
+     * 
+     * @return The current pose of the robot.
+     */
+    private Pose2d getCurrentPose() {
+        if (m_currentPoseSupplier != null) {
+            return m_currentPoseSupplier.get();
+        } else {
+            return new Pose2d();
+        }
     }
-    public double getTargetX(){
-        if(targetPose != null){
-            return targetPose.getX();
+    
+    // unused
+    // public void logPathProgress() {
+    //     BeaverLogger.getInstance().saveLogs();
+    // }
+
+    // Access functions
+    public double getTargetX() {
+        if (m_targetPose != null) {
+            return m_targetPose.getX();
         }
         return 0;
     }
-    public double getTargetY(){
-        if(targetPose != null){
-            return targetPose.getY();
+    public double getTargetY() {
+        if (m_targetPose != null) {
+            return m_targetPose.getY();
         }
         return 0;
     }
-    public double getTargetAngle(){
-        if(targetPose != null){
-            return targetPose.getRotation().getRadians();
+    public double getTargetAngle() {
+        if (m_targetPose != null) {
+            return m_targetPose.getRotation().getRadians();
         }
         return 0;
     }
-    public double getCurrentX(){
-        Pose2d pose = currentPoseSupplier.get();
-        if(pose != null){
+    public double getCurrentX() {
+        Pose2d pose = m_currentPoseSupplier.get();
+        if (pose != null) {
             return pose.getX();
         }
         return 0;        
     }
-    public double getCurrentY(){
-        Pose2d pose = currentPoseSupplier.get();
-        if(pose != null){
+    public double getCurrentY() {
+        Pose2d pose = getCurrentPose();
+        if (pose != null) {
             return pose.getY();
         }
         return 0;        
     }
-    public double getCurrentAngle(){
-        Pose2d pose = currentPoseSupplier.get();
-        if(pose != null){
+    public double getCurrentAngle() {
+        Pose2d pose = m_currentPoseSupplier.get();
+        if (pose != null) {
             return pose.getRotation().getRadians();
         }
         return 0;
     }
-    public double getXError(){
-        if(translationError != null){
-            return translationError.getX();
+    public double getXError() {
+        if (m_translationError != null) {
+            return m_translationError.getX();
         }
         return 0;
     }
-    public double getYError(){
-        if(translationError != null){
-            return translationError.getY();
+    public double getYError() {
+        if (m_translationError != null) {
+            return m_translationError.getY();
         }
         return 0;
     }
-    public double getRotationError(){
-        if(rotationError != null){
-            return rotationError.getRadians();
+    public double getRotationError() {
+        if (m_rotationError != null) {
+            return m_rotationError.getRadians();
         }
         return 0;
     }
-    public void setActiveTrajectory(PathPlannerTrajectory activeTrajectory){
-        this.trajectory = activeTrajectory;
+
+    // Callbacks for PPSwerveControllerCommand.setLoggingCallbacks()
+    public void setActiveTrajectory(PathPlannerTrajectory activeTrajectory) {
+        m_trajectory = activeTrajectory;
     }
-    public void setTargetPose(Pose2d targetPose){
-        this.targetPose = targetPose;
+    public void setTargetPose(Pose2d targetPose) {
+        m_targetPose = targetPose;
     }
-    public void setSetpoint(ChassisSpeeds setpoint){
-        this.setpoint = setpoint;
+    public void setSetpoint(ChassisSpeeds setpoint) {
+        m_setpoint = setpoint;
     }
-    public void setError(Translation2d translationError, Rotation2d rotationError){
-        this.translationError = translationError;
-        this.rotationError = rotationError;
+    public void setError(Translation2d translationError, Rotation2d rotationError) {
+        m_translationError = translationError;
+        m_rotationError = rotationError;
     }
 }

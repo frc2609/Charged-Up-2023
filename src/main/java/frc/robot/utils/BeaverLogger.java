@@ -18,10 +18,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //taken from https://github.com/TripleHelixProgramming/HelixUtilities
 import edu.wpi.first.wpilibj.Timer;
 
+/** Records values into a .csv file for later viewing. */
 public class BeaverLogger {
-
 	private static BeaverLogger INSTANCE = new BeaverLogger();
-
 
 	public static BeaverLogger getInstance() {
 		return INSTANCE;
@@ -51,12 +50,12 @@ public class BeaverLogger {
 		Writer output = null;
 		try {
 			createLogDirectory();
-            String fileName = "beaverlog";
-            int logNumber = 0;
+      String fileName = "beaverlog";
+      int logNumber = 0;
 			file = Paths.get(loggingLocation + fileName+Integer.toString(logNumber)+".csv");
 			while (Files.exists(file)) {
-                logNumber++;
-                file = Paths.get(loggingLocation + fileName+Integer.toString(logNumber)+".csv");
+        logNumber++;
+        file = Paths.get(loggingLocation + fileName+Integer.toString(logNumber)+".csv");
 			}
 			Files.createFile(file);
 			saveTitles();
@@ -71,10 +70,12 @@ public class BeaverLogger {
 		}
 	}
 
+	// unused
 	public void addSource(String name, Supplier<Object> supplier) {
 		dataSources.add(new LogSource(name, supplier));
 	}
-
+	
+	// unused (used in unused function)
 	public void saveLogs() {
 		try {
 			if (file == null) {
@@ -144,6 +145,7 @@ public class BeaverLogger {
 		Files.write(file, Collections.singletonList(titles.toString()), StandardOpenOption.APPEND);
 	}
 
+	// unused (used in unused function)
 	private String getValues() {
 		return dataSources.stream().map(s -> s.supplier.get()).map(Object::toString).collect(Collectors.joining(","));
 	}
