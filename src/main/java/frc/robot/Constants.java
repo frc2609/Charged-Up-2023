@@ -13,11 +13,6 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-//    /** [description here] (Named Dashboard to avoid conflict with Shuffleboard class.) */
-//    public final class Dashboard {
-//        public static final String gyroLayout = "NavX";
-//        public static final String drivetrainTab = "Drivetrain";
-//    }
     /** Swerve drive related constants. */
     public final class Swerve {
         /** CAN IDs of swerve module motor controllers. */
