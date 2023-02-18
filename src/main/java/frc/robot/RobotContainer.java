@@ -12,22 +12,15 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 
-//import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-// import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-// import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-// import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-// import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-// import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.TimedDriveForward;
-// import frc.robot.Constants.Dashboard;
 import frc.robot.subsystems.SwerveDrive;
 
 /**
@@ -57,41 +50,6 @@ public class RobotContainer {
   private final JoystickButton m_startCommand =
       new JoystickButton(
           m_driverController, XboxController.Button.kStart.value);
-/*
-  // Hardcoded Shuffleboard layout did not work.
-  private final ShuffleboardTab drivetrainTab = Shuffleboard.getTab(Dashboard.drivetrainTab);
-  // private final ShuffleboardLayout gyroLayout =
-  //     drivetrainTab
-  //     .getLayout(Dashboard.gyroLayout, BuiltInLayouts.kGrid)
-  //     .withPosition(0, 0)
-  //     .withSize(2, 3)
-  //     .withProperties(Map.of("Title", "NavX", "number of columns", 2, "number of rows", 3));
-  private final NetworkTableEntry gyroAngle = 
-      //gyroLayout
-      drivetrainTab
-      .add("Robot Heading", 0)
-      .withWidget(BuiltInWidgets.kGyro)
-      .withPosition(0, 0)
-      .withSize(2, 2)
-      .getEntry();
-      // these two do not appear now because shuffleboard reasons
-  private final NetworkTableEntry isConnected =
-      //gyroLayout
-      drivetrainTab
-      .add("NavX Connected", false)
-      .withWidget(BuiltInWidgets.kBooleanBox)
-      .withPosition(0, 2) // correct
-      .withSize(1, 1) // correct
-      .getEntry();
-  private final NetworkTableEntry zeroYaw =
-      //gyroLayout
-      drivetrainTab
-      .add("Zero Yaw", false)
-      .withWidget(BuiltInWidgets.kToggleButton)
-      .withPosition(1, 2) // correct
-      .withSize(1, 1) // correct
-      .getEntry();
-*/
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -168,12 +126,4 @@ public class RobotContainer {
       SmartDashboard.putBoolean("Zero Yaw", false); // reset the button
     }
   }
-  // public void updateNetworkTables() {
-  //   gyroAngle.setDouble(m_navx.getAngle());
-  //   isConnected.setBoolean(m_navx.isConnected());
-  //   if (zeroYaw.getBoolean(false)) {
-  //     m_navx.zeroYaw();
-  //     zeroYaw.setBoolean(false); // reset the button
-  //   }
-  // }
 }

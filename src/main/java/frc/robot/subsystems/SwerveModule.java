@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
  * Represents a single swerve drive module.
  */
-public class SwerveModule {//implements Sendable {
+public class SwerveModule { // implements Sendable {
   private final CANSparkMax m_driveMotor;
   private final CANSparkMax m_rotationMotor;
 
