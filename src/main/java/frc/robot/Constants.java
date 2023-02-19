@@ -50,8 +50,8 @@ public final class Constants {
             // SparkMaxPIDController only has 1 feedforward constant.
             public static final double rotationFF = 0;
         }
-        /** Constants related to swerve module positions. */
-        public final class Position {
+        /** Constants related to swerve module dimensions. */
+        public final class Dimensions {
             /* Direction Polarity:
                       +X (Front)
                  FL       ^       FR
@@ -82,29 +82,40 @@ public final class Constants {
             public static final double rearLeftY    = Y_FROM_CENTRE;
             public static final double rearRightX   = -X_FROM_CENTRE;
             public static final double rearRightY   = -Y_FROM_CENTRE;
+            /** Diagonal distance between opposite swerve modules.
+             * Calculation: Math.sqrt(TRACK_SIZE_X * TRACK_SIZE_X + TRACK_SIZE_Y * TRACK_SIZE_Y)
+            */
+            public static final double DIAMETER = 0.862104588;
+            /** Distance travelled when spinning in a circle. */
+            public static final double CIRCUMFERENCE = Math.PI * DIAMETER;
         }
-        /** Autonomous acceleration and speed limits. */
+        /** Physical acceleration and velocity limits. */
+        public final class PhysicalLimits {
+            /** The maximum possible RPM of a REV NEO v1.0/v1.1 motor. */
+            public static final double MAX_NEO_RPM = 5676;
+            /** The maximum angular acceleration the robot can achieve in radians/s^2. */
+            // public static final double MAX_POSSIBLE_ANGULAR_ACCELERATION = 2 * Math.PI; // unused
+            /** The maximum linear speed a swerve module can achieve in m/s. */
+            public static final double MAX_POSSIBLE_LINEAR_SPEED = MAX_NEO_RPM * DRIVE_VELOCITY_CONVERSION;
+            /** The maximum speed the robot can spin in radians/s. */
+            public static final double MAX_POSSIBLE_ANGULAR_VELOCITY = 2 * Math.PI * (MAX_POSSIBLE_LINEAR_SPEED / Dimensions.CIRCUMFERENCE);
+        }
+        /** Autonomous acceleration and velocity limits. */
         // public final class AutonomousLimits {
         //     /** The maximum linear acceleration the robot should achieve in m/s^2. */
         //     public static final double MAX_LINEAR_ACCELERATION = 0; // TODO: adjust value
         //     /** The maximum speed the drivetrain should go in autonomous in m/s. */
         //     public static final double MAX_LINEAR_SPEED = 3.8;
         // }
-        /** Teleop acceleration and speed limits */
+        /** Teleop acceleration and velocity limits */
         public final class TeleopLimits {
             /** The maximum speed the robot should spin in teleop in radians/s. */
-            public static final double MAX_ANGULAR_VELOCITY = 4 * Math.PI; // TODO: adjust value
+            public static final double MAX_ANGULAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_ANGULAR_VELOCITY;
             /** The maximum speed the drivetrain should go in teleop in m/s. */
-            public static final double MAX_LINEAR_SPEED = 3.8;
+            public static final double MAX_LINEAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED;
         }
         // Miscellaneous:
         public static final double DEBUG_DRIVE_ANGLE_SENSITIVITY = 0.25;
-        /** The maximum angular acceleration the robot can achieve in radians/s^2. */
-        // public static final double MAX_POSSIBLE_ANGULAR_ACCELERATION = 2 * Math.PI; // unused
-        /** The maximum speed the robot can spin in radians/s. */
-        // public static final double MAX_POSSIBLE_ANGULAR_VELOCITY = 4 * Math.PI; // unused
-        /** The maximum linear speed a swerve module can achieve in m/s. */
-        public static final double MAX_POSSIBLE_LINEAR_SPEED = 3.8;
         /** Any speeds below this value will not cause the module to move. */
         public static final double MODULE_SPEED_DEADBAND = 0.001; // m/s
         /** 56.6409 rotations of motor = 1.0 rotation of module 

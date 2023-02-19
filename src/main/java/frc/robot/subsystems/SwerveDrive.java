@@ -7,7 +7,8 @@ package frc.robot.subsystems;
 // static imports allow access to all constants in the class without using its name
 import static frc.robot.Constants.Swerve.*;
 import frc.robot.Constants.Swerve.CanID;
-import frc.robot.Constants.Swerve.Position;
+import frc.robot.Constants.Swerve.Dimensions;
+import frc.robot.Constants.Swerve.PhysicalLimits;
 import frc.robot.Constants.Swerve.TeleopLimits;
 import frc.robot.Constants.Xbox;
 
@@ -42,10 +43,10 @@ public class SwerveDrive extends SubsystemBase {
   private final SlewRateLimiter m_ySpeedLimiter = new SlewRateLimiter(Y_SPEED_DELAY);
   private final SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(ROTATION_DELAY);
 
-  private final Translation2d m_frontLeftLocation = new Translation2d(Position.frontLeftX, Position.frontLeftY);
-  private final Translation2d m_frontRightLocation = new Translation2d(Position.frontRightX, Position.frontRightY);
-  private final Translation2d m_rearLeftLocation = new Translation2d(Position.rearLeftX, Position.rearLeftY);
-  private final Translation2d m_rearRightLocation = new Translation2d(Position.rearRightX, Position.rearRightY);
+  private final Translation2d m_frontLeftLocation = new Translation2d(Dimensions.frontLeftX, Dimensions.frontLeftY);
+  private final Translation2d m_frontRightLocation = new Translation2d(Dimensions.frontRightX, Dimensions.frontRightY);
+  private final Translation2d m_rearLeftLocation = new Translation2d(Dimensions.rearLeftX, Dimensions.rearLeftY);
+  private final Translation2d m_rearRightLocation = new Translation2d(Dimensions.rearRightX, Dimensions.rearRightY);
   
   private final SwerveModule m_frontLeft = new SwerveModule("Front Left", CanID.frontLeftDrive, CanID.frontLeftRotation);
   private final SwerveModule m_frontRight = new SwerveModule("Front Right", CanID.frontRightDrive, CanID.frontRightRotation);
@@ -139,7 +140,7 @@ public class SwerveDrive extends SubsystemBase {
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, m_gyro.getRotation2d())
                 : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
     // Prevent robot from going faster than it should.
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_POSSIBLE_LINEAR_SPEED);
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
     setDesiredStates(states);
   }
 
@@ -173,13 +174,13 @@ public class SwerveDrive extends SubsystemBase {
     final double xSpeed =
         -m_xSpeedLimiter.calculate(MathUtil.applyDeadband(
             m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_LINEAR_SPEED; // m/s
+                * TeleopLimits.MAX_LINEAR_VELOCITY; // m/s
                 // scale value from 0-1 to 0-MAX_LINEAR_SPEED
 
     final double ySpeed =
         -m_ySpeedLimiter.calculate(MathUtil.applyDeadband(
             m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_LINEAR_SPEED;
+                * TeleopLimits.MAX_LINEAR_VELOCITY;
 
     final double rotationSpeed =
         -m_rotationLimiter.calculate(MathUtil.applyDeadband(
