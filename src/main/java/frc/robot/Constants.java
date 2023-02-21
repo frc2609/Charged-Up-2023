@@ -12,6 +12,7 @@ import com.pathplanner.lib.auto.PIDConstants;
 import static java.util.Map.entry;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.TimerDelay;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -36,9 +37,10 @@ public final class Constants {
         public static final String PATH_NAME = "Triangle";
         /** Which port PathPlannerServer should connect to on the RoboRIO. */
         public static final int PATHPLANNER_SERVER_PORT = 5811;
+        /** Entries in this map must be non-null, or the program will crash. */
         public static final HashMap<String, Command> eventMap = new HashMap<>(
             Map.ofEntries(
-                entry("MarkerName", null) // markerName, Command
+                entry("MarkerName", new TimerDelay(5)) // markerName, Command
             )
         );
         /** X and Y PID constants for path following. 
