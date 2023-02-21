@@ -32,7 +32,7 @@ public class ExampleAuto extends InstantCommand {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_swerveDrive.generateFullAuto(m_path);
+    m_swerveDrive.generateFullAuto(m_path).schedule();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
