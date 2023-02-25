@@ -13,8 +13,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.FollowAprilTag;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.TimedDriveForward;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.SwerveDrive;
 
 /**
@@ -31,6 +33,7 @@ public class RobotContainer {
    * commands that require them. This prevents a subsystem from being used by
    * multiple things at once, which may potentially cause issues. */
   private final SwerveDrive m_swerveDrive;
+  private final Limelight m_limelight;
   
   // private final JoystickButton m_fieldOrientedToggleButton = 
   //     new JoystickButton(
@@ -53,6 +56,7 @@ public class RobotContainer {
       DriverStation.reportError("Navx initialization failed", false);
     }
     m_swerveDrive = new SwerveDrive(m_navx, m_driverController);
+    m_limelight = new Limelight();
     configureButtonBindings();
     SmartDashboard.putBoolean("Zero Yaw", false); // display the button
   }
@@ -106,7 +110,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return null;
+    return new FollowAprilTag(m_swerveDrive, m_limelight, 3);
   }
 
   /**
