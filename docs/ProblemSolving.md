@@ -17,6 +17,22 @@ ERROR  8  [CAN SPARK MAX] IDs: 6, Invalid parameter id 151
 * Follow [these instructions](https://docs.revrobotics.com/sparkmax/rev-hardware-client/getting-started-with-the-rev-hardware-client/updating-device-firmware) to update its firmware.
 * Restart or redeploy your robot code.
 
+## Swerve Drivetrain Does Not Behave Holonomically
+**Description:**
+* Attempting to decouple rotation from translation did not work as expected.
+* Autonomous did not follow paths correctly (any rotation correction interfered with the robot's X and Y position).
+* We could not spin while moving.
+
+**Cause:**
+* We inverted the `Rotation2d` component of the `SwerveModuleState`, which never inverted the encoder values. This means that the module rotation motors spin in the opposite direction than what they report.
+* After logging the auto path, we found out the motor setpoint and the encoder reading were opposite; since we did not invert the encoder, the robot thought the module was moving in the opposite direction that it really was.
+* This was not apparent in Teleoperated mode, as the robot moves in the correct direction (the reported position is bad).
+* Since auto cannot see the robot, autonomous assumes the robot is going in a completely incorrect direction, and tries to correct for it, causing issues.
+
+**Solution:**
+* Consider logging the setpoint (desired position) of your drive and rotation wheels. This can help diagnose similar problems in the future.
+* Instead of inverting the `Rotation2d` component of a `SwerveModuleState`, invert the motor via `CANSparkMax.setInverted()`.
+
 ## Swerve modules spin improperly
 **Description:**
 * Swerve module rotates 180 degrees in the opposite direction after spinning >= 180 degrees in a direction
@@ -47,17 +63,16 @@ pidController.setPositionPIDWrappingMaxInput(Math.PI);
 // update your Spark Max firmware if this appears to do nothing
 ```
 
-## Inverted X and Y while driving and improper rotation with swerve driveX, Y directions are inverted while driving and wheels face each other in X pattern
+## Inverted X and Y while driving and improper rotation with swerve drive X, Y directions are inverted while driving and wheels face each other in X pattern
 **Description:**
 * X and Y directions are inverted while driving (e.g. robot moves left when moving joystick right)
 > Above issue may not be present if controller input was inverted to account for this.
-* When rotating the robot in place, wheels
-// hi
+* When rotating the robot in place, wheels form an X pattern instead of rotating to form a circle.
 
 **Cause:**
 
 **Solution:**
-**// ROTATION BUSTED (all go in towards each other for some reason) fixed it**
+**ROTATION BUSTED (all go in towards each other for some reason)**
 **POSITIONING IS CORRECT -> MATCHES WPILIB SAMPLE & EXPECTED VALUES ASSUMING ROBOT COORDINATE SYSTEM**
 // INVERT THE XBOX STICKS PLEASE *test which directions are wrong* -> its left/right I fixed it (is rotation correct)
 
@@ -98,6 +113,10 @@ RIGHT 45  LEFT 45
 HOW DO I CONVERT FROM COUNTERCLOCKWISE POS->CLOCKWISE POS
 you invert it, :p
 
+Yeah, INVERT THE MOTOR, not the SwerveModuleState...
+If you invert the SwerveModuleState, you need to invert the encoder (such as by putting a - in front of the unit conversion).
+> A much easier and less bug-prone way to do it is to use your motor controller's invert functionality, such as `CANSparkMax.setInverted(true)`.
+
 ## NavX Crashes Code with `isRaspian()` error:
 **THIS HAS NOW BEEN FIXED. DO NOT FOLLOW THIS PROCEDURE.**
 
@@ -110,3 +129,6 @@ you invert it, :p
 * Command Palette: Manage Vendor Libraries -> Manage current libraries -> Check NavX library, press OK to uninstall
 * Install unofficial NavX Library:
 * Command Palette: Manage Vendor Libraries -> Install new libraries (online) -> paste `https://raw.githubusercontent.com/rzblue/navx-frc/maven/navx_frc.json` and press Enter/Return
+
+## Issues with FRC PathPlanner
+**See `repos/docs/FRCPathPlanner.md` for issue descriptions/solutions.**

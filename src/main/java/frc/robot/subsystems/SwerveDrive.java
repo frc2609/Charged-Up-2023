@@ -6,17 +6,24 @@ package frc.robot.subsystems;
 
 // static imports allow access to all constants in the class without using its name
 import static frc.robot.Constants.Swerve.*;
+
+import java.util.List;
+
 import frc.robot.Constants.Swerve.CanID;
 import frc.robot.Constants.Swerve.Position;
 import frc.robot.Constants.Swerve.TeleopLimits;
+import frc.robot.utils.BeaverLogger;
+import frc.robot.utils.PathLogger;
+import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.Xbox;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+// import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -32,8 +39,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+// import edu.wpi.first.wpilibj2.command.InstantCommand;
+// import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
@@ -57,6 +64,9 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveModule m_frontRight = new SwerveModule("Front Right", CanID.frontRightDrive, CanID.frontRightRotation);
   private final SwerveModule m_rearLeft = new SwerveModule("Rear Left", CanID.rearLeftDrive, CanID.rearLeftRotation);
   private final SwerveModule m_rearRight = new SwerveModule("Rear Right", CanID.rearRightDrive, CanID.rearRightRotation);
+  
+  private final SwerveAutoBuilder m_autoBuilder;
+  private final PathLogger m_pathLogger = new PathLogger();
 
   public final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
@@ -75,7 +85,7 @@ public class SwerveDrive extends SubsystemBase {
     m_gyro = gyro;
     if (!m_gyro.isConnected()) {
       DriverStation.reportError(
-        "Navx not initialized - Could not setup SwerveDriveOdometry", false);
+          "Navx not initialized - Could not setup SwerveDriveOdometry", false);
     }
     m_odometry = new SwerveDriveOdometry(
         m_kinematics,
@@ -94,6 +104,26 @@ public class SwerveDrive extends SubsystemBase {
      * autonomous programming. */
     SmartDashboard.putData("Field", m_field);
     SmartDashboard.putBoolean("Reset Encoders", false); // display button
+    // Configure logging sources
+    m_pathLogger.setSources(this::getPose);
+    PPSwerveControllerCommand.setLoggingCallbacks(
+        m_pathLogger::setActiveTrajectory,
+        m_pathLogger::setTargetPose,
+        m_pathLogger::setSetpoint,
+        m_pathLogger::setError
+    );
+    // Setup autonomous command
+    m_autoBuilder = new SwerveAutoBuilder(
+      this::getPose,
+      this::resetPose,
+      m_kinematics,
+      Autonomous.translationPIDConstants,
+      Autonomous.rotationPIDConstants,
+      this::setDesiredStates,
+      Autonomous.eventMap,
+      true,
+      this
+    );
   }
 
   /** Configure data being sent and recieved from NetworkTables. */
@@ -145,7 +175,7 @@ public class SwerveDrive extends SubsystemBase {
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, m_gyro.getRotation2d())
                 : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
     // Prevent robot from going faster than it should.
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_POSSIBLE_LINEAR_SPEED);
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_POSSIBLE_LINEAR_VELOCITY);
     setDesiredStates(states);
   }
 
@@ -163,27 +193,61 @@ public class SwerveDrive extends SubsystemBase {
     set(velocity, m_debugAngleSetpoint);
   }
 
-  /** (Add javadoc) */
-  public Command followTrajectoryCommand(PathPlannerTrajectory trajectory, boolean isFirstPath) {
-    return new SequentialCommandGroup(
-        new InstantCommand(() -> {
-          // Reset odometry for the first path you run during auto
-          if(isFirstPath){
-              resetPose(trajectory.getInitialHolonomicPose());
-          } // not sure if this works correctly when on red team
-        }),
-        new PPSwerveControllerCommand(
-            trajectory,
-            this::getPose, // Pose supplier
-            this.m_kinematics, // SwerveDriveKinematics
-            new PIDController(0.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-            new PIDController(-1, -0., 0), // Y controller (usually the same values as X controller)
-            new PIDController(0.5, 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-            this::setDesiredStates, // Module states consumer
-            true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
-            this // Requires this drive subsystem
-        )
-    );
+  /** 
+   * Follow an autonomous trajectory. Resets odometry to path start point if 
+   * this is the first path.
+   * 
+   * @param trajectory The trajectory to follow.
+   * @param isFirstPath Whether or not this is the first path.
+   * 
+   * @return An InstantCommand to reset the robot pose followed by a command to
+   * follow the provided trajectory.
+   */
+  // public Command followTrajectoryCommand(PathPlannerTrajectory trajectory, boolean isFirstPath) {
+  //   // Create path-following command
+  //   PPSwerveControllerCommand MP = new PPSwerveControllerCommand(
+  //           trajectory,
+  //           this::getPose, // Pose supplier
+  //           m_kinematics, // SwerveDriveKinematics
+  //           new PIDController(1, 0, 0), // X controller. Setting these values to 0 will only use feedforwards.
+  //           new PIDController(1, 0, 0), // Y controller. (Usually the same values as X controller.)
+  //           new PIDController(1, 0, 0), // Rotation controller. Setting these values to 0 will only use feedforwards.
+  //           this::setDesiredStates, // Module states consumer
+  //           true, // Should the path be automatically mirrored depending on alliance color.
+  //           this // Requires this drive subsystem
+  //       );
+  //   // Append path-following command to an automatic odometry reset command
+  //   return new SequentialCommandGroup(
+  //       new InstantCommand(() -> {
+  //         // Reset odometry for the first path you run during auto
+  //         if(isFirstPath){
+  //             resetPose(trajectory.getInitialHolonomicPose());
+  //         } // not sure if this works correctly when on red team // TODO: test today
+  //       }),
+  //       MP
+  //   );
+  // }
+
+  /** 
+   * Follow an autonomous trajectory. Resets odometry to path start point if 
+   * this is the first path.
+   * 
+   * @param trajectory The trajectory to follow.
+   * @param isFirstPath Whether or not this is the first path.
+   * 
+   * @return An InstantCommand to reset the robot pose followed by a command to
+   * follow the provided trajectory.
+   */
+  /**
+   * Follow 
+   * @return
+   */
+  public Command generateFullAuto(PathPlannerTrajectory path) {
+    return m_autoBuilder.fullAuto(path);
+  }
+
+  public Command generateFullAuto(List<PathPlannerTrajectory> pathGroup) {
+    return m_autoBuilder.fullAuto(pathGroup);
   }
 
   /**
@@ -202,13 +266,13 @@ public class SwerveDrive extends SubsystemBase {
     final double xSpeed =
         -m_xSpeedLimiter.calculate(MathUtil.applyDeadband(
             m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_LINEAR_SPEED; // m/s
+                * TeleopLimits.MAX_LINEAR_VELOCITY; // m/s
                 // scale value from 0-1 to 0-MAX_LINEAR_SPEED
 
     final double ySpeed =
         -m_ySpeedLimiter.calculate(MathUtil.applyDeadband(
             m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_LINEAR_SPEED;
+                * TeleopLimits.MAX_LINEAR_VELOCITY;
 
     final double rotationSpeed =
         -m_rotationLimiter.calculate(MathUtil.applyDeadband(
@@ -220,6 +284,8 @@ public class SwerveDrive extends SubsystemBase {
 
   /**
    * Returns an array containing the position of each swerve module.
+   * The position of a swerve module contains the drive motor position instead
+   * of its velocity.
    * 
    * @return The position of each swerve module in an array.
    */
@@ -229,6 +295,22 @@ public class SwerveDrive extends SubsystemBase {
       m_frontRight.getPosition(),
       m_rearLeft.getPosition(),
       m_rearRight.getPosition()
+    };
+  }
+
+  /**
+   * Returns an array containing the state of each swerve module.
+   * The state of a swerve module contains the drive motor velocity instead of
+   * its position.
+   * 
+   * @return The state of each swerve module in an array.
+   */
+  public SwerveModuleState[] getModuleStates() {
+    return new SwerveModuleState[] {
+      m_frontLeft.getState(),
+      m_frontRight.getState(),
+      m_rearLeft.getState(),
+      m_rearRight.getState()
     };
   }
 
@@ -306,6 +388,7 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.setDesiredState(states[1]);
     m_rearLeft.setDesiredState(states[2]);
     m_rearRight.setDesiredState(states[3]);
+    BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates());
   }
 
   /**

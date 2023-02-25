@@ -4,6 +4,16 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.pathplanner.lib.auto.PIDConstants;
+
+import static java.util.Map.entry;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.TimerDelay;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -19,12 +29,28 @@ public final class Constants {
 //        public static final String drivetrainTab = "Drivetrain";
 //    }
     /** Autonomous-Related Constants */
-    public final class Autonomous {
+    public static final class Autonomous {
         /** The NAME of the path, excluding its filepath and extension.
          * Path assumed to be `src/main/deploy/pathplanner/`.
          * Extension assumed to be `.path`.
         */
-        public static final String pathName = "ExamplePath";
+        public static final String PATH_NAME = "Triangle";
+        /** Which port PathPlannerServer should connect to on the RoboRIO. */
+        public static final int PATHPLANNER_SERVER_PORT = 5811;
+        /** Entries in this map must be non-null, or the program will crash. */
+        public static final HashMap<String, Command> eventMap = new HashMap<>(
+            Map.ofEntries(
+                entry("MarkerName", new TimerDelay(5)) // markerName, Command
+            )
+        );
+        /** X and Y PID constants for path following. 
+         * Setting these to 0 will use only feedforward.
+         */
+        public static final PIDConstants translationPIDConstants = new PIDConstants(1, 0, 0);
+        /** Rotation PID constants for path following.
+         * Setting these to 0 will use only feedforward.
+        */
+        public static final PIDConstants rotationPIDConstants = new PIDConstants(1, 0, 0);
     }
     /** Swerve drive related constants. */
     public final class Swerve {
@@ -99,16 +125,16 @@ public final class Constants {
         /** Autonomous acceleration and speed limits. */
         public final class AutonomousLimits {
             /** The maximum linear acceleration the robot should achieve in m/s^2. */
-            public static final double MAX_LINEAR_ACCELERATION = 0.1; // TODO: adjust value
+            public static final double MAX_LINEAR_ACCELERATION = 1.0; // TODO: adjust value
             /** The maximum speed the drivetrain should go in autonomous in m/s. */
-            public static final double MAX_LINEAR_SPEED = 0.5;
+            public static final double MAX_LINEAR_VELOCITY = 2.0;
         }
         /** Teleop acceleration and speed limits */
         public final class TeleopLimits {
             /** The maximum speed the robot should spin in teleop in radians/s. */
             public static final double MAX_ANGULAR_VELOCITY = 4 * Math.PI; // TODO: adjust value
             /** The maximum speed the drivetrain should go in teleop in m/s. */
-            public static final double MAX_LINEAR_SPEED = 3.8;
+            public static final double MAX_LINEAR_VELOCITY = 3.8;
         }
         // Miscellaneous:
         public static final double DEBUG_DRIVE_ANGLE_SENSITIVITY = 0.25;
@@ -117,7 +143,7 @@ public final class Constants {
         /** The maximum speed the robot can spin in radians/s. */
         // public static final double MAX_POSSIBLE_ANGULAR_VELOCITY = 4 * Math.PI; // unused
         /** The maximum linear speed a swerve module can achieve in m/s. */
-        public static final double MAX_POSSIBLE_LINEAR_SPEED = 3.8;
+        public static final double MAX_POSSIBLE_LINEAR_VELOCITY = 3.8;
         /** Any speeds below this value will not cause the module to move. */
         public static final double MODULE_SPEED_DEADBAND = 0.001; // m/s
         /** 56.6409 rotations of motor = 1.0 rotation of module 
