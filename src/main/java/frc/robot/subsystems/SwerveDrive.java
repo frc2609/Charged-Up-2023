@@ -10,7 +10,8 @@ import static frc.robot.Constants.Swerve.*;
 import java.util.List;
 
 import frc.robot.Constants.Swerve.CanID;
-import frc.robot.Constants.Swerve.Position;
+import frc.robot.Constants.Swerve.Dimensions;
+import frc.robot.Constants.Swerve.PhysicalLimits;
 import frc.robot.Constants.Swerve.TeleopLimits;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.PathLogger;
@@ -55,10 +56,10 @@ public class SwerveDrive extends SubsystemBase {
   private final SlewRateLimiter m_ySpeedLimiter = new SlewRateLimiter(Y_SPEED_DELAY);
   private final SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(ROTATION_DELAY);
 
-  private final Translation2d m_frontLeftLocation = new Translation2d(Position.frontLeftX, Position.frontLeftY);
-  private final Translation2d m_frontRightLocation = new Translation2d(Position.frontRightX, Position.frontRightY);
-  private final Translation2d m_rearLeftLocation = new Translation2d(Position.rearLeftX, Position.rearLeftY);
-  private final Translation2d m_rearRightLocation = new Translation2d(Position.rearRightX, Position.rearRightY);
+  private final Translation2d m_frontLeftLocation = new Translation2d(Dimensions.frontLeftX, Dimensions.frontLeftY);
+  private final Translation2d m_frontRightLocation = new Translation2d(Dimensions.frontRightX, Dimensions.frontRightY);
+  private final Translation2d m_rearLeftLocation = new Translation2d(Dimensions.rearLeftX, Dimensions.rearLeftY);
+  private final Translation2d m_rearRightLocation = new Translation2d(Dimensions.rearRightX, Dimensions.rearRightY);
   
   private final SwerveModule m_frontLeft = new SwerveModule("Front Left", CanID.frontLeftDrive, CanID.frontLeftRotation);
   private final SwerveModule m_frontRight = new SwerveModule("Front Right", CanID.frontRightDrive, CanID.frontRightRotation);
@@ -175,7 +176,7 @@ public class SwerveDrive extends SubsystemBase {
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, m_gyro.getRotation2d())
                 : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
     // Prevent robot from going faster than it should.
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_POSSIBLE_LINEAR_VELOCITY);
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
     setDesiredStates(states);
   }
 
