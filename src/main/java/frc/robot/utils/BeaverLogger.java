@@ -50,12 +50,12 @@ public class BeaverLogger {
 		Writer output = null;
 		try {
 			createLogDirectory();
-      String fileName = "beaverlog";
-      int logNumber = 0;
+      		String fileName = "beaverlog";
+      		int logNumber = 0;
 			file = Paths.get(loggingLocation + fileName+Integer.toString(logNumber)+".csv");
 			while (Files.exists(file)) {
-        logNumber++;
-        file = Paths.get(loggingLocation + fileName+Integer.toString(logNumber)+".csv");
+        		logNumber++;
+        		file = Paths.get(loggingLocation + fileName+Integer.toString(logNumber)+".csv");
 			}
 			Files.createFile(file);
 			saveTitles();
@@ -65,7 +65,7 @@ public class BeaverLogger {
 			if (output != null) {
 				try {
 					output.close();
-				} catch (IOException e) { }
+				} catch (IOException e) {}
 			}
 		}
 	}

@@ -68,7 +68,7 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveAutoBuilder m_autoBuilder;
   private final PathLogger m_pathLogger = new PathLogger();
 
-  public final SwerveDriveKinematics m_kinematics =
+  private final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
           m_frontLeftLocation, m_frontRightLocation, m_rearLeftLocation, m_rearRightLocation);
   
@@ -196,6 +196,7 @@ public class SwerveDrive extends SubsystemBase {
   /** 
    * Follow an autonomous trajectory. Resets odometry to path start point if 
    * this is the first path.
+   * Does not trigger commands at event markers.
    * 
    * @param trajectory The trajectory to follow.
    * @param isFirstPath Whether or not this is the first path.
@@ -222,32 +223,38 @@ public class SwerveDrive extends SubsystemBase {
   //         // Reset odometry for the first path you run during auto
   //         if(isFirstPath){
   //             resetPose(trajectory.getInitialHolonomicPose());
-  //         } // not sure if this works correctly when on red team // TODO: test today
+  //         } // not sure if this works correctly when on red team
   //       }),
   //       MP
   //   );
   // }
 
-  /** 
-   * Follow an autonomous trajectory. Resets odometry to path start point if 
-   * this is the first path.
+  /**
+   * Follow a trajectory with markers.
+   * Markers are defined by the path.
+   * Marker-command bindings are specified in `Constants.Autonomous.eventMap`.
    * 
    * @param trajectory The trajectory to follow.
-   * @param isFirstPath Whether or not this is the first path.
    * 
-   * @return An InstantCommand to reset the robot pose followed by a command to
-   * follow the provided trajectory.
+   * @return A command which follows the trajectory while triggering commands
+   * at path-defined markers.
    */
-  /**
-   * Follow 
-   * @return
-   */
-  public Command generateFullAuto(PathPlannerTrajectory path) {
-    return m_autoBuilder.fullAuto(path);
+  public Command generateFullAuto(PathPlannerTrajectory trajectory) {
+    return m_autoBuilder.fullAuto(trajectory);
   }
 
-  public Command generateFullAuto(List<PathPlannerTrajectory> pathGroup) {
-    return m_autoBuilder.fullAuto(pathGroup);
+  /**
+   * Follow a group of trajectories with markers.
+   * Markers are defined by each individual path.
+   * Marker-command bindings are specified in `Constants.Autonomous.eventMap`.
+   * 
+   * @param trajectoryGroup A list of trajectories to follow.
+   * 
+   * @return A command which follows each trajectory while triggering commands
+   * at path-defined markers.
+   */
+  public Command generateFullAuto(List<PathPlannerTrajectory> trajectoryGroup) {
+    return m_autoBuilder.fullAuto(trajectoryGroup);
   }
 
   /**

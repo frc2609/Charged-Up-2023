@@ -6,10 +6,9 @@ package frc.robot;
 
 import java.util.HashMap;
 import java.util.Map;
+import static java.util.Map.entry;
 
 import com.pathplanner.lib.auto.PIDConstants;
-
-import static java.util.Map.entry;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.TimerDelay;

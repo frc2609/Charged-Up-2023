@@ -4,10 +4,8 @@
 
 package frc.robot;
 
-// import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import com.pathplanner.lib.server.PathPlannerServer;
 
-// import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -64,11 +62,6 @@ public class Robot extends TimedRobot {
     // Prevent the robot from being driven by the default command during auto.
     m_robotContainer.disableTeleopControl();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    // if (!(m_autonomousCommand instanceof PPSwerveControllerCommand)) {
-    //   DriverStation.reportError("AUTONOMOUS COMMAND IS NOT A SWERVECONTROLLER COMMAND", null);
-    //   DriverStation.reportError("It is " + m_autonomousCommand.getClass().getName(),null);
-    // }
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
