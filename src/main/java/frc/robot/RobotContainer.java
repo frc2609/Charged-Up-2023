@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.TimedDriveForward;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.SwerveDrive;
 
 /**
@@ -27,11 +29,15 @@ import frc.robot.subsystems.SwerveDrive;
 public class RobotContainer {
   private static AHRS m_navx;
   private final XboxController m_driverController = new XboxController(
-    Constants.Xbox.DRIVER_CONTROLLER_PORT);
+      Constants.Xbox.DRIVER_CONTROLLER_PORT);
+  private final XboxController m_operatorController = new XboxController(
+      Constants.Xbox.OPERATOR_CONTROLLER_PORT);
   /* Subsystems should be marked as private so they can only be accessed by
    * commands that require them. This prevents a subsystem from being used by
    * multiple things at once, which may potentially cause issues. */
   private final SwerveDrive m_swerveDrive;
+  private final Arm m_arm;
+  private final Gripper m_gripper;
   
   // private final JoystickButton m_fieldOrientedToggleButton = 
   //     new JoystickButton(
@@ -54,6 +60,8 @@ public class RobotContainer {
       DriverStation.reportError("Navx initialization failed", false);
     }
     m_swerveDrive = new SwerveDrive(m_navx, m_driverController);
+    m_arm = new Arm(m_operatorController);
+    m_gripper = new Gripper(m_operatorController);
     configureButtonBindings();
     SmartDashboard.putBoolean("Zero Yaw", false); // display the button
   }
