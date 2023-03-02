@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.TimedDriveForward;
 import frc.robot.subsystems.SwerveDrive;
@@ -106,7 +107,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return null;
+    return new ExampleAuto(m_swerveDrive);
   }
 
   /**

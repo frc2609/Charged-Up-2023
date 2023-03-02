@@ -6,15 +6,25 @@ package frc.robot.subsystems;
 
 // static imports allow access to all constants in the class without using its name
 import static frc.robot.Constants.Swerve.*;
+
+import java.util.List;
+
 import frc.robot.Constants.Swerve.CanID;
 import frc.robot.Constants.Swerve.Dimensions;
 import frc.robot.Constants.Swerve.PhysicalLimits;
 import frc.robot.Constants.Swerve.TeleopLimits;
+import frc.robot.utils.BeaverLogger;
+import frc.robot.utils.PathLogger;
+import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.Xbox;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.MathUtil;
+// import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -29,6 +39,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+// import edu.wpi.first.wpilibj2.command.InstantCommand;
+// import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
@@ -52,6 +65,9 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveModule m_frontRight = new SwerveModule("Front Right", CanID.frontRightDrive, CanID.frontRightRotation);
   private final SwerveModule m_rearLeft = new SwerveModule("Rear Left", CanID.rearLeftDrive, CanID.rearLeftRotation);
   private final SwerveModule m_rearRight = new SwerveModule("Rear Right", CanID.rearRightDrive, CanID.rearRightRotation);
+  
+  private final SwerveAutoBuilder m_autoBuilder;
+  private final PathLogger m_pathLogger = new PathLogger();
 
   private final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
@@ -70,7 +86,7 @@ public class SwerveDrive extends SubsystemBase {
     m_gyro = gyro;
     if (!m_gyro.isConnected()) {
       DriverStation.reportError(
-        "Navx not initialized - Could not setup SwerveDriveOdometry", false);
+          "Navx not initialized - Could not setup SwerveDriveOdometry", false);
     }
     m_odometry = new SwerveDriveOdometry(
         m_kinematics,
@@ -89,6 +105,26 @@ public class SwerveDrive extends SubsystemBase {
      * autonomous programming. */
     SmartDashboard.putData("Field", m_field);
     SmartDashboard.putBoolean("Reset Encoders", false); // display button
+    // Configure logging sources
+    m_pathLogger.setSources(this::getPose);
+    PPSwerveControllerCommand.setLoggingCallbacks(
+        m_pathLogger::setActiveTrajectory,
+        m_pathLogger::setTargetPose,
+        m_pathLogger::setSetpoint,
+        m_pathLogger::setError
+    );
+    // Setup autonomous command
+    m_autoBuilder = new SwerveAutoBuilder(
+      this::getPose,
+      this::resetPose,
+      m_kinematics,
+      Autonomous.translationPIDConstants,
+      Autonomous.rotationPIDConstants,
+      this::setDesiredStates,
+      Autonomous.eventMap,
+      true,
+      this
+    );
   }
 
   /** Configure data being sent and recieved from NetworkTables. */
@@ -158,6 +194,70 @@ public class SwerveDrive extends SubsystemBase {
     set(velocity, m_debugAngleSetpoint);
   }
 
+  /** 
+   * Follow an autonomous trajectory. Resets odometry to path start point if 
+   * this is the first path.
+   * Does not trigger commands at event markers.
+   * 
+   * @param trajectory The trajectory to follow.
+   * @param isFirstPath Whether or not this is the first path.
+   * 
+   * @return An InstantCommand to reset the robot pose followed by a command to
+   * follow the provided trajectory.
+   */
+  // public Command followTrajectoryCommand(PathPlannerTrajectory trajectory, boolean isFirstPath) {
+  //   // Create path-following command
+  //   PPSwerveControllerCommand MP = new PPSwerveControllerCommand(
+  //           trajectory,
+  //           this::getPose, // Pose supplier
+  //           m_kinematics, // SwerveDriveKinematics
+  //           new PIDController(1, 0, 0), // X controller. Setting these values to 0 will only use feedforwards.
+  //           new PIDController(1, 0, 0), // Y controller. (Usually the same values as X controller.)
+  //           new PIDController(1, 0, 0), // Rotation controller. Setting these values to 0 will only use feedforwards.
+  //           this::setDesiredStates, // Module states consumer
+  //           true, // Should the path be automatically mirrored depending on alliance color.
+  //           this // Requires this drive subsystem
+  //       );
+  //   // Append path-following command to an automatic odometry reset command
+  //   return new SequentialCommandGroup(
+  //       new InstantCommand(() -> {
+  //         // Reset odometry for the first path you run during auto
+  //         if(isFirstPath){
+  //             resetPose(trajectory.getInitialHolonomicPose());
+  //         } // not sure if this works correctly when on red team
+  //       }),
+  //       MP
+  //   );
+  // }
+
+  /**
+   * Follow a trajectory with markers.
+   * Markers are defined by the path.
+   * Marker-command bindings are specified in `Constants.Autonomous.eventMap`.
+   * 
+   * @param trajectory The trajectory to follow.
+   * 
+   * @return A command which follows the trajectory while triggering commands
+   * at path-defined markers.
+   */
+  public Command generateFullAuto(PathPlannerTrajectory trajectory) {
+    return m_autoBuilder.fullAuto(trajectory);
+  }
+
+  /**
+   * Follow a group of trajectories with markers.
+   * Markers are defined by each individual path.
+   * Marker-command bindings are specified in `Constants.Autonomous.eventMap`.
+   * 
+   * @param trajectoryGroup A list of trajectories to follow.
+   * 
+   * @return A command which follows each trajectory while triggering commands
+   * at path-defined markers.
+   */
+  public Command generateFullAuto(List<PathPlannerTrajectory> trajectoryGroup) {
+    return m_autoBuilder.fullAuto(trajectoryGroup);
+  }
+
   /**
    * Drive the robot using joystick inputs from the driver's Xbox controller 
    * (controller specified in class constructor).
@@ -192,6 +292,8 @@ public class SwerveDrive extends SubsystemBase {
 
   /**
    * Returns an array containing the position of each swerve module.
+   * The position of a swerve module contains the drive motor position instead
+   * of its velocity.
    * 
    * @return The position of each swerve module in an array.
    */
@@ -201,6 +303,22 @@ public class SwerveDrive extends SubsystemBase {
       m_frontRight.getPosition(),
       m_rearLeft.getPosition(),
       m_rearRight.getPosition()
+    };
+  }
+
+  /**
+   * Returns an array containing the state of each swerve module.
+   * The state of a swerve module contains the drive motor velocity instead of
+   * its position.
+   * 
+   * @return The state of each swerve module in an array.
+   */
+  public SwerveModuleState[] getModuleStates() {
+    return new SwerveModuleState[] {
+      m_frontLeft.getState(),
+      m_frontRight.getState(),
+      m_rearLeft.getState(),
+      m_rearRight.getState()
     };
   }
 
@@ -236,6 +354,18 @@ public class SwerveDrive extends SubsystemBase {
     m_rearRight.resetEncoders();
   }
 
+  /** 
+   * Reset the position (relative to the field) of the robot.
+   * 
+   * It is not necessary to reset the rotation or distance encoders, or the
+   * gyro angle before calling this function (this should not be done).
+   * 
+   * @param pose The new position of the robot.
+  */
+  public void resetPose(Pose2d pose) {
+    m_odometry.resetPosition(m_gyro.getRotation2d(), getModulePositions(), pose);
+  }
+
   /**
    * Manually set the velocity and angle of all swerve drive modules.
    * Use for testing purposes only.
@@ -266,6 +396,7 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.setDesiredState(states[1]);
     m_rearLeft.setDesiredState(states[2]);
     m_rearRight.setDesiredState(states[3]);
+    BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates());
   }
 
   /**
