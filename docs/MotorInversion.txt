@@ -1,0 +1,26 @@
+0 = roborio
+1 = pdp
+2 = solenoid controller
+
+NAME = ID | + DIR
+
+FLR = 5 | CW
+FLA = 6 | Back
+FLB = 7 | Back
+^ does rot dir change when they are both running? nope
+
+FRR = 8 | CW
+FRA = 9 | 
+FRB = 10 | Fwd
+
+RLR = 11 | CW
+RLA = 12 | fwd
+RLB = 13 | fwd
+
+RRR = 14 | CW
+RRA = 15 | back
+RRB = 16 | back
+
+Shoulder = 20
+Elbow = 21
+Random arm motor = 62
