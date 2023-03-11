@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  */
 public class SwerveDrive extends SubsystemBase {
   private final AHRS m_gyro;
+  private final Limelight m_limelight;
   private final XboxController m_driverController;
 
   // x and y are relative to robot (x front/rear, y left/right)
@@ -65,9 +66,10 @@ public class SwerveDrive extends SubsystemBase {
   private double m_debugAngleSetpoint = 0; // radians
 
   /** Creates a new SwerveDrive. */
-  public SwerveDrive(AHRS gyro, XboxController driverController) {
+  public SwerveDrive(AHRS gyro, Limelight limelight, XboxController driverController) {
     m_driverController = driverController;
     m_gyro = gyro;
+    m_limelight = limelight;
     if (!m_gyro.isConnected()) {
       DriverStation.reportError(
         "Navx not initialized - Could not setup SwerveDriveOdometry", false);
@@ -213,6 +215,18 @@ public class SwerveDrive extends SubsystemBase {
     return m_odometry.getPoseMeters();
   }
 
+  /** 
+   * Reset the position (relative to the field) of the robot.
+   * 
+   * It is not necessary to reset the rotation or distance encoders, or the
+   * gyro angle before calling this function (this should not be done).
+   * 
+   * @param pose The new position of the robot.
+  */
+  public void resetPose(Pose2d pose) {
+    m_odometry.resetPosition(m_gyro.getRotation2d(), getModulePositions(), pose);
+  }
+
   /**
    * Reset the angle setpoint used for debugDrive.
    */
@@ -280,6 +294,12 @@ public class SwerveDrive extends SubsystemBase {
 
   /** Updates the field relative position of the robot. */
   public void updateOdometry() {
-    m_odometry.update(m_gyro.getRotation2d(), getModulePositions());
+    if (m_limelight.isPoseValid()) {
+      SmartDashboard.putBoolean("Using Limelight Pose", true);
+      resetPose(m_limelight.getRobotPose());
+    } else {
+      SmartDashboard.putBoolean("Using Limelight Pose", false);
+      m_odometry.update(m_gyro.getRotation2d(), getModulePositions());
+    }
   }
 }

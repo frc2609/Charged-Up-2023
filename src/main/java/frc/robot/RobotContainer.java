@@ -55,8 +55,8 @@ public class RobotContainer {
     } catch (RuntimeException e) {
       DriverStation.reportError("Navx initialization failed", false);
     }
-    m_swerveDrive = new SwerveDrive(m_navx, m_driverController);
     m_limelight = new Limelight();
+    m_swerveDrive = new SwerveDrive(m_navx, m_limelight, m_driverController);
     configureButtonBindings();
     SmartDashboard.putBoolean("Zero Yaw", false); // display the button
   }
