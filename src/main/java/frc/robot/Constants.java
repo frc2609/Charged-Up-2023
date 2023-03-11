@@ -221,5 +221,6 @@ public final class Constants {
     public final class Xbox {
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final double JOYSTICK_DEADBAND = 0.075;
+        public static final double ROTATION_DEADBAND = 0.5;
     }
 }

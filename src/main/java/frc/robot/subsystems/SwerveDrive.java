@@ -24,6 +24,7 @@ import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 // import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -55,6 +56,7 @@ public class SwerveDrive extends SubsystemBase {
   private final SlewRateLimiter m_xSpeedLimiter = new SlewRateLimiter(X_SPEED_DELAY);
   private final SlewRateLimiter m_ySpeedLimiter = new SlewRateLimiter(Y_SPEED_DELAY);
   private final SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(ROTATION_DELAY);
+  private final PIDController m_rotationPID = new PIDController(1, 0, 0);
 
   private final Translation2d m_frontLeftLocation = new Translation2d(Dimensions.frontLeftX, Dimensions.frontLeftY);
   private final Translation2d m_frontRightLocation = new Translation2d(Dimensions.frontRightX, Dimensions.frontRightY);
@@ -79,6 +81,7 @@ public class SwerveDrive extends SubsystemBase {
 
   private boolean m_isFieldRelative = false;
   private double m_debugAngleSetpoint = 0; // radians
+  private double m_previousDesiredAngle = 0; // radians
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive(AHRS gyro, XboxController driverController) {
@@ -125,6 +128,7 @@ public class SwerveDrive extends SubsystemBase {
       true,
       this
     );
+    m_rotationPID.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   /** Configure data being sent and recieved from NetworkTables. */
@@ -258,6 +262,59 @@ public class SwerveDrive extends SubsystemBase {
     return m_autoBuilder.fullAuto(trajectoryGroup);
   }
 
+  private double flickStick() {
+    final double offset = -Math.PI / 2;
+
+    final double xAxis = m_driverController.getRightX();
+    final double yAxis = -m_driverController.getRightY();
+    // joystick is sort of like 0.90 on corners
+    // Instead of PID use error proportional to joystick?
+    // actually triggers? no idea
+    // ^ generate power above
+
+    // check in deadzone:
+    // check deadband on x
+    // check deadband on y
+
+    // is 0 a bad value for atan2?
+    // atan2?
+
+
+    // final double rotationSpeed =
+    //     -m_rotationLimiter.calculate(MathUtil.applyDeadband(
+    //         m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
+    //             * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
+    
+    // final double desiredAngle = Math.atan2(
+    //   // not working right, limits near x and y axis
+    //     MathUtil.applyDeadband(-m_driverController.getRightY(), Xbox.ROTATION_DEADBAND),
+    //     MathUtil.applyDeadband(m_driverController.getRightX(), Xbox.ROTATION_DEADBAND)
+    //     // 0 should not move the module
+    //     // scale by max angular velocity
+    // ) - Math.PI / 2;
+
+    // SmartDashboard.putNumber("Desired Angle", desiredAngle);
+
+    // final double actualAngle = m_gyro.getRotation2d().getRadians();
+
+    // SmartDashboard.putNumber("Actual Angle", actualAngle);
+    
+    // final double unlimitedRotationSpeed =
+    //      m_rotationPID.calculate(actualAngle, desiredAngle);
+
+    // SmartDashboard.putNumber("Unlimited Rotation Speed", unlimitedRotationSpeed);
+
+    // final double rotationSpeed = m_rotationLimiter.calculate(unlimitedRotationSpeed);
+
+    // SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
+
+    // return rotationSpeed;
+
+    // limit rotationspeed
+    // finally, multiply by max velocity and return value
+    // save this value to m_previousDesiredAngle
+  }
+
   /**
    * Drive the robot using joystick inputs from the driver's Xbox controller 
    * (controller specified in class constructor).
@@ -282,12 +339,12 @@ public class SwerveDrive extends SubsystemBase {
             m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND))
                 * TeleopLimits.MAX_LINEAR_VELOCITY;
 
-    final double rotationSpeed =
-        -m_rotationLimiter.calculate(MathUtil.applyDeadband(
-            m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
+    // final double rotationSpeed =
+    //     -m_rotationLimiter.calculate(MathUtil.applyDeadband(
+    //         m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
+    //             * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
 
-    drive(xSpeed, ySpeed, rotationSpeed, m_isFieldRelative);
+    drive(xSpeed, ySpeed, flickStick()/*rotationSpeed*/, m_isFieldRelative);
   }
 
   /**
