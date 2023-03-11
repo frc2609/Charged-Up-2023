@@ -50,6 +50,8 @@ public class Limelight extends SubsystemBase {
           tags.get(fID).put("tx", results.Fiducial.get(i).get("tx"));
           tags.get(fID).put("ty", results.Fiducial.get(i).get("ty"));
           tags.get(fID).put("Field pose", results.Fiducial.get(i).get("t6r_fs"));
+          tags.get(fID).put("Blue bot pose", results.getBotpose_wpiblue());
+          tags.get(fID).put("Red bot pose", results.getBotpose_wpired());
           tags.get(fID).put("Tag pose", results.Fiducial.get(i).get("t6t_cs"));
         }
       }

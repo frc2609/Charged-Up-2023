@@ -22,6 +22,7 @@ public class Results {
   private float tl;
   private float ts;
   private float v;
+  // Indexes from lowest to highest are as follows: x, y, z, roll, pitch, yaw (coordinates in meters, rotation in degrees)
   private float[] botpose;
   private float[] botpose_wpiblue;
   private float[] botpose_wpired;
