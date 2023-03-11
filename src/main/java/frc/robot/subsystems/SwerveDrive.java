@@ -19,14 +19,19 @@ import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.Xbox;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 // import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -178,6 +183,42 @@ public class SwerveDrive extends SubsystemBase {
     // Prevent robot from going faster than it should.
     SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
     setDesiredStates(states);
+  }
+
+  /** Generates a trajectory following command which drives from the current
+   * position to the destination pose.
+   * 
+   * @param destination The Pose2d to drive to.
+   * 
+   * @return Trajectory following command which drives from the current
+   * position to the destination pose.
+   */
+  public Command generateDriveToPose(Pose2d destination) {
+    // should match teleop limits, problem is we don't have a teleop accel limit
+    final double maxVelocity = 3.8;
+    final double maxAccel = 100; // idk find the teleop desired
+    final Pose2d currentPose = getPose();
+    // may generate weird paths, there is no "next control" component for code-generated paths
+    // create a new path and try playing around with the dot on a stick connected to waypoints, you'll see what I mean
+    // ^ it allows you to create much smoother paths, unfortunately we can't generate those here
+    PathPlannerTrajectory trajectory = PathPlanner.generatePath(
+        new PathConstraints(maxVelocity, maxAccel),
+        // position, heading, holonomic rotation
+        new PathPoint(currentPose.getTranslation(), new Rotation2d(0), currentPose.getRotation()),
+        new PathPoint(destination.getTranslation(), new Rotation2d(0), destination.getRotation())
+    );
+    // put these constants in Constants.java if this works
+    return new PPSwerveControllerCommand(
+            trajectory,
+            this::getPose, // Pose supplier
+            m_kinematics, // SwerveDriveKinematics
+            new PIDController(1, 0, 0),
+            new PIDController(1, 0, 0),
+            new PIDController(1, 0, 0),
+            this::setDesiredStates, // Module states consumer
+            false, // do not mirror the path depending on alliance colour
+            this // Requires this drive subsystem
+        );
   }
 
   /**
