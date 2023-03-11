@@ -6,28 +6,27 @@
 * See Cube or Cone node `Lower` position.
 
 **Cube Node Vertical Offsets**
-| Position | Height           | From Grid Front | Shoulder Pos | Wrist Pos |
-| -------- | ---------------- | --------------- | ------------ | --------- |
-| Lower    | 0 in.            | 0 in.           |              |           |
-| Middle   | 1 ft. 11 1/2 in. | 1 ft. 2 1/4 in. |              |           |
-| Upper    | 2 ft. 11 1/2 in. | 2 ft. 7 5/8 in. |              |           |
+| Position | Height              | From Grid Front       |
+| -------- | ------------------- | --------------------- |
+| Lower    | 0 in. (0 m)         | 0 in. (0 m)           |
+| Middle   | 23.5 in. (0.5969 m) | 14.25 in. (0.36195 m) |
+| Upper    | 35.5 in. (0.9017 m) | 31.625 in. (0.8033 m) |
 * From Grid Front = Distance from grid front to start of node
-* Should position be measured in degrees?
 
 **Cone Node Vertical Offsets**
-| Position | Height       | From Grid Front  | Shoulder Pos | Wrist Pos |
-| -------- | ------------ | ---------------- | ------------ | --------- |
-| Lower    | 0 in.        | 0 in.            |              |           |
-| Middle   | 2 ft. 10 in. | 1 ft. 10 3/4 in. |              |           |
-| Upper    | 3 ft. 10 in. | 3 ft. 3 3/4 in.  |              |           |
+| Position | Height            | From Grid Front       |
+| -------- | ----------------- | --------------------- |
+| Lower    | 0 in. (0 m)       | 0 in. (0 m)           |
+| Middle   | 34 in. (0.8636 m) | 22.75 in. (0.5779 m)  |
+| Upper    | 46 in. (1.1684 m) | 39.75 in. (1.00965 m) |
 * From Grid Front = Distance from grid front to start of node
 
 **Node Horizontal Offsets**
-| Position | Dist. From Centre   |
-| -------- | ------------------- |
-| Left     | _ ft. _ in. [Left]  |
-| Middle   | 0 in.               |
-| Right    | _ ft. _ in. [Right] |
+| Position | Dist. From Centre         |
+| -------- | ------------------------- |
+| Left     | 22 in. [Left] (0.5588 m)  |
+| Middle   | 0 in. (0 m)               |
+| Right    | 22 in. [Right] (0.5588 m) |
 * These are the distance from the AprilTag centre to the centre of the node.
 
 ## Limelight
