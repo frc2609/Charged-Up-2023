@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.LimeLightJSON_GS;
 import frc.robot.utils.LimelightHelpers;
@@ -69,6 +68,23 @@ public class Limelight extends SubsystemBase {
     }
   }
 
+  /**
+   * Check the current alliance colour.
+   * 
+   * @return Whether the alliance is blue or not. Returns false (red) if alliance is invalid.
+   */
+  private boolean isBlueAlliance() {
+    switch (DriverStation.getAlliance()) {
+      case Blue:
+        return true;
+      case Red:
+        return false;
+      default:
+        System.out.print("Failed to get valid alliance colour");
+        return false;
+    }
+  }
+
   private Pose2d toPose2d(float[] array) {
     return new Pose2d(array[0], array[1], Rotation2d.fromDegrees(array[5]));
   }
@@ -77,8 +93,20 @@ public class Limelight extends SubsystemBase {
     return tags_visible;
   }
 
+  public Pose2d getNodePose() {
+    if (isBlueAlliance()) {
+
+    } else {
+
+    }
+    // alliance
+    // blue: origin is left, nodes start on right
+    // red: origin is left, nodes start on left
+    // what happens when we don't see any apriltags?
+    // need at least one of any apriltags on this side
+  }
+
   public Pose2d getRobotPose() {
-    final float[] poseArray = DriverStation.getAlliance() == Alliance.Blue ? botpose_blue : botpose_red;
-    return toPose2d(poseArray);
+    return toPose2d(isBlueAlliance() ? botpose_blue : botpose_red);
   }
 }
