@@ -23,4 +23,4 @@ RRB = 16 | back
 
 Shoulder = 20
 Elbow = 21
-Random arm motor = 62
+Extension = 22
