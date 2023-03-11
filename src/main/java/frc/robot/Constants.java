@@ -47,17 +47,21 @@ public final class Constants {
         public static final PIDConstants rotationPIDConstants = new PIDConstants(1, 0, 0);
     }
     /** Swerve drive related constants. */
-    public final class Swerve {
+    public final static class Swerve {
         /** CAN IDs of swerve module motor controllers. */
-        public final class CanID {
-            public static final int frontLeftDrive = 1;
-            public static final int frontLeftRotation = 2;
-            public static final int frontRightDrive = 3;
-            public static final int frontRightRotation = 4;
-            public static final int rearLeftDrive = 5;
-            public static final int rearLeftRotation = 6;
-            public static final int rearRightDrive = 7;
-            public static final int rearRightRotation = 8;
+        public final static class CANID {
+            public static final int frontLeftPrimary = 6;
+            public static final int frontLeftSecondary = 7;
+            public static final int frontLeftRotation = 5;
+            public static final int frontRightPrimary = 9;
+            public static final int frontRightSecondary = 10;
+            public static final int frontRightRotation = 8;
+            public static final int rearLeftPrimary = 12;
+            public static final int rearLeftSecondary = 13;
+            public static final int rearLeftRotation = 11;
+            public static final int rearRightPrimary = 15;
+            public static final int rearRightSecondary = 16;
+            public static final int rearRightRotation = 14;
         }
         /** Swerve drive PID and feedforward gains. 
          * setVoltage() is used to set motor power, as it ensures the motor
@@ -66,7 +70,7 @@ public final class Constants {
          * a *voltage* value, not a speed value, so `set()` should not be used
          * with any controller using these gains.
          */
-        public final class Gains {
+        public final static class Gains {
             public static final double drivePID_kP = 1;
             public static final double drivePID_kI = 0;
             public static final double drivePID_kD = 0;
@@ -83,8 +87,18 @@ public final class Constants {
             // SparkMaxPIDController only has 1 feedforward constant.
             public static final double rotationFF = 0;
         }
+        public final static class IsInverted {
+            public static final boolean frontLeftDrive = true;
+            public static final boolean frontRightDrive = false;
+            public static final boolean rearLeftDrive = false;
+            public static final boolean rearRightDrive = true;
+            public static final boolean frontLeftRotation = true;
+            public static final boolean frontRightRotation = true;
+            public static final boolean rearLeftRotation = true;
+            public static final boolean rearRightRotation = true;
+        }
         /** Constants related to swerve module dimensions. */
-        public final class Dimensions {
+        public final static class Dimensions {
             /* Direction Polarity:
                       +X (Front)
                  FL       ^       FR
@@ -123,7 +137,7 @@ public final class Constants {
             public static final double CIRCUMFERENCE = Math.PI * DIAMETER;
         }
         /** Physical acceleration and velocity limits. */
-        public final class PhysicalLimits {
+        public final static class PhysicalLimits {
             /** The maximum possible RPM of a REV NEO v1.0/v1.1 motor. */
             public static final double MAX_NEO_RPM = 5676;
             /** The maximum angular acceleration the robot can achieve in radians/s^2. */
@@ -138,14 +152,14 @@ public final class Constants {
          * This may not be a great place to put these constants as they are
          * path-specific, but are currently applied to all followed paths.
          */
-        public final class AutonomousLimits {
+        public final static class AutonomousLimits {
             /** The maximum linear acceleration the robot should achieve in m/s^2. */
             public static final double MAX_LINEAR_ACCELERATION = 1.0; // TODO: adjust value
             /** The maximum speed the drivetrain should go in autonomous in m/s. */
             public static final double MAX_LINEAR_VELOCITY = 2.0;
         }
         /** Teleop acceleration and velocity limits */
-        public final class TeleopLimits {
+        public final static class TeleopLimits {
             /** The maximum speed the robot should spin in teleop in radians/s. */
             public static final double MAX_ANGULAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_ANGULAR_VELOCITY;
             /** The maximum speed the drivetrain should go in teleop in m/s. */
@@ -171,12 +185,12 @@ public final class Constants {
         public static final double ROTATION_GEAR_RATIO = 1.0 / 56.6409; // .0 to avoid integer division
         public static final double WHEEL_RADIUS = 0.0508; // metres
         public static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS; // metres
-        /** 8.0 rotations of motor = 1.0 rotation of wheel */
-        public static final double WHEEL_GEAR_RATIO = 1.0 / 8.0; // .0 to avoid integer division
+        /** 1.0 rotations of motor = 3.0 rotation of sun */
+        public static final double WHEEL_GEAR_RATIO = 1.0 / 3.0;
         // Limiters:
         public static final double X_SPEED_DELAY = 3; // 1/x seconds from 0 -> 1
         public static final double Y_SPEED_DELAY = 3; // 1/x seconds from 0 -> 1
-        public static final double ROTATION_DELAY = 3; // 1/x seconds from 0 -> 1
+        public static final double ROTATION_DELAY = 6; // 1/x seconds from 0 -> 1
         /* Conversions:
          * Spark Max encoders return rotations for getPosition() and rotations/minute for getVelocity().
          * Their return value is automatically multiplied by their conversion factor.
@@ -218,8 +232,8 @@ public final class Constants {
      * Do not put button or axis numbers in here, instead use the functions it
      * provides, such as getLeftY() or getXButton().
      */
-    public final class Xbox {
+    public final static class Xbox {
         public static final int DRIVER_CONTROLLER_PORT = 0;
-        public static final double JOYSTICK_DEADBAND = 0.075;
+        public static final double JOYSTICK_DEADBAND = 0.125;
     }
 }
