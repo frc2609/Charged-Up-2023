@@ -9,6 +9,10 @@ import java.util.HashMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.LimeLightJSON_GS;
 import frc.robot.utils.LimelightHelpers;
@@ -21,9 +25,11 @@ public class Limelight extends SubsystemBase {
   Results results;
   //Make sure the hashmap at the index is not null when calling
   public ArrayList<HashMap<String, Object>> tags = new ArrayList<>(9);
-  public float[] botpose_red = new float[6];
-  public float[] botpose_blue = new float[6];
-  public boolean tags_visible;
+  
+  // Indexes from lowest to highest are as follows: x, y, z, roll, pitch, yaw (coordinates in meters, rotation in degrees)
+  private float[] botpose_red = new float[6];
+  private float[] botpose_blue = new float[6];
+  private boolean tags_visible;
 
   /** Creates a new Limelight. */
   public Limelight() {
@@ -61,5 +67,18 @@ public class Limelight extends SubsystemBase {
         }
       }
     }
+  }
+
+  private Pose2d toPose2d(float[] array) {
+    return new Pose2d(array[0], array[1], Rotation2d.fromDegrees(array[5]));
+  }
+
+  public boolean isPoseValid() {
+    return tags_visible;
+  }
+
+  public Pose2d getRobotPose() {
+    final float[] poseArray = DriverStation.getAlliance() == Alliance.Blue ? botpose_blue : botpose_red;
+    return toPose2d(poseArray);
   }
 }
