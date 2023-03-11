@@ -21,7 +21,7 @@ public class Results {
   private float pID;
   private float tl;
   private float ts;
-  private float v;
+  private boolean v;
   // Indexes from lowest to highest are as follows: x, y, z, roll, pitch, yaw (coordinates in meters, rotation in degrees)
   private float[] botpose;
   private float[] botpose_wpiblue;
@@ -57,7 +57,7 @@ public class Results {
     return ts;
   }
 
-  public float getV() {
+  public Boolean getV() {
     return v;
   }
 
@@ -103,7 +103,7 @@ public class Results {
     this.ts = ts;
   }
 
-  public void setV(float v) {
+  public void setV(Boolean v) {
     this.v = v;
   }
 

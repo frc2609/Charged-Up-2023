@@ -21,6 +21,9 @@ public class Limelight extends SubsystemBase {
   Results results;
   //Make sure the hashmap at the index is not null when calling
   public ArrayList<HashMap<String, Object>> tags = new ArrayList<>(9);
+  public float[] botpose_red = new float[6];
+  public float[] botpose_blue = new float[6];
+  public boolean tags_visible;
 
   /** Creates a new Limelight. */
   public Limelight() {
@@ -43,6 +46,9 @@ public class Limelight extends SubsystemBase {
       System.out.println(e);
     }
     if (results != null) {
+      botpose_blue = results.getBotpose_wpiblue();
+      botpose_red = results.getBotpose_wpired();
+      tags_visible = results.getV();
       for (int i = 0; i < results.Fiducial.size(); i++) {
         
         if (results.Fiducial.get(i).get("fID") != null && ((int) results.Fiducial.get(i).get("fID")) < 9) {
@@ -50,9 +56,8 @@ public class Limelight extends SubsystemBase {
           tags.get(fID).put("tx", results.Fiducial.get(i).get("tx"));
           tags.get(fID).put("ty", results.Fiducial.get(i).get("ty"));
           tags.get(fID).put("Field pose", results.Fiducial.get(i).get("t6r_fs"));
-          tags.get(fID).put("Blue bot pose", results.getBotpose_wpiblue());
-          tags.get(fID).put("Red bot pose", results.getBotpose_wpired());
           tags.get(fID).put("Tag pose", results.Fiducial.get(i).get("t6t_cs"));
+          
         }
       }
     }
