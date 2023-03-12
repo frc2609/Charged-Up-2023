@@ -1,7 +1,14 @@
 # Limelight
 
-(how do you use the Limelight?)
+## Web Dashboard
+hi
 
+## Camera View
+(Instructions are for Shuffleboard.)
+- From `Sources`, select `CameraServer`
+- Drag the `limelight` entry onto Shuffleboard and resize/move it as necessary
+
+## Programming
 - When AprilTag is out of view, Limelight::tags.get(id) will be null.
   > One of the limelight files should handle this.
 
