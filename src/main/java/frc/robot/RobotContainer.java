@@ -14,10 +14,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ExampleAuto;
+import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.TimedDriveForward;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Gripper;
+import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.SwerveDrive;
 
 /**
@@ -35,9 +35,8 @@ public class RobotContainer {
   /* Subsystems should be marked as private so they can only be accessed by
    * commands that require them. This prevents a subsystem from being used by
    * multiple things at once, which may potentially cause issues. */
+  private final ArmGripper m_armGripper;
   private final SwerveDrive m_swerveDrive;
-  private final Arm m_arm;
-  private final Gripper m_gripper;
   
   // private final JoystickButton m_fieldOrientedToggleButton = 
   //     new JoystickButton(
@@ -59,9 +58,8 @@ public class RobotContainer {
     } catch (RuntimeException e) {
       DriverStation.reportError("Navx initialization failed", false);
     }
+    m_armGripper = new ArmGripper(m_operatorController);
     m_swerveDrive = new SwerveDrive(m_navx, m_driverController);
-    m_arm = new Arm(m_operatorController);
-    m_gripper = new Gripper(m_operatorController);
     configureButtonBindings();
     SmartDashboard.putBoolean("Zero Yaw", false); // display the button
   }
@@ -93,6 +91,7 @@ public class RobotContainer {
    * during testing or development.
    */
   public void disableTeleopControl() {
+    m_armGripper.setDefaultCommand(null);
     m_swerveDrive.setDefaultCommand(null);
   }
 
@@ -106,6 +105,7 @@ public class RobotContainer {
      * teleopPeriodic() allows a command to take over the drivetrain
      * temporarily during teleop. This may be useful for auto-balancing or
      * moving into position to deliver a game piece. */
+    m_armGripper.setDefaultCommand(new ManualArmControl(m_armGripper));
     m_swerveDrive.setDefaultCommand(new ManualDrive(m_swerveDrive));
   }
 

@@ -22,6 +22,26 @@ import frc.robot.commands.TimerDelay;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    /** Arm and Gripper-related Constants */
+    public static final class Arm {
+        public static final class IsInverted {
+            public static final boolean LOWER_MOTOR = true;
+            public static final boolean UPPER_MOTOR = false;
+            public static final boolean EXTENSION_MOTOR = false;
+        }
+        public static final class Encoder {
+            public static final double EXTENSION_POSITION_CONVERSION = 1.0; // TODO: determine units
+            public static final double LOWER_DISTANCE_PER_ROTATION = 1.0; // TODO: determine units
+            public static final double UPPER_DISTANCE_PER_ROTATION = 1.0; // TODO: determine units
+            public static final double LOWER_POSITION_OFFSET = 0.0; // TODO: determine offset
+            public static final double UPPER_POSITION_OFFSET = 0.0; // TODO: determine offset
+        }
+        public static final class Pneumatics {
+            public static final int OPEN_SOLENOID_ID = 14;
+            public static final int CLOSE_SOLENOID_ID = 15;
+        }
+        public static final double MANUAL_EXTENSION_SPEED = 0.1;
+    }
     /** Autonomous-Related Constants */
     public static final class Autonomous {
         /** The NAME of the path, excluding its filepath and extension.
@@ -46,19 +66,27 @@ public final class Constants {
         */
         public static final PIDConstants rotationPIDConstants = new PIDConstants(1, 0, 0);
     }
+    /** IDs of all CAN bus devices. */
+    public final class CANID {
+        public static final int PNEUMATICS_HUB = 2;
+        public static final int frontLeftDrive = 6;
+        public static final int frontLeftRotation = 5;
+        public static final int frontRightDrive = 9;
+        public static final int frontRightRotation = 8;
+        public static final int rearLeftDrive = 12;
+        public static final int rearLeftRotation = 11;
+        public static final int rearRightDrive = 15;
+        public static final int rearRightRotation = 14;
+        public static final int LOWER_ARM_MOTOR = 20;
+        public static final int UPPER_ARM_MOTOR = 21;
+        public static final int EXTENSION_MOTOR = 22;
+    }
+    public static final class DIO {
+        public static final int ARM_LOWER_ENCODER = 0;
+        public static final int ARM_UPPER_ENCODER = 1;
+    }
     /** Swerve drive related constants. */
     public final class Swerve {
-        /** CAN IDs of swerve module motor controllers. */
-        public final class CanID {
-            public static final int frontLeftDrive = 1;
-            public static final int frontLeftRotation = 2;
-            public static final int frontRightDrive = 3;
-            public static final int frontRightRotation = 4;
-            public static final int rearLeftDrive = 5;
-            public static final int rearLeftRotation = 6;
-            public static final int rearRightDrive = 7;
-            public static final int rearRightRotation = 8;
-        }
         /** Swerve drive PID and feedforward gains. 
          * setVoltage() is used to set motor power, as it ensures the motor
          * always outputs the same force when the battery voltage sags. 

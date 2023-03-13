@@ -9,13 +9,13 @@ import static frc.robot.Constants.Swerve.*;
 
 import java.util.List;
 
-import frc.robot.Constants.Swerve.CanID;
 import frc.robot.Constants.Swerve.Dimensions;
 import frc.robot.Constants.Swerve.PhysicalLimits;
 import frc.robot.Constants.Swerve.TeleopLimits;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.PathLogger;
 import frc.robot.Constants.Autonomous;
+import frc.robot.Constants.CANID;
 import frc.robot.Constants.Xbox;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -61,10 +61,10 @@ public class SwerveDrive extends SubsystemBase {
   private final Translation2d m_rearLeftLocation = new Translation2d(Dimensions.rearLeftX, Dimensions.rearLeftY);
   private final Translation2d m_rearRightLocation = new Translation2d(Dimensions.rearRightX, Dimensions.rearRightY);
   
-  private final SwerveModule m_frontLeft = new SwerveModule("Front Left", CanID.frontLeftDrive, CanID.frontLeftRotation);
-  private final SwerveModule m_frontRight = new SwerveModule("Front Right", CanID.frontRightDrive, CanID.frontRightRotation);
-  private final SwerveModule m_rearLeft = new SwerveModule("Rear Left", CanID.rearLeftDrive, CanID.rearLeftRotation);
-  private final SwerveModule m_rearRight = new SwerveModule("Rear Right", CanID.rearRightDrive, CanID.rearRightRotation);
+  private final SwerveModule m_frontLeft = new SwerveModule("Front Left", CANID.frontLeftDrive, CANID.frontLeftRotation);
+  private final SwerveModule m_frontRight = new SwerveModule("Front Right", CANID.frontRightDrive, CANID.frontRightRotation);
+  private final SwerveModule m_rearLeft = new SwerveModule("Rear Left", CANID.rearLeftDrive, CANID.rearLeftRotation);
+  private final SwerveModule m_rearRight = new SwerveModule("Rear Right", CANID.rearRightDrive, CANID.rearRightRotation);
   
   private final SwerveAutoBuilder m_autoBuilder;
   private final PathLogger m_pathLogger = new PathLogger();
