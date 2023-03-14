@@ -33,6 +33,8 @@ public class RobotContainer {
   private static LEDControl m_leds;
   private final XboxController m_driverController = new XboxController(
     Constants.Xbox.DRIVER_CONTROLLER_PORT);
+  private final XboxController m_operatorController = new XboxController(
+    Constants.Xbox.OPERATOR_CONTROLLER_PORT);
   /* Subsystems should be marked as private so they can only be accessed by
    * commands that require them. This prevents a subsystem from being used by
    * multiple things at once, which may potentially cause issues. */
@@ -47,10 +49,11 @@ public class RobotContainer {
   //         m_driverController, XboxController.Button.kStart.value);
   private final JoystickButton m_askCone = 
       new JoystickButton(
-        m_driverController, XboxController.Button.kLeftBumper.value);
+        m_operatorController, XboxController.Button.kLeftBumper.value);
   private final JoystickButton m_askCube = 
       new JoystickButton(
-        m_driverController, XboxController.Button.kRightBumper.value);
+        m_operatorController, XboxController.Button.kRightBumper.value);
+  
   private final JoystickButton m_zeroYawButton =
       new JoystickButton(
           m_driverController, XboxController.Button.kY.value);
