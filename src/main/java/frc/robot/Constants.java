@@ -230,5 +230,7 @@ public final class Constants {
         public static final double VIOLET = 0.91;
         public static final double YELLOW = 0.69;
         public static final double BLUE = 0.87;
+        public static final double BREATH_RED = -0.17;
+        public static final double BREATH_BLUE = -0.15;
     }
 }

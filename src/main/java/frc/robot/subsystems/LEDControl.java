@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -26,5 +28,13 @@ public class LEDControl extends SubsystemBase{
 
     public void setBlue() {
         LEDController.set(Constants.LED.BLUE);
+    }
+
+    public void setDefault() {
+        if (DriverStation.getAlliance().equals(Alliance.Blue)){
+            LEDController.set(Constants.LED.BREATH_BLUE);
+        } else {
+            LEDController.set(Constants.LED.BREATH_RED);
+        }
     }
 }
