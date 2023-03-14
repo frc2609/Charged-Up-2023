@@ -15,9 +15,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.Xbox;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.TimedDriveForward;
+import frc.robot.subsystems.LEDControl;
 import frc.robot.subsystems.SwerveDrive;
 
 /**
@@ -28,6 +30,7 @@ import frc.robot.subsystems.SwerveDrive;
  */
 public class RobotContainer {
   private static AHRS m_navx;
+  private static LEDControl m_leds;
   private final XboxController m_driverController = new XboxController(
     Constants.Xbox.DRIVER_CONTROLLER_PORT);
   /* Subsystems should be marked as private so they can only be accessed by
@@ -42,6 +45,12 @@ public class RobotContainer {
   // private final JoystickButton m_resetEncoderButton =
   //     new JoystickButton(
   //         m_driverController, XboxController.Button.kStart.value);
+  private final JoystickButton m_askCone = 
+      new JoystickButton(
+        m_driverController, XboxController.Button.kLeftBumper.value);
+  private final JoystickButton m_askCube = 
+      new JoystickButton(
+        m_driverController, XboxController.Button.kRightBumper.value);
   private final JoystickButton m_zeroYawButton =
       new JoystickButton(
           m_driverController, XboxController.Button.kY.value);
@@ -76,6 +85,10 @@ public class RobotContainer {
     // this one left in for easy access to resetYaw
     m_zeroYawButton.onTrue(new InstantCommand(m_navx::zeroYaw));
     m_startCommand.onTrue(new TimedDriveForward(2, m_swerveDrive));
+    m_askCone.toggleOnTrue(new InstantCommand(m_leds::setYellow));
+    m_askCone.toggleOnFalse(new InstantCommand(m_leds::setDefault));
+    m_askCube.toggleOnTrue(new InstantCommand(m_leds::setViolet));
+    m_askCube.toggleOnFalse(new InstantCommand(m_leds::setDefault));
   }
 
   /**
