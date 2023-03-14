@@ -7,8 +7,10 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -32,6 +34,7 @@ public class RobotContainer {
    * commands that require them. This prevents a subsystem from being used by
    * multiple things at once, which may potentially cause issues. */
   private final SwerveDrive m_swerveDrive;
+  private final PowerDistribution m_powerDistribution = new PowerDistribution(1, ModuleType.kRev);
   
   // private final JoystickButton m_fieldOrientedToggleButton = 
   //     new JoystickButton(
@@ -120,5 +123,7 @@ public class RobotContainer {
       m_navx.zeroYaw();
       SmartDashboard.putBoolean("Zero Yaw", false); // reset the button
     }
+    // not working why
+    SmartDashboard.putNumber("Robot Current Draw (A)", m_powerDistribution.getTotalCurrent());
   }
 }
