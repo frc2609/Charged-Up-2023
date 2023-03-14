@@ -222,4 +222,13 @@ public final class Constants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final double JOYSTICK_DEADBAND = 0.075;
     }
+
+    public final class LED {
+        public static final int PWM_PORT = 0;
+        public static final double GREEN = 0.77;
+        public static final double RED = 0.61;
+        public static final double VIOLET = 0.91;
+        public static final double YELLOW = 0.69;
+        public static final double BLUE = 0.87;
+    }
 }
