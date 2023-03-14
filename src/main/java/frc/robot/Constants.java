@@ -185,7 +185,7 @@ public final class Constants {
         public static final double ROTATION_GEAR_RATIO = 1.0 / 56.6409; // .0 to avoid integer division
         public static final double WHEEL_RADIUS = 0.0508; // metres
         public static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS; // metres
-        /** 1.0 rotations of motor = 3.0 rotation of sun */
+        /** 1.0 rotations of motor = 3.0 rotation of the carrier */
         public static final double WHEEL_GEAR_RATIO = 1.0 / 3.0;
         // Limiters:
         public static final double X_SPEED_DELAY = 3; // 1/x seconds from 0 -> 1
