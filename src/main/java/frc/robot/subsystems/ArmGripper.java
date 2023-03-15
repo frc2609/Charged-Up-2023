@@ -77,8 +77,22 @@ public class ArmGripper extends SubsystemBase {
     configureEncoders();
     configureMotors();
     configurePIDs();
-
     m_operatorController = operatorController;
+    m_lowerPID.setP(0.000025);//0.00005);
+    m_lowerPID.setI(0.00001);//0.00000025);//0.000000001);
+    m_lowerPID.setD(0.0);//0.005);//0.01);//0);//0.0000005);
+    
+    SmartDashboard.putNumber("Upper Arm P", 0.00025);
+    SmartDashboard.putNumber("Upper Arm I", 0.00001);
+    SmartDashboard.putNumber("Upper Arm D", 0.0);
+    
+    SmartDashboard.putNumber("Lower Arm P", 0.00025);
+    SmartDashboard.putNumber("Lower Arm I", 0.00001);
+    SmartDashboard.putNumber("Lower Arm D", 0.0);
+    
+    SmartDashboard.putNumber("Extension P", 0.00005);
+    SmartDashboard.putNumber("Extension I", 0.000000001);
+    SmartDashboard.putNumber("Extension D", 0.0000005);
   }
 
   @Override
@@ -116,6 +130,7 @@ public class ArmGripper extends SubsystemBase {
     m_lowerEncoderAbsolute.setDistancePerRotation(Encoder.LOWER_DISTANCE_PER_ROTATION);
     m_upperEncoderAbsolute.setDistancePerRotation(Encoder.UPPER_DISTANCE_PER_ROTATION);
     m_extensionEncoder.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
+
   }
 
   private void configureMotors() {
@@ -145,9 +160,9 @@ public class ArmGripper extends SubsystemBase {
   }
 
   private void configurePIDs() {
-    m_lowerPID.setP(0.000025);//0.00005);
-    m_lowerPID.setI(0.00001);//0.00000025);//0.000000001);
-    m_lowerPID.setD(0.0);//0.005);//0.01);//0);//0.0000005);
+    m_lowerPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00025));//0.00005);
+    m_lowerPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00001));//0.00000025);//0.000000001);
+    m_lowerPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.0));//0.005);//0.01);//0);//0.0000005);
     m_lowerPID.setIZone(0.001);
     m_lowerPID.setFF(0.000156);
     m_lowerPID.setOutputRange(-1.0, 1.0);
@@ -155,18 +170,18 @@ public class ArmGripper extends SubsystemBase {
     m_lowerPID.setSmartMotionMaxVelocity(2500, 0);
     m_lowerPID.setSmartMotionMaxAccel(15000, 0);
 
-    m_upperPID.setP(0.000025);//0.00005);
-    m_upperPID.setI(0.00001);//0.00000025);//0.000000001);
-    m_upperPID.setD(0.0);//0.005);//0.01);//0);//0.0000005);
+    m_upperPID.setP(SmartDashboard.getNumber("Lower Arm P", 0.00025));//0.00005);
+    m_upperPID.setI(SmartDashboard.getNumber("Lower Arm I", 0.00001));//0.00000025);//0.000000001);
+    m_upperPID.setD(SmartDashboard.getNumber("Lower Arm D", 0.0));//0.005);//0.01);//0);//0.0000005);
     m_upperPID.setIZone(0.001);
     m_upperPID.setFF(0.000156);
     m_upperPID.setOutputRange(-1.0, 1.0);
     m_upperPID.setSmartMotionMaxVelocity(2500, 0);
     m_upperPID.setSmartMotionMaxAccel(15000, 0);
 
-    m_extensionPID.setP(0.00005);
-    m_extensionPID.setI(0.000000001);
-    m_extensionPID.setD(0.0000005);
+    m_extensionPID.setP(SmartDashboard.getNumber("Extension P", 0.00005));
+    m_extensionPID.setI(SmartDashboard.getNumber("Extension I", 0.000000001));
+    m_extensionPID.setD(SmartDashboard.getNumber("Extension D", 0.0000005));
     m_extensionPID.setIZone(0);
     m_extensionPID.setFF(0.000156);
     m_extensionPID.setOutputRange(-1.0, 1.0);
