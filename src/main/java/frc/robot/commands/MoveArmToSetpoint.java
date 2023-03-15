@@ -10,9 +10,9 @@ import frc.robot.Constants;
 import frc.robot.subsystems.ArmGripper;
 
 public class MoveArmToSetpoint extends CommandBase {
-  final double LOWER_SET;
-  final double UPPER_SET;
-  final double EXTENSION_SET;
+  double LOWER_SET;
+  double UPPER_SET;
+  double EXTENSION_SET;
   boolean holdLower, holdUpper, holdSlider;
 
   final ArmGripper m_armGripper;
@@ -32,20 +32,17 @@ public class MoveArmToSetpoint extends CommandBase {
   @Override
   public void initialize() {
     if(holdLower){
-      m_armGripper.setLowerTargetAngle(m_armGripper.getLowerArmAngleRelative());
-    }else{
-      m_armGripper.setLowerTargetAngle(LOWER_SET);
+      LOWER_SET = (m_armGripper.getLowerArmAngleRelative());
     }
     if(holdUpper){
-      m_armGripper.setUpperTargetAngle(m_armGripper.getUpperArmAngleRelative());
-    }else{
-      m_armGripper.setUpperTargetAngle(UPPER_SET);
+      UPPER_SET = (m_armGripper.getUpperArmAngleRelative());
     }
     if(holdSlider){
-      m_armGripper.setExtensionTargetLength(m_armGripper.getExtensionDistance());
-    }else{
-      m_armGripper.setExtensionTargetLength(EXTENSION_SET);
+      EXTENSION_SET = (m_armGripper.getExtensionDistance());
     }
+    m_armGripper.setLowerTargetAngle(LOWER_SET);
+    m_armGripper.setUpperTargetAngle(UPPER_SET);
+    m_armGripper.setExtensionTargetLength(EXTENSION_SET);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
