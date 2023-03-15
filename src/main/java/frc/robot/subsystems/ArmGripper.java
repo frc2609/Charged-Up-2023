@@ -102,11 +102,11 @@ public class ArmGripper extends SubsystemBase {
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
     // angles
     SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
-    SmartDashboard.putNumber("Lower Arm NEO Encoder Position", m_lowerMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerArmAngleRelative());
     // That does not work
     // SmartDashboard.putNumber("Upper Arm Relative Angle (Deg)", m_upperEncoderAbsolute.getDistance());
     SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperArmAngleAbsolute()); // positive away from robot
-    SmartDashboard.putNumber("Upper Arm NEO Encoder Position", m_upperMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("Upper Arm NEO Encoder Position", getUpperArmAngleRelative());
     // lengths
     SmartDashboard.putNumber("Lower Arm Length (m)", getLowerArmLength());
     SmartDashboard.putNumber("Upper Arm Base Length (m)", getUpperArmBaseLength());
