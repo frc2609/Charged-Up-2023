@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.ArmGripper;
 
 // TODO: make generic command with customizable setpoints
@@ -41,12 +42,14 @@ public class ScoreHigh extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_armGripper.holdPosition();
-  } // TODO: open claws
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false; // TODO: check if at setpoint
+    boolean isLowerInTolerance = Math.abs(m_armGripper.getLowerArmAngleRelative()-LOWER_SET) < Constants.Tolerances.LOWER_ARM_ANGLE; 
+    boolean isUpperInTolerance = Math.abs(m_armGripper.getUpperArmAngleRelative()-UPPER_SET) < Constants.Tolerances.UPPER_ARM_ANGLE; 
+    boolean isExtensionInTolerance = Math.abs(m_armGripper.getExtensionDistance()-EXTENSION_SET) < Constants.Tolerances.EXTENSION;
+    return isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance;
   }
 }

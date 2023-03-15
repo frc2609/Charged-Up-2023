@@ -133,6 +133,12 @@ public final class Constants {
         public static final int ARM_LOWER_ENCODER = 0;
         public static final int ARM_UPPER_ENCODER = 1;
     }
+    public final static class Tolerances {
+        public static final double LOWER_ARM_ANGLE = 1; // in degrees
+        public static final double UPPER_ARM_ANGLE = 1; // in degrees
+        public static final double EXTENSION = 0.01; // in meters, can we make this bigger?
+        
+    }
     /** Swerve drive related constants. */
     public final static class Swerve {
         /** Swerve drive PID and feedforward gains. 
@@ -142,6 +148,7 @@ public final class Constants {
          * a *voltage* value, not a speed value, so `set()` should not be used
          * with any controller using these gains.
          */
+        
         public final static class Gains {
             public static final double drivePID_kP = 1;
             public static final double drivePID_kI = 0;
