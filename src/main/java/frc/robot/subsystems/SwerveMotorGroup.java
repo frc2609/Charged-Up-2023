@@ -21,19 +21,24 @@ import frc.robot.Constants;
 /** Add your docs here. */
 public class SwerveMotorGroup {
   public class ECVT{
-    private double ringRatio, sunRatio;
     private RelativeEncoder ringEncoder, sunEncoder;
-    public ECVT(double ringRatio, double sunRatio, RelativeEncoder ringEncoder, RelativeEncoder sunEncoder){
-      this.ringRatio = ringRatio;
-      this.sunRatio = sunRatio;
+    private final double sunTeeth = 36.0;
+    private final double ringInner = 72.0;
+    private final double bevelToWheel = 1.0/3.0;
+    private final double carrierSpur = 24.0;
+    private final double driveSpur = 20.0;
+    // motor B ratios
+    private final double spurTeeth = 33;
+    private final double ringOuter = 66;
+    public ECVT(RelativeEncoder ringEncoder, RelativeEncoder sunEncoder){
       this.ringEncoder = ringEncoder;
       this.sunEncoder = sunEncoder;
     }
     public double getOutputSpeed(){
-      return ((ringEncoder.getVelocity()*ringRatio)+(sunEncoder.getVelocity()*sunRatio))*Constants.Swerve.DRIVE_VELOCITY_CONVERSION;
+      return bevelToWheel*(carrierSpur/driveSpur)*((sunEncoder.getVelocity()*(sunTeeth/(sunTeeth+ringInner))+(ringEncoder.getVelocity()*(spurTeeth/ringOuter)*(ringInner/(sunTeeth+ringInner)))))*Constants.Swerve.DRIVE_VELOCITY_CONVERSION;
     }
     public double getSunSetpoint(double targetVelocity){
-      return (targetVelocity-(ringEncoder.getVelocity()*ringRatio*Constants.Swerve.DRIVE_VELOCITY_CONVERSION))/Constants.Swerve.DRIVE_VELOCITY_CONVERSION;
+      return (targetVelocity-(ringEncoder.getVelocity()*(spurTeeth/ringOuter)*(ringInner/(sunTeeth+ringInner))*bevelToWheel*(carrierSpur/driveSpur)*Constants.Swerve.DRIVE_VELOCITY_CONVERSION))/Constants.Swerve.DRIVE_VELOCITY_CONVERSION;
     }
   }
 
@@ -63,7 +68,7 @@ public class SwerveMotorGroup {
     m_secondaryMotor.setInverted(invertDriveMotors);
     m_primaryMotor.setIdleMode(IdleMode.kBrake);
     m_secondaryMotor.setIdleMode(IdleMode.kBrake);
-    m_ecvt = new ECVT(1/3, 1/3, m_secondaryEncoder, m_primaryEncoder);
+    m_ecvt = new ECVT(m_secondaryEncoder, m_primaryEncoder);
   }
 
   public RelativeEncoder getEncoder() {
