@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -35,6 +36,9 @@ import frc.robot.Constants.Arm.Ratios;
 public class ArmGripper extends SubsystemBase {
   private final Compressor m_compressor =
       new Compressor(CANID.PNEUMATICS_HUB, PneumaticsModuleType.REVPH);
+  
+  public Value openValue = kReverse;
+  public Value closeValue = kForward; // TODO: Double check these and move to constants
 
   private final DoubleSolenoid m_gripperSolenoid = new DoubleSolenoid(
       CANID.PNEUMATICS_HUB,
@@ -272,6 +276,11 @@ public class ArmGripper extends SubsystemBase {
       m_extensionMotor.disable();
     }
   }
+
+  public void setGripper(Value value){
+    m_gripperSolenoid.set(value);
+  }
+
 
   // TODO: javadocs and order functions properly
   public void setLowerTargetAngle(double angle) {
