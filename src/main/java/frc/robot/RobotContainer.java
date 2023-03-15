@@ -69,6 +69,10 @@ public class RobotContainer {
   private final JoystickButton m_scoreHighButton =
       new JoystickButton(
           m_operatorController, XboxController.Button.kRightBumper.value);
+  
+  private final JoystickButton m_toggleManualControl =
+  new JoystickButton(
+      m_operatorController, XboxController.Button.kStart.value);
           
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -104,6 +108,7 @@ public class RobotContainer {
     m_scoreHighButton.onTrue(new ScoreHigh(m_armGripper));
     m_closeGripper.onTrue(new CloseGripper(m_armGripper));
     m_openGripper.onTrue(new OpenGripper(m_armGripper));
+    m_toggleManualControl.toggleOnTrue(new ManualArmControl(m_armGripper));
   }
 
   /**
@@ -130,7 +135,7 @@ public class RobotContainer {
      * teleopPeriodic() allows a command to take over the drivetrain
      * temporarily during teleop. This may be useful for auto-balancing or
      * moving into position to deliver a game piece. */
-    m_armGripper.setDefaultCommand(new ManualArmControl(m_armGripper));
+    // m_armGripper.setDefaultCommand(new ManualArmControl(m_armGripper));
     m_swerveDrive.setDefaultCommand(new ManualDrive(m_swerveDrive));
   }
 
