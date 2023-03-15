@@ -123,8 +123,8 @@ public class ArmGripper extends SubsystemBase {
 
   private void configureEncoders() {
     // TODO: move to constants
-    m_lowerMotor.getEncoder().setPositionConversionFactor(1.8);
-    m_upperMotor.getEncoder().setPositionConversionFactor(1.8);
+    m_lowerEncoderRelative.setPositionConversionFactor(1.8);
+    m_upperEncoderRelative.setPositionConversionFactor(1.8);
 
     // TODO: configure as necessary
     m_lowerEncoderAbsolute.setDistancePerRotation(Encoder.LOWER_DISTANCE_PER_ROTATION);
@@ -191,8 +191,8 @@ public class ArmGripper extends SubsystemBase {
 
   public void setArmOffsets(){
     // TODO: move to encoder config (won't need to call in RobotContainer either)
-    m_lowerMotor.getEncoder().setPosition(getLowerAngleAbsolute());
-    m_upperMotor.getEncoder().setPosition(getUpperArmAngleAbsolute());
+    m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
+    m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());
   }
 
   /**
