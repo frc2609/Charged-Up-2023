@@ -97,6 +97,7 @@ public class ArmGripper extends SubsystemBase {
 
   @Override
   public void periodic() {
+    configurePIDs();
     // TODO: Modify these as necessary.
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
