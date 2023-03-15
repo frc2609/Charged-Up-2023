@@ -35,7 +35,7 @@ public final class Constants {
             public static final double LOWER_DISTANCE_PER_ROTATION = (18/48); // TODO: determine units
             public static final double UPPER_DISTANCE_PER_ROTATION = (18/48); // TODO: determine units
             /** Pointing straight up (angle = 90.0 degrees). */
-            public static final double LOWER_POSITION_OFFSET = 0.8537;
+            public static final double LOWER_POSITION_OFFSET = 0.523;
             // encoder + dir
             /** Parallel with upper arm (angle = 90 degrees). */
             public static final double UPPER_POSITION_OFFSET = 0.925;
@@ -255,7 +255,8 @@ public final class Constants {
         /* May want to verify this gear ratio, as this math should be
          * equivalent to before, but has a different value.
          */
-        public static final double ROTATION_GEAR_RATIO = 3.0 * UltraPlanetaryRatios.FIVE_TO_ONE * UltraPlanetaryRatios.FOUR_TO_ONE;
+        // TODO: fix this math
+        public static final double ROTATION_GEAR_RATIO = 1.0 / 56.6409;//3.0 * UltraPlanetaryRatios.FIVE_TO_ONE * UltraPlanetaryRatios.FOUR_TO_ONE;//1.0 / 56.6409; 
         public static final double WHEEL_RADIUS = 0.0508; // metres
         public static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS; // metres
         /** 1.0 rotations of motor = 3.0 rotation of the carrier */
