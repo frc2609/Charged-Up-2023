@@ -65,7 +65,7 @@ public class SwerveModule { // implements Sendable {
     m_rotationPIDController = m_rotationMotor.getPIDController();
     configureSparkMaxPID();
 
-    m_rotationMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
+    m_rotationMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     m_rotationMotor.setInverted(invertRotationMotor);
 
     m_name = name;
