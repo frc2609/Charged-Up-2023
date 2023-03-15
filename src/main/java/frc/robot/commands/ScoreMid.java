@@ -8,9 +8,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmGripper;
 
 public class ScoreMid extends CommandBase {
-  final double LOWER_SET = 56.0;
-  final double UPPER_SET = 145.0;
-  final double EXTENSION_SET = 0.0317;
+  final double LOWER_SET = 60.0;
+  final double UPPER_SET = 148.0;
+  final double EXTENSION_SET = 0.02;
   // mid
   // Elbow: 145
   // Shoulder: 56
