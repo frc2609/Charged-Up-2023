@@ -275,13 +275,6 @@ public class ArmGripper extends SubsystemBase {
       -m_operatorController.getLeftY(), Xbox.JOYSTICK_DEADBAND));
     m_upperMotor.set(MathUtil.applyDeadband(
       -m_operatorController.getRightY(), Xbox.JOYSTICK_DEADBAND));
-    // set gripper solenoid
-    if (m_operatorController.getAButtonPressed()) {
-      m_gripperSolenoid.set(kForward);
-    }
-    if (m_operatorController.getBButtonPressed()) {
-      m_gripperSolenoid.set(kReverse);
-    }
     // set extension motor
     if (m_operatorController.getXButton()) {
       m_extensionMotor.set(Arm.MANUAL_EXTENSION_SPEED);

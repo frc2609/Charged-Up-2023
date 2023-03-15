@@ -15,9 +15,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.CloseGripper;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
+import frc.robot.commands.OpenGripper;
 import frc.robot.commands.ScoreHigh;
 import frc.robot.commands.ScoreMid;
 import frc.robot.commands.TimedDriveForward;
@@ -55,6 +57,12 @@ public class RobotContainer {
   private final JoystickButton m_startCommand =
       new JoystickButton(
           m_driverController, XboxController.Button.kStart.value);
+
+  private final JoystickButton m_openGripper = new JoystickButton(
+      m_operatorController, XboxController.Button.kA.value);
+
+  private final JoystickButton m_closeGripper = new JoystickButton(
+      m_operatorController, XboxController.Button.kB.value);
   private final JoystickButton m_scoreMidButton =
       new JoystickButton(
           m_operatorController, XboxController.Button.kLeftBumper.value);
@@ -94,6 +102,8 @@ public class RobotContainer {
     // TODO: this will conflict with the request a piece buttons... make a document for robot controls
     m_scoreMidButton.onTrue(new ScoreMid(m_armGripper));
     m_scoreHighButton.onTrue(new ScoreHigh(m_armGripper));
+    m_closeGripper.onTrue(new CloseGripper(m_armGripper));
+    m_openGripper.onTrue(new OpenGripper(m_armGripper));
   }
 
   /**
