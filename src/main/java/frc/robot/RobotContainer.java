@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
+import frc.robot.commands.ScoreHigh;
+import frc.robot.commands.ScoreMid;
 import frc.robot.commands.TimedDriveForward;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.SwerveDrive;
@@ -50,7 +52,13 @@ public class RobotContainer {
   private final JoystickButton m_startCommand =
       new JoystickButton(
           m_driverController, XboxController.Button.kStart.value);
-
+  private final JoystickButton m_scoreMidButton =
+      new JoystickButton(
+          m_operatorController, XboxController.Button.kLeftBumper.value);
+  private final JoystickButton m_scoreHighButton =
+      new JoystickButton(
+          m_operatorController, XboxController.Button.kRightBumper.value);
+          
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     try {
@@ -60,6 +68,7 @@ public class RobotContainer {
     }
     m_armGripper = new ArmGripper(m_operatorController);
     m_swerveDrive = new SwerveDrive(m_navx, m_driverController);
+    m_armGripper.setArmOffsets();
     configureButtonBindings();
     SmartDashboard.putBoolean("Zero Yaw", false); // display the button
   }
@@ -79,6 +88,9 @@ public class RobotContainer {
     // this one left in for easy access to resetYaw
     m_zeroYawButton.onTrue(new InstantCommand(m_navx::zeroYaw));
     m_startCommand.onTrue(new TimedDriveForward(2, m_swerveDrive));
+    // TODO: this will conflict with the request a piece buttons... make a document for robot controls
+    m_scoreMidButton.onTrue(new ScoreMid(m_armGripper));
+    m_scoreHighButton.onTrue(new ScoreHigh(m_armGripper));
   }
 
   /**

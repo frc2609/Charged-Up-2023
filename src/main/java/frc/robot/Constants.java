@@ -25,21 +25,64 @@ public final class Constants {
     /** Arm and Gripper-related Constants */
     public static final class Arm {
         public static final class IsInverted {
-            public static final boolean LOWER_MOTOR = true;
+            public static final boolean LOWER_MOTOR = false;
             public static final boolean UPPER_MOTOR = false;
             public static final boolean EXTENSION_MOTOR = false;
         }
         public static final class Encoder {
-            public static final double EXTENSION_POSITION_CONVERSION = 1.0; // TODO: determine units
-            public static final double LOWER_DISTANCE_PER_ROTATION = 1.0; // TODO: determine units
-            public static final double UPPER_DISTANCE_PER_ROTATION = 1.0; // TODO: determine units
-            public static final double LOWER_POSITION_OFFSET = 0.0; // TODO: determine offset
-            public static final double UPPER_POSITION_OFFSET = 0.0; // TODO: determine offset
+            /** How many metres the extension extends per motor rotation. */
+            public static final double EXTENSION_POSITION_CONVERSION = Ratios.EXTENSION_MOTOR * EXTENSION_PULLEY_CIRCUMFERENCE; // metres
+            public static final double LOWER_DISTANCE_PER_ROTATION = (18/48); // TODO: determine units
+            public static final double UPPER_DISTANCE_PER_ROTATION = (18/48); // TODO: determine units
+            /** Pointing straight up (angle = 90.0 degrees). */
+            public static final double LOWER_POSITION_OFFSET = 0.8537;
+            // encoder + dir
+            /** Parallel with upper arm (angle = 90 degrees). */
+            public static final double UPPER_POSITION_OFFSET = 0.925;
+            // encoder + dir (down is negative), away from front positive
+            // 0.9305 0 degree setpoint
+            // negative forward for both encoders == encoder is ccw pos when viewed from right side = it go in right dir
+            // away from front positive
         }
         public static final class Pneumatics {
             public static final int OPEN_SOLENOID_ID = 14;
             public static final int CLOSE_SOLENOID_ID = 15;
         }
+        public static final class Ratios {
+            /** Extension pulley rotations per extension motor rotation. */
+            public static final double EXTENSION_MOTOR = UltraPlanetaryRatios.FIVE_TO_ONE * UltraPlanetaryRatios.FOUR_TO_ONE;
+            /** Ratio between shaft pulley (18t) and arm pulley (48t). */
+            public static final double LOWER_ARM_CHAIN = 18.0 / 48.0;
+            /** Arm shaft rotations per motor rotation. (2x 5:1 + 1x 3:1) */
+            public static final double LOWER_ARM_MOTOR = (1.0 / 5.0) * (1.0 / 5.0) * (1.0 / 3.0);
+            /** Total ratio between lower arm motor and lower arm rotation. */
+            public static final double LOWER_ARM = LOWER_ARM_MOTOR * LOWER_ARM_CHAIN;
+            /** Ratio between shaft pulley (18t) and arm pulley (48t). */
+            public static final double UPPER_ARM_CHAIN = 18.0 / 48.0;
+            /** Arm shaft rotations per motor rotation. (2x 5:1 + 1x 3:1) */
+            public static final double UPPER_ARM_MOTOR = (1.0 / 5.0) * (1.0 / 5.0) * (1.0 / 3.0);
+            /** Total ratio between upper arm motor and upper arm rotation. */
+            public static final double UPPER_ARM = UPPER_ARM_MOTOR * UPPER_ARM_CHAIN;
+        }
+        /** TODO: More accurate measurements should be pulled from the robot CAD.
+         * Arm kinematics can use **ANY UNIT**, as long as all units are
+         * consistent. If inches are easier to use, change any arm-related
+         * constant using metres to inches. (Don't forget 
+         * EXTENSION_POSITION_CONVERSION).
+         */
+        public static final double EXTENSION_PULLEY_DIAMETER = 0.055; // metres
+        public static final double EXTENSION_PULLEY_CIRCUMFERENCE = Math.PI * EXTENSION_PULLEY_DIAMETER; // metres
+        /** The distance from the centre of the tube connecting the lower arm
+         * to the robot to the centre of the tube connecting the upper arm to
+         * the lower arm.
+         */
+        public static final double LOWER_ARM_LENGTH = 0.51; // metres
+        /** The distance from the centre of the tube connecting both arms to
+         * the beginning of the gripper opening with the extension retracted. */
+        public static final double UPPER_ARM_BASE_LENGTH = 0.67; // metres
+        /** How fast to extend the arm extension during manual control.
+         * Range is between -1 to 1, however, should be >= 0.
+         */
         public static final double MANUAL_EXTENSION_SPEED = 0.1;
     }
     /** Autonomous-Related Constants */
@@ -189,14 +232,15 @@ public final class Constants {
         public static final double MAX_POSSIBLE_LINEAR_VELOCITY = 3.8;
         /** Any speeds below this value will not cause the module to move. */
         public static final double MODULE_SPEED_DEADBAND = 0.001; // m/s
-        /** 56.6409 rotations of motor = 1.0 rotation of module 
-         * <p>UltraPlanetary gearbox ratios differ from the ratio printed on
-         * the gearbox's side. The motor is connected to a 5:1 gearbox and a
-         * 4:1 gearbox, whose actual ratios are 5.23:1 and 3.61:1 respectively.
-         * The module spins once for every 3 rotations of the UltraPlanetary's
-         * output, which gives a gear ratio of 5.23 x 3.61 x 3 = 56.6409.
+        /** The amount of module rotations for each rotation motor rotation.
+         * <p>The motor is connected to a 5:1 gearbox and a 4:1 gearbox, and
+         * the module spins once for every 3 rotations of the UltraPlanetary's
+         * output.
          */
-        public static final double ROTATION_GEAR_RATIO = 1.0 / 56.6409; // .0 to avoid integer division
+        /* May want to verify this gear ratio, as this math should be
+         * equivalent to before, but has a different value.
+         */
+        public static final double ROTATION_GEAR_RATIO = 3.0 * UltraPlanetaryRatios.FIVE_TO_ONE * UltraPlanetaryRatios.FOUR_TO_ONE;
         public static final double WHEEL_RADIUS = 0.0508; // metres
         public static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS; // metres
         /** 8.0 rotations of motor = 1.0 rotation of wheel */
@@ -241,6 +285,20 @@ public final class Constants {
          */
         public static final double ROTATION_VELOCITY_CONVERSION = (2 * Math.PI * ROTATION_GEAR_RATIO) / 60;
     }
+    /**
+     * UltraPlanetary gearbox ratios differ from the ratio printed on
+     * the gearbox's side. This class contains the actual ratios of the
+     * UltraPlanetary cartridges.
+     */
+    public static final class UltraPlanetaryRatios {
+        /** The ratio of a 3:1 UltraPlanetary cartridge used as a reduction. */
+        public static final double THREE_TO_ONE = 1.0 / (84.0 / 29.0);
+        /** The ratio of a 4:1 UltraPlanetary cartridge used as a reduction. */
+        public static final double FOUR_TO_ONE = 1.0 / (76.0 / 21.0);
+        /** The ratio of a 5:1 UltraPlanetary cartridge used as a reduction. */
+        public static final double FIVE_TO_ONE = 1.0 / (68.0 / 13.0);
+    }
+
     /** 
      * Xbox controller related constants. 
      * Do not put button or axis numbers in here, instead use the functions it
