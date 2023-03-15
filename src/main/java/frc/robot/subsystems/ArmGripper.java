@@ -56,7 +56,7 @@ public class ArmGripper extends SubsystemBase {
   private final DutyCycleEncoder m_upperEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER);
 
   private final RelativeEncoder m_lowerEncoderRelative = m_lowerMotor.getEncoder();
-  private final RelativeEncoder m_upperEncoderRelative = m_lowerMotor.getEncoder();
+  private final RelativeEncoder m_upperEncoderRelative = m_upperMotor.getEncoder();
 
   private final RelativeEncoder m_extensionEncoder = m_extensionMotor.getEncoder();
   // TODO: add other (relative) encoders here
