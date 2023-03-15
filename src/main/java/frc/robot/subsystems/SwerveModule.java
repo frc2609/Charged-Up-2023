@@ -13,44 +13,50 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 //import edu.wpi.first.util.sendable.Sendable;
 //import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Represents a single swerve drive module.
  */
 public class SwerveModule { // implements Sendable {
-  private final CANSparkMax m_driveMotor;
+  private final SwerveMotorGroup m_driveMotors;
   private final CANSparkMax m_rotationMotor;
-
-  private final RelativeEncoder m_driveEncoder;
   private final RelativeEncoder m_rotationEncoder;
-
-  private final PIDController m_drivePIDController =
-      new PIDController(drivePID_kP, drivePID_kI, drivePID_kD);
-
-  private final SimpleMotorFeedforward m_driveFeedforward =
-      new SimpleMotorFeedforward(driveFF_kS, driveFF_kV, driveFF_kA);
 
   private final SparkMaxPIDController m_rotationPIDController;
 
   private final String m_name;
 
-  /** Creates a new SwerveModule. */
-  public SwerveModule(String name, int driveMotorID, int rotationMotorID) {
-    m_driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
+  /** 
+   * Creates a new SwerveModule.
+   * 
+   * @param name The module's name, added in front of all SmartDashboard values.
+   * @param driveMotorAID The CAN ID of the primary drive motor (always engaged).
+   * @param driveMotorBID The CAN ID of the secondary drive motor (engaged for extra speed).
+   * @param rotationMotorID The CAN ID of the rotation motor.
+   * @param invertDriveMotors name see SwerveMotorGroup//driveMotorsInverted Whether or not to invert both drive motors. The wheel should spin forward on positive inputs.
+   * @param invertRotationMotor Whether or not to invert the rotation motor. The module should rotate counterclockwise on positive inputs.
+   */
+  public SwerveModule(
+      String name,
+      int driveMotorAID, 
+      int driveMotorBID,
+      int rotationMotorID,
+      boolean invertDriveMotors,
+      boolean invertRotationMotor
+    )
+  {
+    m_driveMotors = new SwerveMotorGroup(driveMotorAID, driveMotorBID, invertDriveMotors);
     m_rotationMotor = new CANSparkMax(rotationMotorID, MotorType.kBrushless);
 
-    m_driveEncoder = m_driveMotor.getEncoder();
-    m_driveEncoder.setPositionConversionFactor(DRIVE_POSITION_CONVERSION);
-    m_driveEncoder.setVelocityConversionFactor(DRIVE_VELOCITY_CONVERSION);
+    // TODO: that's not good. SwerveMotorGroup should handle this (or eliminate it if needed)
+    m_driveMotors.getEncoder().setPositionConversionFactor(DRIVE_POSITION_CONVERSION);
+    m_driveMotors.getEncoder().setVelocityConversionFactor(DRIVE_VELOCITY_CONVERSION);
     
     m_rotationEncoder = m_rotationMotor.getEncoder();
     m_rotationEncoder.setPositionConversionFactor(ROTATION_POSITION_CONVERSION);
@@ -59,14 +65,13 @@ public class SwerveModule { // implements Sendable {
     m_rotationPIDController = m_rotationMotor.getPIDController();
     configureSparkMaxPID();
 
-    m_driveMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     m_rotationMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
-    m_rotationMotor.setInverted(true);
+    m_rotationMotor.setInverted(invertRotationMotor);
 
     m_name = name;
 
     // SparkMaxPIDController and SimpleMotorFeedForward are not sent as they do not implement Sendable.
-    SendableRegistry.setName(m_drivePIDController, m_name, "Drive PID Controller");
+    // SendableRegistry.setName(m_drivePIDController, m_name, "Drive PID Controller");
 
     /* Send these values in the constructor so they appear in NetworkTables
      * before setDesiredState() is called for the first time. */
@@ -79,9 +84,10 @@ public class SwerveModule { // implements Sendable {
   public void updateNetworkTables() {
     SmartDashboard.putNumber(m_name + " Angle (rad)", m_rotationEncoder.getPosition());
     SmartDashboard.putNumber(m_name + " Angular Velocity (rad/s)", m_rotationEncoder.getVelocity());
-    SmartDashboard.putNumber(m_name + " Distance Travelled (m)", m_driveEncoder.getPosition());
-    SmartDashboard.putNumber(m_name + " Velocity (m/s)", m_driveEncoder.getVelocity());
-    SmartDashboard.putNumber(m_name + " Drive Motor Temp (C°)", m_driveMotor.getMotorTemperature());
+    SmartDashboard.putNumber(m_name + " Distance Travelled (m)", m_driveMotors.getPosition());
+    SmartDashboard.putNumber(m_name + " Velocity (m/s)", m_driveMotors.getVelocity());
+    // TODO: move some of these to SwerveMotorGroup
+    // SmartDashboard.putNumber(m_name + " Drive Motor Temp (C°)", m_driveMotor.getMotorTemperature());
     SmartDashboard.putNumber(m_name + " Rotation Motor Temp (C°)", m_rotationMotor.getMotorTemperature());
   }
 
@@ -118,12 +124,13 @@ public class SwerveModule { // implements Sendable {
    * down the robot code.
    */
   public void displayDrivePID() {
-    final double kP = SmartDashboard.getNumber(m_name + " Drive PID kP", m_drivePIDController.getP());
-    final double kI = SmartDashboard.getNumber(m_name + " Drive PID kI", m_drivePIDController.getI());
-    final double kD = SmartDashboard.getNumber(m_name + " Drive PID kD", m_drivePIDController.getD());
-    if (kP != m_drivePIDController.getP()) m_drivePIDController.setP(kP);
-    if (kI != m_drivePIDController.getI()) m_drivePIDController.setI(kI);
-    if (kD != m_drivePIDController.getD()) m_drivePIDController.setD(kD);
+    // final double kP = SmartDashboard.getNumber(m_name + " Drive PID kP", m_drivePIDController.getP());
+    // final double kI = SmartDashboard.getNumber(m_name + " Drive PID kI", m_drivePIDController.getI());
+    // final double kD = SmartDashboard.getNumber(m_name + " Drive PID kD", m_drivePIDController.getD());
+    // if (kP != m_drivePIDController.getP()) m_drivePIDController.setP(kP);
+    // if (kI != m_drivePIDController.getI()) m_drivePIDController.setI(kI);
+    // if (kD != m_drivePIDController.getD()) m_drivePIDController.setD(kD);
+    // TODO: make it work for SwerveMotorGroup
   }
 
   /**
@@ -176,7 +183,7 @@ public class SwerveModule { // implements Sendable {
    */
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(
-      m_driveEncoder.getPosition(), 
+      m_driveMotors.getPosition(), // TODO: this is not correct
       new Rotation2d(m_rotationEncoder.getPosition())
     );
   }
@@ -190,7 +197,7 @@ public class SwerveModule { // implements Sendable {
    */
   public SwerveModuleState getState() {
     return new SwerveModuleState(
-      m_driveEncoder.getVelocity(),
+      m_driveMotors.getVelocity(),
       new Rotation2d(m_rotationEncoder.getPosition())
     );
   }
@@ -201,7 +208,7 @@ public class SwerveModule { // implements Sendable {
    * the module. (Does not reset encoder velocity.)
    */
   public void resetEncoders() {
-    m_driveEncoder.setPosition(0);
+    m_driveMotors.getEncoder().setPosition(0);
     m_rotationEncoder.setPosition(0);
   }
 
@@ -210,7 +217,7 @@ public class SwerveModule { // implements Sendable {
    *
    * @param desiredState Desired state with speed and angle.
    */
-  public void setDesiredState(SwerveModuleState desiredState) {
+  public void setDesiredState(SwerveModuleState desiredState, double secondaryThrottle, boolean maxSpeedEnabled) {
     /* If the robot is not being instructed to move, do not move any motors. 
      * This prevents the swerve module from returning to its original position
      * when the robot is not moving, which is the default behaviour of
@@ -225,18 +232,9 @@ public class SwerveModule { // implements Sendable {
     SwerveModuleState optimizedState =
         SwerveModuleState.optimize(desiredState, new Rotation2d(m_rotationEncoder.getPosition()));
 
-    // Calculate the drive output from the drive PID controller.
-    final double driveOutput =
-        m_drivePIDController.calculate(m_driveEncoder.getVelocity(), optimizedState.speedMetersPerSecond);
-    final double driveFeedforward = m_driveFeedforward.calculate(optimizedState.speedMetersPerSecond);
-
-    final double driveVoltage = driveOutput + driveFeedforward;
-    SmartDashboard.putNumber(m_name + " Drive Voltage", driveVoltage);
-    
-    SmartDashboard.putNumber(m_name + " Drive Setpoint (m/s)", optimizedState.speedMetersPerSecond);
-    SmartDashboard.putNumber(m_name + " Angle Setpoint (rad)", optimizedState.angle.getRadians());
-   
-    m_driveMotor.setVoltage(driveVoltage);
+    SmartDashboard.putNumber(m_name + "Set M/S", optimizedState.angle.getRadians());
+    m_driveMotors.set(optimizedState.speedMetersPerSecond, secondaryThrottle, maxSpeedEnabled);
+    SmartDashboard.putNumber(m_name + "Set Angle", optimizedState.angle.getRadians());
     m_rotationPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
   }
 
@@ -258,20 +256,22 @@ public class SwerveModule { // implements Sendable {
    * @param desiredVelocity The desired velocity in m/s.
    */
   public void setVelocity(double desiredVelocity) {
-    final double velocity = m_driveEncoder.getVelocity();
-    final double feedback = m_drivePIDController.calculate(velocity, desiredVelocity);
-    final double feedforward = m_driveFeedforward.calculate(desiredVelocity);
-    final double output = feedback+feedforward;
-    SmartDashboard.putNumber(m_name + " Drive Setpoint (m/s)", desiredVelocity);
-    SmartDashboard.putNumber(m_name + " Drive Voltage", output);
-    m_driveMotor.setVoltage(output);
+    // TODO: this should work with new swerve
+    // final double velocity = m_driveEncoder.getVelocity();
+    // final double feedback = m_drivePIDController.calculate(velocity, desiredVelocity);
+    // final double feedforward = m_driveFeedforward.calculate(desiredVelocity);
+    // final double output = feedback+feedforward;
+    // SmartDashboard.putNumber(m_name + " Drive Setpoint (m/s)", desiredVelocity);
+    // SmartDashboard.putNumber(m_name + " Drive Voltage", output);
+    // m_driveMotor.setVoltage(output);
   }
 
   /**
    * Stop all motors in this module.
    */
   public void stop() {
-    m_driveMotor.setVoltage(0);
+    // m_driveMotor.setVoltage(0);
+    m_driveMotors.set(0, 0, false);
     m_rotationMotor.setVoltage(0);
   }
 }

@@ -10,6 +10,7 @@ import static frc.robot.Constants.Swerve.*;
 import java.util.List;
 
 import frc.robot.Constants.Swerve.Dimensions;
+import frc.robot.Constants.Swerve.IsInverted;
 import frc.robot.Constants.Swerve.PhysicalLimits;
 import frc.robot.Constants.Swerve.TeleopLimits;
 import frc.robot.utils.BeaverLogger;
@@ -61,10 +62,10 @@ public class SwerveDrive extends SubsystemBase {
   private final Translation2d m_rearLeftLocation = new Translation2d(Dimensions.rearLeftX, Dimensions.rearLeftY);
   private final Translation2d m_rearRightLocation = new Translation2d(Dimensions.rearRightX, Dimensions.rearRightY);
   
-  private final SwerveModule m_frontLeft = new SwerveModule("Front Left", CANID.frontLeftDrive, CANID.frontLeftRotation);
-  private final SwerveModule m_frontRight = new SwerveModule("Front Right", CANID.frontRightDrive, CANID.frontRightRotation);
-  private final SwerveModule m_rearLeft = new SwerveModule("Rear Left", CANID.rearLeftDrive, CANID.rearLeftRotation);
-  private final SwerveModule m_rearRight = new SwerveModule("Rear Right", CANID.rearRightDrive, CANID.rearRightRotation);
+  private final SwerveModule m_frontLeft = new SwerveModule("Front Left", CANID.frontLeftPrimary, CANID.frontLeftSecondary, CANID.frontLeftRotation, IsInverted.frontLeftDrive, IsInverted.frontLeftRotation);
+  private final SwerveModule m_frontRight = new SwerveModule("Front Right", CANID.frontRightPrimary, CANID.frontRightSecondary, CANID.frontRightRotation, IsInverted.frontRightDrive, IsInverted.frontRightRotation);
+  private final SwerveModule m_rearLeft = new SwerveModule("Rear Left", CANID.rearLeftPrimary, CANID.rearLeftSecondary, CANID.rearLeftRotation, IsInverted.rearLeftDrive, IsInverted.rearLeftRotation);
+  private final SwerveModule m_rearRight = new SwerveModule("Rear Right", CANID.rearRightPrimary, CANID.rearRightSecondary, CANID.rearRightRotation, IsInverted.rearRightDrive, IsInverted.rearRightRotation);
   
   private final SwerveAutoBuilder m_autoBuilder;
   private final PathLogger m_pathLogger = new PathLogger();
@@ -79,6 +80,8 @@ public class SwerveDrive extends SubsystemBase {
 
   private boolean m_isFieldRelative = false;
   private double m_debugAngleSetpoint = 0; // radians
+  private boolean m_maxSpeedEnabled = false;
+  private double m_secondaryThrottle = 0; // 0 to 1
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive(AHRS gyro, XboxController driverController) {
@@ -154,6 +157,7 @@ public class SwerveDrive extends SubsystemBase {
       resetModuleEncoders();
       SmartDashboard.putBoolean("Reset Encoders", false); // reset the button
     }
+    SmartDashboard.putNumber("Boost Multiplier", m_secondaryThrottle);
   }
 
   /** 
@@ -287,6 +291,9 @@ public class SwerveDrive extends SubsystemBase {
             m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
                 * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
 
+    m_maxSpeedEnabled = m_driverController.getAButton();
+    m_secondaryThrottle = m_driverController.getRightTriggerAxis() / 2.0;
+
     drive(xSpeed, ySpeed, rotationSpeed, m_isFieldRelative);
   }
 
@@ -392,10 +399,10 @@ public class SwerveDrive extends SubsystemBase {
    */
   public void setDesiredStates(SwerveModuleState[] states) {
     // Array index order must match the order that m_kinematics was initialized with.
-    m_frontLeft.setDesiredState(states[0]);
-    m_frontRight.setDesiredState(states[1]);
-    m_rearLeft.setDesiredState(states[2]);
-    m_rearRight.setDesiredState(states[3]);
+    m_frontLeft.setDesiredState(states[0], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_frontRight.setDesiredState(states[1], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_rearLeft.setDesiredState(states[2], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_rearRight.setDesiredState(states[3], m_secondaryThrottle, m_maxSpeedEnabled);
     BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates());
   }
 
