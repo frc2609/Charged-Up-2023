@@ -48,8 +48,11 @@ public class ArmGripper extends SubsystemBase {
   private final CANSparkMax m_extensionMotor = new CANSparkMax(CANID.EXTENSION_MOTOR, MotorType.kBrushless);
 
   // Absolute encoder range is 0 to 1
-  private final DutyCycleEncoder m_lowerEncoder = new DutyCycleEncoder(DIO.ARM_LOWER_ENCODER);
-  private final DutyCycleEncoder m_upperEncoder = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER);
+  private final DutyCycleEncoder m_lowerEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_LOWER_ENCODER);
+  private final DutyCycleEncoder m_upperEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER);
+
+  private final RelativeEncoder m_lowerEncoderRelative = m_lowerMotor.getEncoder();
+  private final RelativeEncoder m_upperEncoderRelative = m_lowerMotor.getEncoder();
 
   private final RelativeEncoder m_extensionEncoder = m_extensionMotor.getEncoder();
   // TODO: add other (relative) encoders here
@@ -77,14 +80,14 @@ public class ArmGripper extends SubsystemBase {
   @Override
   public void periodic() {
     // TODO: Modify these as necessary.
-    SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoder.getAbsolutePosition());
-    SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoder.getAbsolutePosition());
+    SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
+    SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
     // angles
-    SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerArmAngle()); // positive away from robot
+    SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Lower Arm NEO Encoder Position", m_lowerMotor.getEncoder().getPosition());
     // That does not work
-    // SmartDashboard.putNumber("Upper Arm Relative Angle (Deg)", m_upperEncoder.getDistance());
-    SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperArmAngle()); // positive away from robot
+    // SmartDashboard.putNumber("Upper Arm Relative Angle (Deg)", m_upperEncoderAbsolute.getDistance());
+    SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperArmAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Upper Arm NEO Encoder Position", m_upperMotor.getEncoder().getPosition());
     // lengths
     SmartDashboard.putNumber("Lower Arm Length (m)", getLowerArmLength());
@@ -106,8 +109,8 @@ public class ArmGripper extends SubsystemBase {
     m_upperMotor.getEncoder().setPositionConversionFactor(1.8);
 
     // TODO: configure as necessary
-    m_lowerEncoder.setDistancePerRotation(Encoder.LOWER_DISTANCE_PER_ROTATION);
-    m_upperEncoder.setDistancePerRotation(Encoder.UPPER_DISTANCE_PER_ROTATION);
+    m_lowerEncoderAbsolute.setDistancePerRotation(Encoder.LOWER_DISTANCE_PER_ROTATION);
+    m_upperEncoderAbsolute.setDistancePerRotation(Encoder.UPPER_DISTANCE_PER_ROTATION);
     m_extensionEncoder.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
   }
 
@@ -169,8 +172,8 @@ public class ArmGripper extends SubsystemBase {
 
   public void setArmOffsets(){
     // TODO: move to encoder config (won't need to call in RobotContainer either)
-    m_lowerMotor.getEncoder().setPosition(getLowerArmAngle());
-    m_upperMotor.getEncoder().setPosition(getUpperArmAngle());
+    m_lowerMotor.getEncoder().setPosition(getLowerAngleAbsolute());
+    m_upperMotor.getEncoder().setPosition(getUpperArmAngleAbsolute());
   }
 
   /**
@@ -182,12 +185,21 @@ public class ArmGripper extends SubsystemBase {
   }
 
   /**
-   * Returns the angle of the lower arm relative to the front of the robot.
+   * Returns the angle of the lower arm relative to the front of the robot using the absolute encoder.
+   * WARNING: THIS MAY NOT ALWAYS BE ACCURATE! THIS FUNCTION SHOULD ONLY BE USED FOR OFFSET SETTING PURPOSES ONLY
    * @return The robot-relative angle of the lower arm in degrees.
    */
-  public double getLowerArmAngle() {
+  private double getLowerAngleAbsolute() {
     // plus 90 because the offset was measured at 90.0 degrees
-    return (((m_lowerEncoder.getAbsolutePosition() - Encoder.LOWER_POSITION_OFFSET) * Ratios.LOWER_ARM_CHAIN) * 360.0) + 90.0;
+    return (((m_lowerEncoderAbsolute.getAbsolutePosition() - Encoder.LOWER_POSITION_OFFSET) * Ratios.LOWER_ARM_CHAIN) * 360.0) + 90.0;
+  }
+
+   /**
+   * Returns the angle of the lower arm relative to the front of the robot using the absolute encoder.
+   * @return The robot-relative angle of the lower arm in degrees.
+   */
+  public double getLowerArmAngleRelative(){
+    return m_lowerEncoderRelative.getPosition();
   }
 
   /**
@@ -199,18 +211,26 @@ public class ArmGripper extends SubsystemBase {
   }
 
   /**
-   * Returns the angle of the upper arm relative to the front of the robot.
+   * Returns the angle of the upper arm relative to the front of the robot using the absolute encoder.
+   * WARNING: THIS MAY NOT ALWAYS BE ACCURATE! THIS FUNCTION SHOULD ONLY BE USED FOR OFFSET SETTING PURPOSES ONLY
    * @return The robot-relative angle of the upper arm in degrees.
    */
-  public double getUpperArmAngle() {
-    final double UPPER_ANGLE = ((m_upperEncoder.getAbsolutePosition()-Encoder.UPPER_POSITION_OFFSET)*Ratios.UPPER_ARM_CHAIN*360)+90;
+  private double getUpperArmAngleAbsolute() {
     /* The upper arm angle is relative to the lower arm. To calculate the
      * robot-relative angle of the upper arm, subtract the upper arm relative
      * angle from the lower arm angle.
      * TODO: show this in a markdown file
      * TODO: clean up encoder calculations and encoder calculation functions
      */
-    return UPPER_ANGLE;
+    return ((m_upperEncoderAbsolute.getAbsolutePosition()-Encoder.UPPER_POSITION_OFFSET)*Ratios.UPPER_ARM_CHAIN*360)+90;
+  }
+
+   /**
+   * Returns the angle of the upper arm relative to the front of the robot using the absolute encoder.
+   * @return The robot-relative angle of the upper arm in degrees.
+   */
+  public double getUpperArmAngleRelative(){
+    return m_upperEncoderRelative.getPosition();
   }
 
   /**
