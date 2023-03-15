@@ -15,6 +15,6 @@ public class MoveArmToIntermediateThenMid extends SequentialCommandGroup {
   public MoveArmToIntermediateThenMid(ArmGripper armGripper) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new MoveArmToSetpoint(70, armGripper.getUpperArmAngleRelative(), armGripper.getExtensionDistance(), armGripper), new TimerDelay(3), new ScoreMid(armGripper), new TimerDelay(0.2), new OpenGripper(armGripper));
+    addCommands(new MoveArmToSetpoint(0, 148, 0, true, false, true, armGripper), new TimerDelay(3), new ScoreMid(armGripper), new TimerDelay(0.2), new OpenGripper(armGripper));
   }
 }

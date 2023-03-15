@@ -82,6 +82,7 @@ public class ArmGripper extends SubsystemBase {
     m_lowerPID.setI(0.00001);//0.00000025);//0.000000001);
     m_lowerPID.setD(0.0);//0.005);//0.01);//0);//0.0000005);
     
+    // CHANGE DEFAULTS HERE
     SmartDashboard.putNumber("Upper Arm P", 0.00025);
     SmartDashboard.putNumber("Upper Arm I", 0.00001);
     SmartDashboard.putNumber("Upper Arm D", 0.0);
@@ -161,11 +162,12 @@ public class ArmGripper extends SubsystemBase {
   }
 
   private void configurePIDs() {
-    m_lowerPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00025));//0.00005);
-    m_lowerPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00001));//0.00000025);//0.000000001);
-    m_lowerPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.0));//0.005);//0.01);//0);//0.0000005);
+    // CHANGE DEFAULTS HERE
+    m_lowerPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00025));
+    m_lowerPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00001));
+    m_lowerPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.0));
     m_lowerPID.setIZone(0.001);
-    m_lowerPID.setFF(0.000156);
+    m_lowerPID.setFF(0);
     m_lowerPID.setOutputRange(-1.0, 1.0);
     // TODO: configure max velocity and accel (and move to constants?)
     m_lowerPID.setSmartMotionMaxVelocity(2500, 0);
@@ -175,7 +177,7 @@ public class ArmGripper extends SubsystemBase {
     m_upperPID.setI(SmartDashboard.getNumber("Lower Arm I", 0.00001));//0.00000025);//0.000000001);
     m_upperPID.setD(SmartDashboard.getNumber("Lower Arm D", 0.0));//0.005);//0.01);//0);//0.0000005);
     m_upperPID.setIZone(0.001);
-    m_upperPID.setFF(0.000156);
+    m_upperPID.setFF(0);
     m_upperPID.setOutputRange(-1.0, 1.0);
     m_upperPID.setSmartMotionMaxVelocity(2500, 0);
     m_upperPID.setSmartMotionMaxAccel(15000, 0);
@@ -184,7 +186,7 @@ public class ArmGripper extends SubsystemBase {
     m_extensionPID.setI(SmartDashboard.getNumber("Extension I", 0.000000001));
     m_extensionPID.setD(SmartDashboard.getNumber("Extension D", 0.0000005));
     m_extensionPID.setIZone(0);
-    m_extensionPID.setFF(0.000156);
+    m_extensionPID.setFF(0);
     m_extensionPID.setOutputRange(-1.0, 1.0);
     m_extensionPID.setSmartMotionMaxVelocity(2500, 0);
     m_extensionPID.setSmartMotionMaxAccel(15000, 0);
