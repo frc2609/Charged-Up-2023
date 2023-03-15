@@ -19,6 +19,7 @@ import frc.robot.commands.CloseGripper;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
+import frc.robot.commands.MoveArmToIntermediateThenMid;
 import frc.robot.commands.OpenGripper;
 import frc.robot.commands.ScoreHigh;
 import frc.robot.commands.ScoreMid;
@@ -104,7 +105,7 @@ public class RobotContainer {
     m_zeroYawButton.onTrue(new InstantCommand(m_navx::zeroYaw));
     m_startCommand.onTrue(new TimedDriveForward(2, m_swerveDrive));
     // TODO: this will conflict with the request a piece buttons... make a document for robot controls
-    m_scoreMidButton.onTrue(new ScoreMid(m_armGripper));
+    m_scoreMidButton.onTrue(new MoveArmToIntermediateThenMid(m_armGripper));
     m_scoreHighButton.onTrue(new ScoreHigh(m_armGripper));
     m_closeGripper.onTrue(new CloseGripper(m_armGripper));
     m_openGripper.onTrue(new OpenGripper(m_armGripper));
