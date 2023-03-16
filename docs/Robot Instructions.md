@@ -82,11 +82,13 @@ However, in teleop mode, the robot can collide with parts of the field, and othe
 | Right Joystick Y Axis | Manual: Move upper arm |
 | Left Bumper           | Open Gripper           |
 | Right Bumper          | Close Gripper          |
+| Start Button          | Toggle Manual Control  |
 | X Button              | Move to stow position  |
 | A Button              | Move to low node       |
 | B Button              | Move to mid node       |
 | Y Button              | Move to high node      |
-| Start Button          | Toggle Manual Control  |
+| DPAD Up               | Extend extension       |
+| DPAD Down             | Retract extension      |
 
 
 ## Dashboard

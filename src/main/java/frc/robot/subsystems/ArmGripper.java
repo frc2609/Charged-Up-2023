@@ -270,8 +270,8 @@ public class ArmGripper extends SubsystemBase {
         -m_operatorController.getRightY(), Xbox.JOYSTICK_DEADBAND));
 
     // set extension motor
-    if (m_operatorController.getPOV() == 90) m_extensionMotor.set(Arm.MANUAL_EXTENSION_SPEED);
-    else if (m_operatorController.getPOV() == 270) m_extensionMotor.set(-Arm.MANUAL_EXTENSION_SPEED);
+    if (m_operatorController.getPOV() == 0) m_extensionMotor.set(Arm.MANUAL_EXTENSION_SPEED);
+    else if (m_operatorController.getPOV() == 180) m_extensionMotor.set(-Arm.MANUAL_EXTENSION_SPEED);
     else m_extensionMotor.disable();
   }
 
