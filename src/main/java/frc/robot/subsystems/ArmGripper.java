@@ -11,7 +11,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMax.SoftLimitDirection;
+// import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -36,9 +35,6 @@ import frc.robot.Constants.Arm.Ratios;
 public class ArmGripper extends SubsystemBase {
   private final Compressor m_compressor =
       new Compressor(CANID.PNEUMATICS_HUB, PneumaticsModuleType.REVPH);
-  
-  public Value openValue = kReverse;
-  public Value closeValue = kForward; // TODO: Double check these and move to constants
 
   private final DoubleSolenoid m_gripperSolenoid = new DoubleSolenoid(
       CANID.PNEUMATICS_HUB,
@@ -77,28 +73,12 @@ public class ArmGripper extends SubsystemBase {
     configureEncoders();
     configureMotors();
     configurePIDs();
+
     m_operatorController = operatorController;
-    m_lowerPID.setP(0.000025);//0.00005);
-    m_lowerPID.setI(0.00001);//0.00000025);//0.000000001);
-    m_lowerPID.setD(0.0);//0.005);//0.01);//0);//0.0000005);
-    
-    // CHANGE DEFAULTS HERE
-    SmartDashboard.putNumber("Upper Arm P", 0.00025);
-    SmartDashboard.putNumber("Upper Arm I", 0.00001);
-    SmartDashboard.putNumber("Upper Arm D", 0.0);
-    
-    SmartDashboard.putNumber("Lower Arm P", 0.00025);
-    SmartDashboard.putNumber("Lower Arm I", 0.00001);
-    SmartDashboard.putNumber("Lower Arm D", 0.0);
-    
-    SmartDashboard.putNumber("Extension P", 0.00005);
-    SmartDashboard.putNumber("Extension I", 0.000000001);
-    SmartDashboard.putNumber("Extension D", 0.0000005);
   }
 
   @Override
   public void periodic() {
-    configurePIDs();
     // TODO: Modify these as necessary.
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
@@ -133,15 +113,19 @@ public class ArmGripper extends SubsystemBase {
     m_upperEncoderAbsolute.setDistancePerRotation(Encoder.UPPER_DISTANCE_PER_ROTATION);
     m_extensionEncoder.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
 
+    // Copy absolute position to NEO encoders
+    m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
+    m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());
   }
 
   private void configureMotors() {
+    // TODO: move to constants (and find values) -> use these to prevent the arm from attempting to pass hard stops
     // m_lowerMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
     // m_lowerMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     // m_lowerMotor.setSoftLimit(SoftLimitDirection.kForward, 356); // degrees
     // m_lowerMotor.setSoftLimit(SoftLimitDirection.kReverse, 0); // degrees
     m_lowerMotor.setIdleMode(IdleMode.kBrake);
-    m_lowerMotor.setSmartCurrentLimit(40); // TODO: move to constants
+    m_lowerMotor.setSmartCurrentLimit(40);
     m_lowerMotor.setInverted(IsInverted.LOWER_MOTOR);
 
     // m_upperMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
@@ -162,40 +146,48 @@ public class ArmGripper extends SubsystemBase {
   }
 
   private void configurePIDs() {
-    // CHANGE DEFAULTS HERE
-    m_lowerPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00025));
-    m_lowerPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00001));
-    m_lowerPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.0));
-    m_lowerPID.setIZone(0.001);
-    m_lowerPID.setFF(0);
+    /* Alternative PID set:
+        SmartDashboard.putNumber("Upper Arm P", 0.00005); // time #3
+        SmartDashboard.putNumber("Upper Arm I", 0.000000001);
+        SmartDashboard.putNumber("Upper Arm D", 0.0000005);
+        SmartDashboard.putNumber("Upper Arm FF", 0.000156);
+        
+        SmartDashboard.putNumber("Lower Arm P", 0.00005);
+        SmartDashboard.putNumber("Lower Arm I", 0.000000001);
+        SmartDashboard.putNumber("Lower Arm D", 0.0000005);
+        SmartDashboard.putNumber("Lower Arm FF", 0.000156);
+        
+        SmartDashboard.putNumber("Extension P", 0.00005);
+        SmartDashboard.putNumber("Extension I", 0.000000001);
+        SmartDashboard.putNumber("Extension D", 0.0000005);
+        SmartDashboard.putNumber("Extension FF", 0.000156);
+     */
+    m_lowerPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00007));
+    m_lowerPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00000000005));
+    m_lowerPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.00000003));
+    m_lowerPID.setIZone(0.5);
+    m_lowerPID.setFF(0.00015);
     m_lowerPID.setOutputRange(-1.0, 1.0);
-    // TODO: configure max velocity and accel (and move to constants?)
-    m_lowerPID.setSmartMotionMaxVelocity(2500, 0);
+    m_lowerPID.setSmartMotionMaxVelocity(3000, 0);
     m_lowerPID.setSmartMotionMaxAccel(15000, 0);
 
-    m_upperPID.setP(SmartDashboard.getNumber("Lower Arm P", 0.00025));//0.00005);
-    m_upperPID.setI(SmartDashboard.getNumber("Lower Arm I", 0.00001));//0.00000025);//0.000000001);
-    m_upperPID.setD(SmartDashboard.getNumber("Lower Arm D", 0.0));//0.005);//0.01);//0);//0.0000005);
-    m_upperPID.setIZone(0.001);
-    m_upperPID.setFF(0);
+    m_upperPID.setP(SmartDashboard.getNumber("Lower Arm P", 0.00007));
+    m_upperPID.setI(SmartDashboard.getNumber("Lower Arm I", 0.00000000005));
+    m_upperPID.setD(SmartDashboard.getNumber("Lower Arm D", 0.00000003));
+    m_upperPID.setIZone(0.5);
+    m_upperPID.setFF(0.00015);
     m_upperPID.setOutputRange(-1.0, 1.0);
-    m_upperPID.setSmartMotionMaxVelocity(2500, 0);
+    m_upperPID.setSmartMotionMaxVelocity(3000, 0);
     m_upperPID.setSmartMotionMaxAccel(15000, 0);
 
     m_extensionPID.setP(SmartDashboard.getNumber("Extension P", 0.00005));
     m_extensionPID.setI(SmartDashboard.getNumber("Extension I", 0.000000001));
-    m_extensionPID.setD(SmartDashboard.getNumber("Extension D", 0.0000005));
-    m_extensionPID.setIZone(0);
-    m_extensionPID.setFF(0);
+    m_extensionPID.setD(SmartDashboard.getNumber("Extension D", 0.0000003));
+    m_extensionPID.setIZone(0.5);
+    m_extensionPID.setFF(0.0005);
     m_extensionPID.setOutputRange(-1.0, 1.0);
-    m_extensionPID.setSmartMotionMaxVelocity(2500, 0);
+    m_extensionPID.setSmartMotionMaxVelocity(5000, 0);
     m_extensionPID.setSmartMotionMaxAccel(15000, 0);
-  }
-
-  public void setArmOffsets(){
-    // TODO: move to encoder config (won't need to call in RobotContainer either)
-    m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
-    m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());
   }
 
   /**
@@ -271,46 +263,58 @@ public class ArmGripper extends SubsystemBase {
     return getExtensionDistance() + getUpperArmBaseLength();
   }
 
-  /** Control the arm using the operator controller. */
+  /**
+   * Instruct all motor PID controllers to hold their current position.
+   */
+  public void holdPosition() {
+    m_lowerPID.setReference(getLowerArmAngleRelative(), ControlType.kSmartMotion);
+    m_upperPID.setReference(getUpperArmAngleRelative(), ControlType.kSmartMotion);
+    m_extensionPID.setReference(getExtensionDistance(), ControlType.kSmartMotion);
+  }
+
+  /** 
+   * Control the arm position using the operator controller.
+   * Does not control the gripper solenoids.
+   */
   public void manualControl() {
     // set speeds of arm motors
     m_lowerMotor.set(MathUtil.applyDeadband(
-      -m_operatorController.getLeftY(), Xbox.JOYSTICK_DEADBAND));
+        -m_operatorController.getLeftY(), Xbox.JOYSTICK_DEADBAND));
     m_upperMotor.set(MathUtil.applyDeadband(
-      -m_operatorController.getRightY(), Xbox.JOYSTICK_DEADBAND));
+        -m_operatorController.getRightY(), Xbox.JOYSTICK_DEADBAND));
+
     // set extension motor
-    if (m_operatorController.getXButton()) {
-      m_extensionMotor.set(Arm.MANUAL_EXTENSION_SPEED);
-    } else if (m_operatorController.getYButton()) {
-      m_extensionMotor.set(-Arm.MANUAL_EXTENSION_SPEED);
-    } else {
-      m_extensionMotor.disable();
-    }
+    if (m_operatorController.getPOV() == 90) m_extensionMotor.set(Arm.MANUAL_EXTENSION_SPEED);
+    else if (m_operatorController.getPOV() == 270) m_extensionMotor.set(-Arm.MANUAL_EXTENSION_SPEED);
+    else m_extensionMotor.disable();
   }
 
-  public void setGripper(Value value){
-    m_gripperSolenoid.set(value);
+  public void openGripper() {
+    m_gripperSolenoid.set(kForward);
   }
 
+  public void closeGripper() {
+    m_gripperSolenoid.set(kReverse);
+  }
 
-  // TODO: javadocs and order functions properly
+  /** Set the lower arm angle relative to the front of the robot in degrees. */
   public void setLowerTargetAngle(double angle) {
     m_lowerPID.setReference(angle, ControlType.kSmartMotion);
   }
 
+  /** Set the upper arm angle relative to the front of the robot in degrees. */
   public void setUpperTargetAngle(double angle) {
     m_upperPID.setReference(angle, ControlType.kSmartMotion);
   }
 
+  /** Set the amount to extend the upper arm in metres. */
   public void setExtensionTargetLength(double length) {
     m_extensionPID.setReference(length, ControlType.kSmartMotion);
   }
 
-  public void holdPosition() {
-    // TODO: need a way to hold the current position
-    // TODO: need a function to stop all motors
-    // m_lowerPID.setReference(low_angle, ControlType.kSmartMotion);
-    // m_upperPID.setReference(high_angle, ControlType.kSmartMotion);
-    // m_extensionPID.setReference(length, ControlType.kSmartMotion);
+  public void stopAllMotors() {
+    m_lowerMotor.stopMotor();
+    m_upperMotor.stopMotor();
+    m_extensionMotor.stopMotor();
   }
 }
