@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import frc.robot.subsystems.SwerveDrive;
 
@@ -15,7 +16,7 @@ public class TimedDriveForward extends ParallelDeadlineGroup {
   public TimedDriveForward(double timerDelay, SwerveDrive swerveDrive) {
     // Add the deadline command in the super() call. Add other commands using
     // addCommands().
-    super(new TimerDelay(timerDelay));
+    super(Commands.waitSeconds(timerDelay));
     addCommands(new DriveForwardWhileSpinning(swerveDrive, 2, Math.PI, 2));
   }
 }
