@@ -11,7 +11,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
-// import com.revrobotics.CANSparkMax.SoftLimitDirection;
+import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
@@ -29,8 +29,10 @@ import frc.robot.Constants.DIO;
 import frc.robot.Constants.Xbox;
 import frc.robot.Constants.Arm.Encoder;
 import frc.robot.Constants.Arm.IsInverted;
+import frc.robot.Constants.Arm.Limits;
 import frc.robot.Constants.Arm.Pneumatics;
 import frc.robot.Constants.Arm.Ratios;
+import frc.robot.Constants.Arm.SoftStop;
 
 public class ArmGripper extends SubsystemBase {
   private final Compressor m_compressor =
@@ -119,49 +121,32 @@ public class ArmGripper extends SubsystemBase {
   }
 
   private void configureMotors() {
-    // TODO: move to constants (and find values) -> use these to prevent the arm from attempting to pass hard stops
-    // m_lowerMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-    // m_lowerMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-    // m_lowerMotor.setSoftLimit(SoftLimitDirection.kForward, 356); // degrees
-    // m_lowerMotor.setSoftLimit(SoftLimitDirection.kReverse, 0); // degrees
+    m_lowerMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
+    m_lowerMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+    m_lowerMotor.setSoftLimit(SoftLimitDirection.kForward, SoftStop.LOWER_FORWARD); // degrees
+    m_lowerMotor.setSoftLimit(SoftLimitDirection.kReverse, SoftStop.LOWER_REVERSE); // degrees
     m_lowerMotor.setIdleMode(IdleMode.kBrake);
-    m_lowerMotor.setSmartCurrentLimit(40);
+    m_lowerMotor.setSmartCurrentLimit(Limits.LOWER_ARM_CURRENT);
     m_lowerMotor.setInverted(IsInverted.LOWER_MOTOR);
 
-    // m_upperMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-    // m_upperMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-    // m_upperMotor.setSoftLimit(SoftLimitDirection.kForward, 356); // degrees
-    // m_upperMotor.setSoftLimit(SoftLimitDirection.kReverse, 0); // degrees
+    m_upperMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
+    m_upperMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+    m_upperMotor.setSoftLimit(SoftLimitDirection.kForward, SoftStop.UPPER_FORWARD); // degrees
+    m_upperMotor.setSoftLimit(SoftLimitDirection.kReverse, SoftStop.UPPER_REVERSE); // degrees
     m_upperMotor.setIdleMode(IdleMode.kBrake);
-    m_upperMotor.setSmartCurrentLimit(40);
+    m_upperMotor.setSmartCurrentLimit(Limits.UPPER_ARM_CURRENT);
     m_upperMotor.setInverted(IsInverted.UPPER_MOTOR);
 
-    // m_extensionMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-    // m_extensionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-    // m_extensionMotor.setSoftLimit(SoftLimitDirection.kForward, 356); // metres
-    // m_extensionMotor.setSoftLimit(SoftLimitDirection.kReverse, 0); // metres
+    m_extensionMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
+    m_extensionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+    m_extensionMotor.setSoftLimit(SoftLimitDirection.kForward, SoftStop.EXTENSION_FORWARD); // metres
+    m_extensionMotor.setSoftLimit(SoftLimitDirection.kReverse, SoftStop.EXTENSION_REVERSE); // metres
     m_extensionMotor.setIdleMode(IdleMode.kBrake);
-    m_extensionMotor.setSmartCurrentLimit(40);
+    m_extensionMotor.setSmartCurrentLimit(Limits.EXTENSION_CURRENT);
     m_extensionMotor.setInverted(IsInverted.EXTENSION_MOTOR);
   }
 
   private void configurePIDs() {
-    /* Alternative PID set:
-        SmartDashboard.putNumber("Upper Arm P", 0.00005); // time #3
-        SmartDashboard.putNumber("Upper Arm I", 0.000000001);
-        SmartDashboard.putNumber("Upper Arm D", 0.0000005);
-        SmartDashboard.putNumber("Upper Arm FF", 0.000156);
-        
-        SmartDashboard.putNumber("Lower Arm P", 0.00005);
-        SmartDashboard.putNumber("Lower Arm I", 0.000000001);
-        SmartDashboard.putNumber("Lower Arm D", 0.0000005);
-        SmartDashboard.putNumber("Lower Arm FF", 0.000156);
-        
-        SmartDashboard.putNumber("Extension P", 0.00005);
-        SmartDashboard.putNumber("Extension I", 0.000000001);
-        SmartDashboard.putNumber("Extension D", 0.0000005);
-        SmartDashboard.putNumber("Extension FF", 0.000156);
-     */
     m_lowerPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00007));
     m_lowerPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00000000005));
     m_lowerPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.00000003));

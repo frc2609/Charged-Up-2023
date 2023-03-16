@@ -32,6 +32,7 @@ public final class Constants {
         public static final class Encoder {
             /** How many metres the extension extends per motor rotation. */
             public static final double EXTENSION_POSITION_CONVERSION = Ratios.EXTENSION_MOTOR * EXTENSION_PULLEY_CIRCUMFERENCE; // metres
+            // TODO: This is integer division. You likely do not want a distance per rotation of 0.
             public static final double LOWER_DISTANCE_PER_ROTATION = (18/48); // TODO: determine units
             public static final double UPPER_DISTANCE_PER_ROTATION = (18/48); // TODO: determine units
             /** Pointing straight up (angle = 90.0 degrees). 
@@ -45,9 +46,35 @@ public final class Constants {
              */
             public static final double UPPER_POSITION_OFFSET = 0.818;
         }
+        public static final class Limits {
+            public static final int LOWER_ARM_CURRENT = 40; // amps
+            public static final int UPPER_ARM_CURRENT = 40; // amps
+            public static final int EXTENSION_CURRENT = 40; // amps
+        }
         public static final class Pneumatics {
             public static final int OPEN_SOLENOID_ID = 14;
             public static final int CLOSE_SOLENOID_ID = 15;
+        }
+        public static final class Position {
+            public static final double LOW_LOWER = 78.6;
+            public static final double LOW_UPPER = 63.7;
+            public static final double LOW_EXTENSION = 0.0;
+            public static final double MID_LOWER = 63.6;
+            public static final double MID_UPPER = 139.7;
+            public static final double MID_EXTENSION = 0.0;
+            public static final double HIGH_LOWER = 55.5;
+            public static final double HIGH_UPPER = 148.0;
+            public static final double HIGH_EXTENSION = 0.471;
+            // TODO: Measure pickup values
+            public static final double PICKUP_LOWER = Double.NaN;
+            public static final double PICKUP_UPPER = Double.NaN;
+            public static final double PICKUP_EXTENSION = Double.NaN;
+            public static final double RETRACT_LOWER = 99.5;
+            public static final double RETRACT_UPPER = 94.00;
+            public static final double RETRACT_EXTENSION = 0.0;
+            public static final double STOW_LOWER = 104.60;
+            public static final double STOW_UPPER = 21.09;
+            public static final double STOW_EXTENSION = 0.0;
         }
         public static final class Ratios {
             /** Extension pulley rotations per extension motor rotation. */
@@ -64,6 +91,15 @@ public final class Constants {
             public static final double UPPER_ARM_MOTOR = (1.0 / 5.0) * (1.0 / 5.0) * (1.0 / 3.0);
             /** Total ratio between upper arm motor and upper arm rotation. */
             public static final double UPPER_ARM = UPPER_ARM_MOTOR * UPPER_ARM_CHAIN;
+        }
+        public static final class SoftStop {
+            // `f` indicates a float literal
+            public static final float LOWER_FORWARD = 148.70f;  // degrees
+            public static final float LOWER_REVERSE = 27.45f;   // degrees
+            public static final float UPPER_FORWARD = 177.00f;  // degrees
+            public static final float UPPER_REVERSE = 10.75f;   // degrees
+            public static final float EXTENSION_FORWARD = 0.48f; // metres
+            public static final float EXTENSION_REVERSE = 0.0f;  // metres
         }
         public static final class Tolerances {
             public static final double LOWER_ANGLE = 1; // degrees
