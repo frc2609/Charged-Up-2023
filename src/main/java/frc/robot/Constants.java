@@ -11,7 +11,7 @@ import static java.util.Map.entry;
 import com.pathplanner.lib.auto.PIDConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.commands.TimerDelay;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -64,6 +64,12 @@ public final class Constants {
             /** Total ratio between upper arm motor and upper arm rotation. */
             public static final double UPPER_ARM = UPPER_ARM_MOTOR * UPPER_ARM_CHAIN;
         }
+        public static final class Tolerances {
+            public static final double LOWER_ANGLE = 1; // degrees
+            public static final double UPPER_ANGLE = 1; // degrees
+            public static final double EXTENSION_LENGTH = 0.01; // metres
+            // TODO: is it possible to increase the EXTENSION_LENGTH TOLERANCE?
+        }
         /** TODO: More accurate measurements should be pulled from the robot CAD.
          * Arm kinematics can use **ANY UNIT**, as long as all units are
          * consistent. If inches are easier to use, change any arm-related
@@ -97,7 +103,7 @@ public final class Constants {
         /** Entries in this map must be non-null, or the program will crash. */
         public static final HashMap<String, Command> eventMap = new HashMap<>(
             Map.ofEntries(
-                entry("MarkerName", new TimerDelay(5)) // markerName, Command
+                entry("MarkerName", Commands.waitSeconds(5)) // markerName, Command
             )
         );
         /** X and Y PID constants for path following. 
@@ -132,12 +138,6 @@ public final class Constants {
     public static final class DIO {
         public static final int ARM_LOWER_ENCODER = 0;
         public static final int ARM_UPPER_ENCODER = 1;
-    }
-    public final static class Tolerances {
-        public static final double LOWER_ARM_ANGLE = 1; // in degrees
-        public static final double UPPER_ARM_ANGLE = 1; // in degrees
-        public static final double EXTENSION = 0.01; // in meters, can we make this bigger?
-        
     }
     /** Swerve drive related constants. */
     public final static class Swerve {
