@@ -109,7 +109,7 @@ public class ArmGripper extends SubsystemBase {
     m_upperEncoderRelative.setPositionConversionFactor(1.8);
 
     // TODO: configure as necessary
-    m_lowerEncoderAbsolute.setDistancePerRotation(Encoder.LOWER_DISTANCE_PER_ROTATION);
+    m_lowerEncoderAbsolute.setDistancePerRotation(Encoder.LOWER_DISTANCE_PER_ROTATION); // TODO: should not be 0
     m_upperEncoderAbsolute.setDistancePerRotation(Encoder.UPPER_DISTANCE_PER_ROTATION);
     m_extensionEncoder.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
 
@@ -279,7 +279,8 @@ public class ArmGripper extends SubsystemBase {
   public void manualControl() {
     // set speeds of arm motors
     m_lowerMotor.set(MathUtil.applyDeadband(
-        -m_operatorController.getLeftY(), Xbox.JOYSTICK_DEADBAND));
+        m_operatorController.getLeftY(), Xbox.JOYSTICK_DEADBAND));
+        // not inverted so that lower arm moves in same direction as joystick
     m_upperMotor.set(MathUtil.applyDeadband(
         -m_operatorController.getRightY(), Xbox.JOYSTICK_DEADBAND));
 
