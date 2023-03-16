@@ -76,17 +76,17 @@ However, in teleop mode, the robot can collide with parts of the field, and othe
 | Y Button              | Reset gyro yaw angle        |
 
 ### Operator:
-| Control               | Function                     |
-| --------------------- | ---------------------------- |
-| Left Joystick Y Axis  | Manual: Move lower arm       |
-| Right Joystick Y Axis | Manual: Move upper arm       |
-| Left Bumper           | Open Gripper                 |
-| Right Bumper          | Close Gripper                |
-| X Button              | Move to stow position        |
-| A Button              | Move to low node             |
-| B Button              | Move to mid node             |
-| Y Button              | Move to high node            |
-| Start Button          | (While held): Manual Control |
+| Control               | Function               |
+| --------------------- | -----------------------|
+| Left Joystick Y Axis  | Manual: Move lower arm |
+| Right Joystick Y Axis | Manual: Move upper arm |
+| Left Bumper           | Open Gripper           |
+| Right Bumper          | Close Gripper          |
+| X Button              | Move to stow position  |
+| A Button              | Move to low node       |
+| B Button              | Move to mid node       |
+| Y Button              | Move to high node      |
+| Start Button          | Toggle Manual Control  |
 
 
 ## Dashboard
