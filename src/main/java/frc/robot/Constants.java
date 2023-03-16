@@ -56,21 +56,27 @@ public final class Constants {
             public static final int CLOSE_SOLENOID_ID = 15;
         }
         public static final class Position {
-            public static final double LOW_LOWER = 78.6;
-            public static final double LOW_UPPER = 63.7;
+            public static final double EXIT_STOW_LOWER = 104.5;
+            public static final double EXIT_STOW_UPPER = 38.3;
+            public static final double EXIT_STOW_EXTENSION = 0.0;
+            public static final double GROUND_PICKUP_LOWER = 83.0;
+            public static final double GROUND_PICKUP_UPPER = 36.5;
+            public static final double GROUND_PICKUP_EXTENSION = 0.0;
+            public static final double LOW_LOWER = 77.6;
+            public static final double LOW_UPPER = 49.6;
             public static final double LOW_EXTENSION = 0.0;
             public static final double MID_LOWER = 63.6;
             public static final double MID_UPPER = 139.7;
             public static final double MID_EXTENSION = 0.0;
-            public static final double HIGH_LOWER = 55.5;
+            public static final double HIGH_LOWER = 60;
             public static final double HIGH_UPPER = 148.0;
-            public static final double HIGH_EXTENSION = 0.471;
+            public static final double HIGH_EXTENSION = 0.475;
             // TODO: Measure pickup values
             public static final double PICKUP_LOWER = Double.NaN;
             public static final double PICKUP_UPPER = Double.NaN;
             public static final double PICKUP_EXTENSION = Double.NaN;
-            public static final double RETRACT_LOWER = 99.5;
-            public static final double RETRACT_UPPER = 94.00;
+            public static final double RETRACT_LOWER = 110.0;
+            public static final double RETRACT_UPPER = 94.0;
             public static final double RETRACT_EXTENSION = 0.0;
             public static final double STOW_LOWER = 104.60;
             public static final double STOW_UPPER = 21.09;

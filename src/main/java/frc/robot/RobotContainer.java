@@ -19,6 +19,7 @@ import frc.robot.commands.CloseGripper;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
+import frc.robot.commands.MoveArmToGroundPickup;
 import frc.robot.commands.MoveArmToMid;
 import frc.robot.commands.MoveArmToHigh;
 import frc.robot.commands.MoveArmToLow;
@@ -61,6 +62,10 @@ public class RobotContainer {
       m_operatorController, XboxController.Button.kLeftBumper.value);
   private final JoystickButton m_closeGripper = new JoystickButton(
       m_operatorController, XboxController.Button.kRightBumper.value);
+  private final JoystickButton m_pickupButton = new JoystickButton(
+      m_operatorController, XboxController.Button.kLeftStick.value);
+  private final JoystickButton m_groundPickupButton = new JoystickButton(
+      m_operatorController, XboxController.Button.kRightStick.value);
   private final JoystickButton m_stowButton = new JoystickButton(
       m_operatorController, XboxController.Button.kX.value);
   private final JoystickButton m_scoreLowButton = new JoystickButton(
@@ -102,6 +107,8 @@ public class RobotContainer {
     m_zeroYawButton.onTrue(new InstantCommand(m_navx::zeroYaw));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
+    // m_pickupButton.onTrue(new MoveToArmToPickup(m_armGripper));
+    m_groundPickupButton.onTrue(new MoveArmToGroundPickup(m_armGripper));
     m_scoreLowButton.onTrue(new MoveArmToLow(m_armGripper));
     m_scoreMidButton.onTrue(new MoveArmToMid(m_armGripper));
     m_scoreHighButton.onTrue(new MoveArmToHigh(m_armGripper));
