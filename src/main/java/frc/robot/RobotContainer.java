@@ -23,6 +23,7 @@ import frc.robot.commands.MoveArmToGroundPickup;
 import frc.robot.commands.MoveArmToMid;
 import frc.robot.commands.MoveArmToHigh;
 import frc.robot.commands.MoveArmToLow;
+import frc.robot.commands.MoveArmToPickup;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.OpenGripper;
 import frc.robot.subsystems.ArmGripper;
@@ -107,7 +108,7 @@ public class RobotContainer {
     m_zeroYawButton.onTrue(new InstantCommand(m_navx::zeroYaw));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
-    // m_pickupButton.onTrue(new MoveToArmToPickup(m_armGripper));
+    m_pickupButton.onTrue(new MoveArmToPickup(m_armGripper));
     m_groundPickupButton.onTrue(new MoveArmToGroundPickup(m_armGripper));
     m_scoreLowButton.onTrue(new MoveArmToLow(m_armGripper));
     m_scoreMidButton.onTrue(new MoveArmToMid(m_armGripper));

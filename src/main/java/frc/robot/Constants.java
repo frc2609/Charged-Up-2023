@@ -59,8 +59,8 @@ public final class Constants {
             public static final double EXIT_STOW_LOWER = 104.5;
             public static final double EXIT_STOW_UPPER = 38.3;
             public static final double EXIT_STOW_EXTENSION = 0.0;
-            public static final double GROUND_PICKUP_LOWER = 83.0;
-            public static final double GROUND_PICKUP_UPPER = 36.5;
+            public static final double GROUND_PICKUP_LOWER = 72.0;
+            public static final double GROUND_PICKUP_UPPER = 32.4;
             public static final double GROUND_PICKUP_EXTENSION = 0.0;
             public static final double LOW_LOWER = 77.6;
             public static final double LOW_UPPER = 49.6;
@@ -72,9 +72,9 @@ public final class Constants {
             public static final double HIGH_UPPER = 148.0;
             public static final double HIGH_EXTENSION = 0.475;
             // TODO: Measure pickup values
-            public static final double PICKUP_LOWER = Double.NaN;
-            public static final double PICKUP_UPPER = Double.NaN;
-            public static final double PICKUP_EXTENSION = Double.NaN;
+            public static final double PICKUP_LOWER = 93.1;
+            public static final double PICKUP_UPPER = 97.8;
+            public static final double PICKUP_EXTENSION = 0.0;
             public static final double RETRACT_LOWER = 110.0;
             public static final double RETRACT_UPPER = 94.0;
             public static final double RETRACT_EXTENSION = 0.0;
@@ -108,8 +108,8 @@ public final class Constants {
             public static final float EXTENSION_REVERSE = 0.0f;  // metres
         }
         public static final class Tolerances {
-            public static final double LOWER_ANGLE = 1; // degrees
-            public static final double UPPER_ANGLE = 1; // degrees
+            public static final double LOWER_ANGLE = 0.5; // degrees
+            public static final double UPPER_ANGLE = 0.5; // degrees
             public static final double EXTENSION_LENGTH = 0.01; // metres
             // TODO: is it possible to increase the EXTENSION_LENGTH TOLERANCE?
         }
@@ -191,7 +191,6 @@ public final class Constants {
          * a *voltage* value, not a speed value, so `set()` should not be used
          * with any controller using these gains.
          */
-        
         public final static class Gains {
             public static final double drivePID_kP = 1;
             public static final double drivePID_kI = 0;
