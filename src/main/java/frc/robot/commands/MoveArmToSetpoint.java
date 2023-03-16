@@ -4,14 +4,12 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.Arm.Tolerances;
 import frc.robot.subsystems.ArmGripper;
 
 public class MoveArmToSetpoint extends CommandBase {
   private double m_lowerSetpoint, m_upperSetpoint, m_extensionSetpoint;
-  private double m_lowerError, m_upperError, m_extensionError;
   private final boolean m_holdLower, m_holdUpper, m_holdSlider;
   private final ArmGripper m_armGripper;
 
@@ -54,15 +52,7 @@ public class MoveArmToSetpoint extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    m_lowerError = m_armGripper.getLowerArmAngleRelative() - m_lowerSetpoint;
-    m_upperError = m_armGripper.getUpperArmAngleRelative() - m_upperSetpoint;
-    m_extensionError = m_armGripper.getExtensionDistance() - m_extensionSetpoint;
-
-    SmartDashboard.putNumber("Lower Arm Setpoint Error", m_lowerError);
-    SmartDashboard.putNumber("Upper Arm Setpoint Error", m_upperError);
-    SmartDashboard.putNumber("Extension Setpoint Error", m_extensionError);
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
@@ -73,9 +63,12 @@ public class MoveArmToSetpoint extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    boolean isLowerInTolerance = m_lowerError < Tolerances.LOWER_ANGLE; 
-    boolean isUpperInTolerance = m_upperError < Tolerances.UPPER_ANGLE; 
-    boolean isExtensionInTolerance = m_extensionError < Tolerances.EXTENSION_LENGTH;
+    double lowerError = m_armGripper.getLowerArmAngleRelative() - m_lowerSetpoint;
+    double upperError = m_armGripper.getUpperArmAngleRelative() - m_upperSetpoint;
+    double extensionError = m_armGripper.getExtensionDistance() - m_extensionSetpoint;
+    boolean isLowerInTolerance = Math.abs(lowerError) < Tolerances.LOWER_ANGLE; 
+    boolean isUpperInTolerance = Math.abs(upperError) < Tolerances.UPPER_ANGLE; 
+    boolean isExtensionInTolerance = Math.abs(extensionError) < Tolerances.EXTENSION_LENGTH;
     return isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance;
   }
 }

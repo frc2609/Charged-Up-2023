@@ -21,6 +21,7 @@ import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.MoveArmToMid;
 import frc.robot.commands.MoveArmToHigh;
+import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.OpenGripper;
 import frc.robot.subsystems.ArmGripper;
@@ -62,13 +63,12 @@ public class RobotContainer {
       m_operatorController, XboxController.Button.kRightBumper.value);
   private final JoystickButton m_stowButton = new JoystickButton(
       m_operatorController, XboxController.Button.kX.value);
-  // private final JoystickButton m_scoreLowButton = new JoystickButton(
-  //     m_operatorController, XboxController.Button.kA.value);
+  private final JoystickButton m_scoreLowButton = new JoystickButton(
+      m_operatorController, XboxController.Button.kA.value);
   private final JoystickButton m_scoreMidButton = new JoystickButton(
       m_operatorController, XboxController.Button.kB.value);
   private final JoystickButton m_scoreHighButton = new JoystickButton(
       m_operatorController, XboxController.Button.kY.value);
-  
   private final JoystickButton m_toggleManualControl = new JoystickButton(
       m_operatorController, XboxController.Button.kStart.value);
           
@@ -102,13 +102,14 @@ public class RobotContainer {
     m_zeroYawButton.onTrue(new InstantCommand(m_navx::zeroYaw));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
-    // m_scoreLowButton.onTrue(new MoveArmToLow(m_armGripper));
+    m_scoreLowButton.onTrue(new MoveArmToLow(m_armGripper));
     m_scoreMidButton.onTrue(new MoveArmToMid(m_armGripper));
     m_scoreHighButton.onTrue(new MoveArmToHigh(m_armGripper));
     m_closeGripper.onTrue(new CloseGripper(m_armGripper));
     m_openGripper.onTrue(new OpenGripper(m_armGripper));
     // this will interrupt any running arm commands, is this a good idea?
     // also, the operator will lose control of the arm when open or close gripper is scheduled.
+    // TODO: move Gripper into own subsystem so that these don't cancel arm commands
     m_toggleManualControl.toggleOnTrue(new ManualArmControl(m_armGripper));
   }
 
