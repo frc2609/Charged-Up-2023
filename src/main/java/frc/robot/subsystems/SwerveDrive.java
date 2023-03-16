@@ -275,26 +275,35 @@ public class SwerveDrive extends SubsystemBase {
     /* Speeds are inverted because Xbox controllers return negative values when
      * joystick is pushed forward or to the left.
      */
-    final double xSpeed =
-        -m_xSpeedLimiter.calculate(MathUtil.applyDeadband(
-            m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_LINEAR_VELOCITY; // m/s
-                // scale value from 0-1 to 0-MAX_LINEAR_SPEED
+    final double xInput = MathUtil.applyDeadband(-m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND);
+    final double xSpeedSquare = xInput >= 0.0 ? xInput * xInput : -(xInput * xInput);
+    final double xSpeed = xSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
+    // final double xSpeed =
+    //     -m_xSpeedLimiter.calculate(MathUtil.applyDeadband(
+    //         m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND))
+    //             * TeleopLimits.MAX_LINEAR_VELOCITY; // m/s
+    //             // scale value from 0-1 to 0-MAX_LINEAR_SPEED
 
-    final double ySpeed =
-        -m_ySpeedLimiter.calculate(MathUtil.applyDeadband(
-            m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_LINEAR_VELOCITY;
+    final double yInput = MathUtil.applyDeadband(-m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND);
+    final double ySpeedSquare = yInput >= 0.0 ? yInput * yInput : -(yInput * yInput);
+    final double ySpeed = ySpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
+    // final double ySpeed =
+    //     -m_ySpeedLimiter.calculate(MathUtil.applyDeadband(
+    //         m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND))
+    //             * TeleopLimits.MAX_LINEAR_VELOCITY;
 
-    final double rotationSpeed =
-        -m_rotationLimiter.calculate(MathUtil.applyDeadband(
-            m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
+    final double rotInput = MathUtil.applyDeadband(-m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND);
+    final double rotSpeedSquare = rotInput >= 0.0 ? rotInput * rotInput : -(rotInput * rotInput);
+    final double rotSpeed = rotSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
+    // final double rotationSpeed =
+    //     -m_rotationLimiter.calculate(MathUtil.applyDeadband(
+    //         m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
+    //             * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
 
     m_maxSpeedEnabled = m_driverController.getAButton();
     m_secondaryThrottle = m_driverController.getRightTriggerAxis() / 2.0;
 
-    drive(xSpeed, ySpeed, rotationSpeed, m_isFieldRelative);
+    drive(xSpeed, ySpeed, rotSpeed, m_isFieldRelative);
   }
 
   /**
