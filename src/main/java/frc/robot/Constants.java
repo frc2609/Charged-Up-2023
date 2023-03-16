@@ -34,15 +34,16 @@ public final class Constants {
             public static final double EXTENSION_POSITION_CONVERSION = Ratios.EXTENSION_MOTOR * EXTENSION_PULLEY_CIRCUMFERENCE; // metres
             public static final double LOWER_DISTANCE_PER_ROTATION = (18/48); // TODO: determine units
             public static final double UPPER_DISTANCE_PER_ROTATION = (18/48); // TODO: determine units
-            /** Pointing straight up (angle = 90.0 degrees). */
-            public static final double LOWER_POSITION_OFFSET = 0.523;
-            // encoder + dir
-            /** Parallel with upper arm (angle = 90 degrees). */
-            public static final double UPPER_POSITION_OFFSET = 0.925;
-            // encoder + dir (down is negative), away from front positive
-            // 0.9305 0 degree setpoint
-            // negative forward for both encoders == encoder is ccw pos when viewed from right side = it go in right dir
-            // away from front positive
+            /** Pointing straight up (angle = 90.0 degrees). 
+             * Encoder values increase as the arm moves away from the front of
+             * the robot.
+             */
+            public static final double LOWER_POSITION_OFFSET = 0.520;
+            /** Parallel robot front (angle = 90.0 degrees). 
+             * Encoder values increase as the arm moves away from the front of
+             * the robot.
+             */
+            public static final double UPPER_POSITION_OFFSET = 0.818;
         }
         public static final class Pneumatics {
             public static final int OPEN_SOLENOID_ID = 14;
