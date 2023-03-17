@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.SerialPort;
@@ -147,6 +148,8 @@ public class RobotContainer {
      * moving into position to deliver a game piece. */
     // m_armGripper.setDefaultCommand(new ManualArmControl(m_armGripper));
     m_swerveDrive.setDefaultCommand(new ManualDrive(m_swerveDrive));
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1);
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
   }
 
   /**
