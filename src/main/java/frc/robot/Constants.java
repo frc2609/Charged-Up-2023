@@ -44,7 +44,7 @@ public final class Constants {
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
-            public static final double UPPER_POSITION_OFFSET = 0.818;
+            public static final double UPPER_POSITION_OFFSET = 0.814;
         }
         public static final class Pneumatics {
             public static final int OPEN_SOLENOID_ID = 14;
