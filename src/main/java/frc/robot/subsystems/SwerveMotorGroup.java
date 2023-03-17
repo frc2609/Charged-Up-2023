@@ -13,10 +13,11 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 // velocity conversion factors with/without motors
-
+// Should this be in its own class?
 
 /** Add your docs here. */
 public class SwerveMotorGroup {
@@ -55,10 +56,13 @@ public class SwerveMotorGroup {
   private final SimpleMotorFeedforward m_primaryFF =
       new SimpleMotorFeedforward(driveFF_kS, driveFF_kV, driveFF_kA);
 
+  private final String m_name;
+
   public SwerveMotorGroup(
     int primaryDriveMotorID,
     int secondaryDriveMotorID,
-    boolean invertDriveMotors
+    boolean invertDriveMotors,
+    String name
   ) {
     m_primaryMotor = new CANSparkMax(primaryDriveMotorID, MotorType.kBrushless);
     m_secondaryMotor = new CANSparkMax(secondaryDriveMotorID, MotorType.kBrushless);
@@ -69,6 +73,7 @@ public class SwerveMotorGroup {
     m_primaryMotor.setIdleMode(IdleMode.kBrake);
     m_secondaryMotor.setIdleMode(IdleMode.kBrake);
     m_ecvt = new ECVT(m_secondaryEncoder, m_primaryEncoder);
+    m_name = name;
   }
 
   public RelativeEncoder getEncoder() {
@@ -99,5 +104,13 @@ public class SwerveMotorGroup {
     m_primaryMotor.setVoltage(driveVoltage);
     // copy sign
     m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+  }
+
+  /** Update data being sent and recieved from NetworkTables. */
+  public void updateNetworkTables() {
+    SmartDashboard.putNumber(m_name + " Primary Motor Temp (C°)", m_primaryMotor.getMotorTemperature());
+    SmartDashboard.putNumber(m_name + " Secondary Motor Temp (C°)", m_secondaryMotor.getMotorTemperature());
+    SmartDashboard.putNumber(m_name + " Primary Motor Current (A)", m_primaryMotor.getOutputCurrent());
+    SmartDashboard.putNumber(m_name + " Secondary Motor Current (A)", m_secondaryMotor.getOutputCurrent());
   }
 }
