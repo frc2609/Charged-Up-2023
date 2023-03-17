@@ -26,10 +26,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.CANID;
 import frc.robot.Constants.DIO;
+import frc.robot.Constants.Limits;
 import frc.robot.Constants.Xbox;
 import frc.robot.Constants.Arm.Encoder;
 import frc.robot.Constants.Arm.IsInverted;
-import frc.robot.Constants.Arm.Limits;
 import frc.robot.Constants.Arm.Pneumatics;
 import frc.robot.Constants.Arm.Ratios;
 import frc.robot.Constants.Arm.SoftStop;
@@ -126,7 +126,7 @@ public class ArmGripper extends SubsystemBase {
     m_lowerMotor.setSoftLimit(SoftLimitDirection.kForward, SoftStop.LOWER_FORWARD); // degrees
     m_lowerMotor.setSoftLimit(SoftLimitDirection.kReverse, SoftStop.LOWER_REVERSE); // degrees
     m_lowerMotor.setIdleMode(IdleMode.kBrake);
-    m_lowerMotor.setSmartCurrentLimit(Limits.LOWER_ARM_CURRENT);
+    m_lowerMotor.setSmartCurrentLimit(frc.robot.Constants.Limits.LOWER_ARM_CURRENT);
     m_lowerMotor.setInverted(IsInverted.LOWER_MOTOR);
 
     m_upperMotor.enableSoftLimit(SoftLimitDirection.kForward, true);

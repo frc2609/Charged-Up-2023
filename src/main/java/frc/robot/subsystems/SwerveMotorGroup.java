@@ -15,6 +15,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.Limits;
 
 // velocity conversion factors with/without motors
 // Should this be in its own class?
@@ -72,6 +73,8 @@ public class SwerveMotorGroup {
     m_secondaryMotor.setInverted(invertDriveMotors);
     m_primaryMotor.setIdleMode(IdleMode.kBrake);
     m_secondaryMotor.setIdleMode(IdleMode.kBrake);
+    m_primaryMotor.setSmartCurrentLimit(Limits.DRIVE_PRIMARY_CURRENT);
+    m_secondaryMotor.setSmartCurrentLimit(Limits.DRIVE_SECONDARY_CURRENT);
     m_ecvt = new ECVT(m_secondaryEncoder, m_primaryEncoder);
     m_name = name;
   }

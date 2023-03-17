@@ -46,11 +46,6 @@ public final class Constants {
              */
             public static final double UPPER_POSITION_OFFSET = 0.818;
         }
-        public static final class Limits {
-            public static final int LOWER_ARM_CURRENT = 40; // amps
-            public static final int UPPER_ARM_CURRENT = 40; // amps
-            public static final int EXTENSION_CURRENT = 40; // amps
-        }
         public static final class Pneumatics {
             public static final int OPEN_SOLENOID_ID = 14;
             public static final int CLOSE_SOLENOID_ID = 15;
@@ -181,6 +176,15 @@ public final class Constants {
     public static final class DIO {
         public static final int ARM_LOWER_ENCODER = 0;
         public static final int ARM_UPPER_ENCODER = 1;
+    }
+    /** Smart current limits for Spark Max motor controllers in amps. */
+    public static final class Limits {
+        public static final int DRIVE_PRIMARY_CURRENT = 50;
+        public static final int DRIVE_SECONDARY_CURRENT = 50;
+        public static final int DRIVE_ROTATION_CURRENT = 30;
+        public static final int LOWER_ARM_CURRENT = 40;
+        public static final int UPPER_ARM_CURRENT = 40;
+        public static final int EXTENSION_CURRENT = 40;
     }
     /** Swerve drive related constants. */
     public final static class Swerve {

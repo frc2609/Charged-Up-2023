@@ -19,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //import edu.wpi.first.util.sendable.Sendable;
 //import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.Limits;
 
 /**
  * Represents a single swerve drive module.
@@ -67,6 +68,7 @@ public class SwerveModule { // implements Sendable {
 
     m_rotationMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     m_rotationMotor.setInverted(invertRotationMotor);
+    m_rotationMotor.setSmartCurrentLimit(Limits.DRIVE_ROTATION_CURRENT);
 
     m_name = name;
 
