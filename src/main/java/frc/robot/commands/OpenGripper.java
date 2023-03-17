@@ -12,7 +12,7 @@ public class OpenGripper extends InstantCommand {
   /** Creates a new OpenGripper. */
   public OpenGripper(ArmGripper armGripper) {
     m_armGripper = armGripper;
-    addRequirements(armGripper);
+    // addRequirements(armGripper);
   }
 
   // Called when the command is initially scheduled.

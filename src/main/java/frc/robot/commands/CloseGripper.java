@@ -12,7 +12,7 @@ public class CloseGripper extends InstantCommand {
 
   public CloseGripper(ArmGripper armGripper) {
     m_armGripper = armGripper;
-    addRequirements(armGripper);
+    // addRequirements(armGripper);
   }
 
   // Called when the command is initially scheduled.
