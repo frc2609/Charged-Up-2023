@@ -78,7 +78,7 @@ public class SwerveDrive extends SubsystemBase {
   /** Displays the robot's position relative to the field through NetworkTables. */
   private final Field2d m_field = new Field2d();
 
-  private boolean m_isFieldRelative = false;
+  // private boolean m_isFieldRelative = true;
   private double m_debugAngleSetpoint = 0; // radians
   private boolean m_maxSpeedEnabled = false;
   private double m_secondaryThrottle = 0; // 0 to 1
@@ -151,8 +151,8 @@ public class SwerveDrive extends SubsystemBase {
     m_rearLeft.updateNetworkTables();
     m_rearRight.updateNetworkTables();
     // handle button input from NetworkTables
-    m_isFieldRelative = SmartDashboard.getBoolean("Is Field Relative", false);
-    SmartDashboard.putBoolean("Is Field Relative", m_isFieldRelative);
+    // m_isFieldRelative = SmartDashboard.getBoolean("Is Field Relative", true);
+    // SmartDashboard.putBoolean("Is Field Relative", m_isFieldRelative);
     if (SmartDashboard.getBoolean("Reset Encoders", false)) {
       resetModuleEncoders();
       SmartDashboard.putBoolean("Reset Encoders", false); // reset the button
@@ -303,7 +303,7 @@ public class SwerveDrive extends SubsystemBase {
     m_maxSpeedEnabled = m_driverController.getAButton();
     m_secondaryThrottle = m_driverController.getRightTriggerAxis() / 2.0;
 
-    drive(xSpeed, ySpeed, rotSpeed, m_isFieldRelative);
+    drive(xSpeed, ySpeed, rotSpeed, true);
   }
 
   /**
