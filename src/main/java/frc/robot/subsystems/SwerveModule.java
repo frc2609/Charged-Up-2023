@@ -44,12 +44,12 @@ public class SwerveModule { // implements Sendable {
    * @param invertRotationMotor Whether or not to invert the rotation motor. The module should rotate counterclockwise on positive inputs.
    */
   public SwerveModule(
-      String name,
-      int driveMotorAID, 
-      int driveMotorBID,
-      int rotationMotorID,
-      boolean invertDriveMotors,
-      boolean invertRotationMotor
+    String name,
+    int driveMotorAID,
+    int driveMotorBID,
+    int rotationMotorID,
+    boolean invertDriveMotors,
+    boolean invertRotationMotor
     )
   {
     m_driveMotors = new SwerveMotorGroup(driveMotorAID, driveMotorBID, invertDriveMotors, name);
