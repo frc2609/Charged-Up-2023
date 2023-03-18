@@ -118,6 +118,8 @@ public class ArmGripper extends SubsystemBase {
     // Copy absolute position to NEO encoders
     m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
     m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());
+    // Reset extension encoder
+    m_extensionEncoder.setPosition(0.0);
   }
 
   private void configureMotors() {
