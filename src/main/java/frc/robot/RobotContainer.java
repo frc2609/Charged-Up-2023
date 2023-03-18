@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+import java.util.Map;
+import static java.util.Map.entry;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -14,6 +18,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 // import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -39,6 +44,13 @@ import frc.robot.subsystems.SwerveDrive;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  /** Entries in this map must be non-null, or the program will crash. */
+  public static final HashMap<String, Command> eventMap = new HashMap<>(
+    Map.ofEntries(
+        entry("MarkerName", Commands.waitSeconds(5)) // markerName, Command
+    )
+  );
+
   private static AHRS m_navx;
   private final XboxController m_driverController = new XboxController(
       Constants.Xbox.DRIVER_CONTROLLER_PORT);
