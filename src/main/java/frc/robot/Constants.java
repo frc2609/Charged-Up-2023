@@ -60,12 +60,12 @@ public final class Constants {
             public static final double LOW_LOWER = 77.6;
             public static final double LOW_UPPER = 49.6;
             public static final double LOW_EXTENSION = 0.0;
-            public static final double MID_LOWER = 63.6;
+            public static final double MID_LOWER = 62.0;
             public static final double MID_UPPER = 139.7;
             public static final double MID_EXTENSION = 0.0;
-            public static final double HIGH_LOWER = 60;
-            public static final double HIGH_UPPER = 148.0;
-            public static final double HIGH_EXTENSION = 0.475;
+            public static final double HIGH_LOWER = 58.5;
+            public static final double HIGH_UPPER = 156.0;
+            public static final double HIGH_EXTENSION = 0.440;
             // TODO: Measure pickup values
             public static final double PICKUP_LOWER = 93.1;
             public static final double PICKUP_UPPER = 97.8;
