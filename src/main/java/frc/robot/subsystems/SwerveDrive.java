@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 // static imports allow access to all constants in the class without using its name
 import static frc.robot.Constants.Swerve.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 import frc.robot.Constants.Swerve.Dimensions;
@@ -84,7 +85,7 @@ public class SwerveDrive extends SubsystemBase {
   private double m_secondaryThrottle = 0; // 0 to 1
 
   /** Creates a new SwerveDrive. */
-  public SwerveDrive(AHRS gyro, XboxController driverController) {
+  public SwerveDrive(AHRS gyro, XboxController driverController, HashMap<String, Command> eventMap) {
     m_driverController = driverController;
     m_gyro = gyro;
     if (!m_gyro.isConnected()) {
@@ -124,7 +125,7 @@ public class SwerveDrive extends SubsystemBase {
       Autonomous.translationPIDConstants,
       Autonomous.rotationPIDConstants,
       this::setDesiredStates,
-      Autonomous.eventMap,
+      eventMap,
       true,
       this
     );

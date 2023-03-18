@@ -45,7 +45,7 @@ import frc.robot.subsystems.SwerveDrive;
  */
 public class RobotContainer {
   /** Entries in this map must be non-null, or the program will crash. */
-  public static final HashMap<String, Command> eventMap = new HashMap<>(
+  public static final HashMap<String, Command> m_eventMap = new HashMap<>(
     Map.ofEntries(
         entry("MarkerName", Commands.waitSeconds(5)) // markerName, Command
     )
@@ -109,7 +109,7 @@ public class RobotContainer {
       DriverStation.reportError("Navx initialization failed", false);
     }
     m_armGripper = new ArmGripper(m_operatorController);
-    m_swerveDrive = new SwerveDrive(m_navx, m_driverController);
+    m_swerveDrive = new SwerveDrive(m_navx, m_driverController, m_eventMap);
     configureButtonBindings();
     SmartDashboard.putBoolean("Zero Yaw", false); // display the button
   }
