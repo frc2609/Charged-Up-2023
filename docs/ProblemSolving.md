@@ -1,7 +1,7 @@
 # Issues and Solutions
 
 ## Some Spark Max functionality does not work properly
-**Description:**
+### **Description:**
 * You are setting a property of a Spark Max, and it appears to ignore the property change.
 * The Driver Station shows an error along the lines of:
 ```
@@ -9,40 +9,40 @@
 ERROR  8  [CAN SPARK MAX] IDs: 6, Invalid parameter id 151   
 ```
 
-**Cause:**
+### **Cause:**
 * You are attempting to set a property that was added in a newer version of the Spark Max's firmware. The Spark Max does not know how to perform your property change, or does not support your property.
 
-**Solution:**
+### **Solution:**
 * Plug your computer the USB-C port of the Spark Max that is not following property changes.
 * Follow [these instructions](https://docs.revrobotics.com/sparkmax/rev-hardware-client/getting-started-with-the-rev-hardware-client/updating-device-firmware) to update its firmware.
 * Restart or redeploy your robot code.
 
 ## Swerve Drivetrain Does Not Behave Holonomically
-**Description:**
+### **Description:**
 * Attempting to decouple rotation from translation did not work as expected.
 * Autonomous did not follow paths correctly (any rotation correction interfered with the robot's X and Y position).
 * We could not spin while moving.
 
-**Cause:**
+### **Cause:**
 * We inverted the `Rotation2d` component of the `SwerveModuleState`, which never inverted the encoder values. This means that the module rotation motors spin in the opposite direction than what they report.
 * After logging the auto path, we found out the motor setpoint and the encoder reading were opposite; since we did not invert the encoder, the robot thought the module was moving in the opposite direction that it really was.
 * This was not apparent in Teleoperated mode, as the robot moves in the correct direction (the reported position is bad).
 * Since auto cannot see the robot, autonomous assumes the robot is going in a completely incorrect direction, and tries to correct for it, causing issues.
 
-**Solution:**
+### **Solution:**
 * Consider logging the setpoint (desired position) of your drive and rotation wheels. This can help diagnose similar problems in the future.
 * Instead of inverting the `Rotation2d` component of a `SwerveModuleState`, invert the motor via `CANSparkMax.setInverted()`.
 
 ## Swerve modules spin improperly
-**Description:**
+### **Description:**
 * Swerve module rotates 180 degrees in the opposite direction after spinning >= 180 degrees in a direction
 * Occurs after driving the robot in a circle
 
-**Cause:**
+### **Cause:**
 * Continous input is not configured for the rotation PID controller. 
 * 180 degrees and -180 degrees are treated as equivalent points by `SwerveModuleState.optimize()`, so if continous input is disabled or not configured to 180 degrees/-180 degrees (or the appropriate unit for the PID controller), the PID will not see these as equivalent points. For example, if the module is at 170 degrees, and is told to increase its position by 20 (an angle of 190 degrees), then `SwerveModuleState.optimize()` will tell the module to move to -170 degrees (equivalent to 190 degrees). Since the PID controller does not know it can rotate past 180 degrees to get to -180, it will attempt to spin in the opposite direction to get to -180.
 
-**Solution:**
+### **Solution:**
 * Configure continous input for the rotation PID controller.
 * Minimum: -180 degrees or -Pi radians
 * Maximum: 180 degrees or Pi radians
@@ -64,14 +64,14 @@ pidController.setPositionPIDWrappingMaxInput(Math.PI);
 ```
 
 ## Inverted X and Y while driving and improper rotation with swerve drive X, Y directions are inverted while driving and wheels face each other in X pattern
-**Description:**
+### **Description:**
 * X and Y directions are inverted while driving (e.g. robot moves left when moving joystick right)
 > Above issue may not be present if controller input was inverted to account for this.
 * When rotating the robot in place, wheels form an X pattern instead of rotating to form a circle.
 
-**Cause:**
+### **Cause:**
 
-**Solution:**
+### **Solution:**
 **ROTATION BUSTED (all go in towards each other for some reason)**
 **POSITIONING IS CORRECT -> MATCHES WPILIB SAMPLE & EXPECTED VALUES ASSUMING ROBOT COORDINATE SYSTEM**
 // INVERT THE XBOX STICKS PLEASE *test which directions are wrong* -> its left/right I fixed it (is rotation correct)
@@ -120,11 +120,11 @@ If you invert the SwerveModuleState, you need to invert the encoder (such as by 
 ## NavX Crashes Code with `isRaspian()` error:
 **THIS HAS NOW BEEN FIXED. DO NOT FOLLOW THIS PROCEDURE.**
 
-**Cause:**
+### **Cause:**
 * NavX Vendor Library not yet updated for 2023.
 * It tries to make a call to `isRaspbian()` which has been renamed to `isLinux()`.
 
-**Solution:**
+### **Solution:**
 * Uninstall NavX Vendor Library:
 * Command Palette: Manage Vendor Libraries -> Manage current libraries -> Check NavX library, press OK to uninstall
 * Install unofficial NavX Library:
@@ -132,3 +132,29 @@ If you invert the SwerveModuleState, you need to invert the encoder (such as by 
 
 ## Issues with FRC PathPlanner
 **See `repos/docs/FRCPathPlanner.md` for issue descriptions/solutions.**
+
+## ERROR -1154 HAL- CAN Recieve has Timed Out ... ArmGripper
+### **Description:**
+* Loss of gripper control
+* Rev Pneumatics Hub loses power
+* Blinking light on PDH output supplying pneumatics hub
+
+### **Cause:**
+* Too much power drawn through PDH fuse
+  * 15A fuse can be blown by compressor at peak power or a shorted cable.
+
+### **Solution:**
+* Replace fuse with one of a greater rating.
+* If this occurs twice, check for shorted wires.
+
+## Robot refuses to enable through driver station but is connected
+### **Description:**
+* Robot is connected properly
+* Pressing enable does nothing
+
+### **Cause:**
+* Undetermined.
+
+### **Solution:**
+* Close and reopen driver station.
+* Rebooting the robot/disconnecting and reconnecting is not necessary.
