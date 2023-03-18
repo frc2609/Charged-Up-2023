@@ -68,7 +68,7 @@ public final class Constants {
             public static final double HIGH_EXTENSION = 0.440;
             // TODO: Measure pickup values
             public static final double PICKUP_LOWER = 93.1;
-            public static final double PICKUP_UPPER = 97.8;
+            public static final double PICKUP_UPPER = 96.0;
             public static final double PICKUP_EXTENSION = 0.0;
             public static final double RETRACT_LOWER = 110.0;
             public static final double RETRACT_UPPER = 94.0;
