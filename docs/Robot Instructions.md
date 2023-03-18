@@ -73,22 +73,25 @@ However, in teleop mode, the robot can collide with parts of the field, and othe
 | Left Joystick X Axis  | Move robot left and right   |
 | Left Joystick Y Axis  | Move robot forward and back |
 | Right Joystick X Axis | Rotate robot left and right |
+| Left Bumper           | Move to ground pickup       |
+| Right Bumper          | Move to station pickup      |
+| X Button              | Move to stow position       |
 | Y Button              | Reset gyro yaw angle        |
 
 ### Operator:
-| Control               | Function               |
-| --------------------- | -----------------------|
-| Left Joystick Y Axis  | Manual: Move lower arm |
-| Right Joystick Y Axis | Manual: Move upper arm |
-| Left Bumper           | Open Gripper           |
-| Right Bumper          | Close Gripper          |
-| Start Button          | Toggle Manual Control  |
-| X Button              | Move to stow position  |
-| A Button              | Move to low node       |
-| B Button              | Move to mid node       |
-| Y Button              | Move to high node      |
-| DPAD Up               | Extend extension       |
-| DPAD Down             | Retract extension      |
+| Control               | Function                    |
+| --------------------- | --------------------------- |
+| Left Joystick Y Axis  | Manual: Move lower arm      |
+| Right Joystick Y Axis | Manual: Move upper arm      |
+| Left Bumper           | Open Gripper                |
+| Right Bumper          | Close Gripper               |
+| Start Button          | Toggle Manual Control       |
+| X Button              | Move to stow position       |
+| A Button              | Move to low node            |
+| B Button              | Move to mid node            |
+| Y Button              | Move to high node           |
+| DPAD Up               | Manual: Extend extension    |
+| DPAD Down             | Manual: Retract extension   |
 
 
 ## Dashboard

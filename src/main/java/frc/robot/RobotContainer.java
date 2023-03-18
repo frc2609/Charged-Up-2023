@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+// import edu.wpi.first.wpilibj2.command.button.Trigger;
+// import frc.robot.commands.AdjustUpperSetpoint;
 import frc.robot.commands.CloseGripper;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.ManualArmControl;
@@ -59,15 +61,21 @@ public class RobotContainer {
   //         m_driverController, XboxController.Button.kStart.value);
   private final JoystickButton m_zeroYawButton =
       new JoystickButton(m_driverController, XboxController.Button.kY.value);
+  private final JoystickButton m_driverPickup = new JoystickButton(
+      m_driverController, XboxController.Button.kRightBumper.value);
+  private final JoystickButton m_driverGroundPickup = new JoystickButton(
+      m_driverController, XboxController.Button.kLeftBumper.value);
+  private final JoystickButton m_driverStow = new JoystickButton(
+      m_driverController, XboxController.Button.kX.value);
   // operator controls
   private final JoystickButton m_openGripper = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftBumper.value);
   private final JoystickButton m_closeGripper = new JoystickButton(
       m_operatorController, XboxController.Button.kRightBumper.value);
-  private final JoystickButton m_pickupButton = new JoystickButton(
-      m_operatorController, XboxController.Button.kLeftStick.value);
-  private final JoystickButton m_groundPickupButton = new JoystickButton(
-      m_operatorController, XboxController.Button.kRightStick.value);
+  // private final JoystickButton m_pickupButton = new JoystickButton(
+  //     m_operatorController, XboxController.Button.kLeftStick.value);
+  // private final JoystickButton m_groundPickupButton = new JoystickButton(
+  //     m_operatorController, XboxController.Button.kRightStick.value);
   private final JoystickButton m_stowButton = new JoystickButton(
       m_operatorController, XboxController.Button.kX.value);
   private final JoystickButton m_scoreLowButton = new JoystickButton(
@@ -78,6 +86,8 @@ public class RobotContainer {
       m_operatorController, XboxController.Button.kY.value);
   private final JoystickButton m_toggleManualControl = new JoystickButton(
       m_operatorController, XboxController.Button.kStart.value);
+  // private final Trigger m_decreaseUpperSetpoint = new Trigger(() -> { return m_operatorController.getLeftTriggerAxis() >= 0.5; });
+  // private final Trigger m_increaseUpperSetpoint = new Trigger(() -> { return m_operatorController.getLeftTriggerAxis() >= 0.5; });
           
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -107,15 +117,20 @@ public class RobotContainer {
     //   m_swerveDrive::resetModuleEncoders, m_swerveDrive));
     // this one left in for easy access to resetYaw
     m_zeroYawButton.onTrue(new InstantCommand(m_navx::zeroYaw));
+    m_driverGroundPickup.onTrue(new MoveArmToGroundPickup(m_armGripper));
+    m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper));
+    m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
-    m_pickupButton.onTrue(new MoveArmToPickup(m_armGripper));
-    m_groundPickupButton.onTrue(new MoveArmToGroundPickup(m_armGripper));
+    // m_pickupButton.onTrue(new MoveArmToPickup(m_armGripper));
+    // m_groundPickupButton.onTrue(new MoveArmToGroundPickup(m_armGripper));
     m_scoreLowButton.onTrue(new MoveArmToLow(m_armGripper));
     m_scoreMidButton.onTrue(new MoveArmToMid(m_armGripper));
     m_scoreHighButton.onTrue(new MoveArmToHigh(m_armGripper));
     m_closeGripper.onTrue(new CloseGripper(m_armGripper));
     m_openGripper.onTrue(new OpenGripper(m_armGripper));
+    // m_decreaseUpperSetpoint.onTrue(new AdjustUpperSetpoint(m_armGripper, -2.0));
+    // m_increaseUpperSetpoint.onTrue(new AdjustUpperSetpoint(m_armGripper, 2.0));
     // this will interrupt any running arm commands, is this a good idea?
     // also, the operator will lose control of the arm when open or close gripper is scheduled.
     // TODO: move Gripper into own subsystem so that these don't cancel arm commands
@@ -150,6 +165,7 @@ public class RobotContainer {
     m_swerveDrive.setDefaultCommand(new ManualDrive(m_swerveDrive));
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(9);
   }
 
   /**
