@@ -98,15 +98,19 @@ public class SwerveMotorGroup {
 
   public void set(double speedMetersPerSecond, double secondaryThrottle, boolean maxSpeedEnabled) {
     // Calculate the drive output from the drive PID controller.
-    final double driveOutput =
-        m_primaryPID.calculate(m_primaryEncoder.getVelocity(), speedMetersPerSecond);
+    // final double driveOutput =
+        // m_primaryPID.calculate(m_secondaryEncoder.getVelocity(), speedMetersPerSecond);//m_primaryEncoder.getVelocity(), speedMetersPerSecond); // why isn't this swapped for secondary motor?
+        // this also doesn't use metres per second
     final double driveFeedforward = m_primaryFF.calculate(speedMetersPerSecond);
+    // swerve has not a clue as to what speed it is going
 
-    final double driveVoltage = driveOutput + driveFeedforward;
+    final double driveVoltage = driveFeedforward;//driveOutput + driveFeedforward;
    
-    m_primaryMotor.setVoltage(driveVoltage);
+    m_secondaryMotor.setVoltage(driveVoltage);
+    // m_primaryMotor.setVoltage(driveVoltage);
     // copy sign
-    m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+    // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+    m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
   }
 
   /** Update data being sent and recieved from NetworkTables. */
