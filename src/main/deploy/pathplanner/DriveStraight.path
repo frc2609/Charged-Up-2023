@@ -2,61 +2,48 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.7570485140970284,
-        "y": 3.3
+        "x": 0.0,
+        "y": 0.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.670898688900232,
-        "y": 3.3
+        "x": 1.0,
+        "y": 0.0
       },
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "MoveArmToHigh",
-          "OpenGripper"
-        ],
-        "executionBehavior": "sequential",
+        "names": [],
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 4.45,
-        "y": 3.3
+        "x": 3.0,
+        "y": 0.0
       },
       "prevControl": {
-        "x": 4.951456767500672,
-        "y": 3.3
+        "x": 2.0,
+        "y": 0.0
       },
       "nextControl": null,
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "Autobalance"
-        ],
-        "executionBehavior": "sequential",
+        "names": [],
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": [
-    {
-      "position": 0.23636363636363633,
-      "names": [
-        "CloseGripper",
-        "MoveArmToStow"
-      ]
-    }
-  ]
+  "markers": []
 }

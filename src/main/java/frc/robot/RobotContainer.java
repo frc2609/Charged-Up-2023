@@ -9,13 +9,17 @@ import java.util.Map;
 import static java.util.Map.entry;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -29,13 +33,22 @@ import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.MoveArmToGroundPickup;
 import frc.robot.commands.MoveArmToMid;
+import frc.robot.commands.MoveArmToMidProfiled;
 import frc.robot.commands.MoveArmToHigh;
 import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToPickup;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.OpenGripper;
+import frc.robot.commands.ResetModules;
+import frc.robot.commands.VisionAlign;
+import frc.robot.commands.autonomous.AutoScoreConeHigh;
+import frc.robot.commands.autonomous.AutoScoreConeThenBalance;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.SwerveDrive;
+import frc.robot.utils.BeaverLogger;
+import frc.robot.utils.PathLogger;
+
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -45,11 +58,8 @@ import frc.robot.subsystems.SwerveDrive;
  */
 public class RobotContainer {
   /** Entries in this map must be non-null, or the program will crash. */
-  public static final HashMap<String, Command> m_eventMap = new HashMap<>(
-    Map.ofEntries(
-        entry("MarkerName", Commands.waitSeconds(5)) // markerName, Command
-    )
-  );
+  
+  final HashMap<String, Command> m_eventMap = new HashMap<>();
 
   private static AHRS m_navx;
   private final XboxController m_driverController = new XboxController(
@@ -98,6 +108,13 @@ public class RobotContainer {
       m_operatorController, XboxController.Button.kY.value);
   private final JoystickButton m_toggleManualControl = new JoystickButton(
       m_operatorController, XboxController.Button.kStart.value);
+
+      private final JoystickButton visionButton = new JoystickButton(m_driverController, XboxController.Button.kB.value);
+      private final JoystickButton resetButton = new JoystickButton(m_driverController, XboxController.Button.kA.value);
+      private final JoystickButton breakButton = new JoystickButton(m_driverController, XboxController.Button.kStart.value);
+  PPSwerveControllerCommand tempAutoCommand;
+  PathLogger m_pathLogger;
+  public static Spark LED;
   // private final Trigger m_decreaseUpperSetpoint = new Trigger(() -> { return m_operatorController.getLeftTriggerAxis() >= 0.5; });
   // private final Trigger m_increaseUpperSetpoint = new Trigger(() -> { return m_operatorController.getLeftTriggerAxis() >= 0.5; });
           
@@ -109,9 +126,15 @@ public class RobotContainer {
       DriverStation.reportError("Navx initialization failed", false);
     }
     m_armGripper = new ArmGripper(m_operatorController);
+    m_pathLogger = new PathLogger();
+    m_eventMap.put("CloseGripper", new CloseGripper(m_armGripper)); // markerName, Command
+    m_eventMap.put("MoveArmToStow", new MoveArmToStow(m_armGripper));
     m_swerveDrive = new SwerveDrive(m_navx, m_driverController, m_eventMap);
     configureButtonBindings();
     SmartDashboard.putBoolean("Zero Yaw", false); // display the button
+    m_swerveDrive.resetModuleEncoders();
+    
+    LED = new Spark(1);
   }
 
   /**
@@ -147,6 +170,9 @@ public class RobotContainer {
     // also, the operator will lose control of the arm when open or close gripper is scheduled.
     // TODO: move Gripper into own subsystem so that these don't cancel arm commands
     m_toggleManualControl.toggleOnTrue(new ManualArmControl(m_armGripper));
+    visionButton.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
+    breakButton.whileTrue(new MoveArmToMidProfiled(m_armGripper));
+    // breakButton.onTrue(new AutoScoreConeHigh(m_armGripper));
   }
 
   /**
@@ -186,7 +212,13 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new ExampleAuto(m_swerveDrive);
+    return new AutoScoreConeThenBalance(m_armGripper, m_swerveDrive);
+    // return null;
+  }
+
+  //TODO: Temp til Antoine puts on absolute encoders
+  public void setRotToCoast(){
+    m_swerveDrive.setRotCoast();
   }
 
   /**
@@ -200,5 +232,9 @@ public class RobotContainer {
       SmartDashboard.putBoolean("Zero Yaw", false); // reset the button
     }
     SmartDashboard.putNumber("Robot Current Draw (A)", m_powerDistribution.getTotalCurrent());
+  }
+
+  public void resetEncoders(){
+    m_swerveDrive.resetModuleEncoders();
   }
 }

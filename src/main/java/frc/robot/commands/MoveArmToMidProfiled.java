@@ -41,27 +41,20 @@ public class MoveArmToMidProfiled extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    
-    double UPPER_SET, LOWER_SET, EXTENSION_SET = 0;
     double dt = Timer.getFPGATimestamp()-prevLoop;
     if(dt > 0.05){
       i += Math.floor(dt/0.05);
     }
-    UPPER_SET = upperSetpoint[i];
-    LOWER_SET = lowerSetpoint[i];
-    EXTENSION_SET = extensionSetpoint[i];
+    System.out.println(i);
+    // i++;
+    m_armGripper.setLowerTargetAngle(lowerSetpoint[i]);
+    m_armGripper.setUpperTargetAngle(upperSetpoint[i]);
+    m_armGripper.setExtensionTargetLength(extensionSetpoint[i]);
 
-    UpperError = Math.abs(m_armGripper.getUpperArmAngleRelative() - UPPER_SET);
-    if (UpperError > 10.0) UpperArm_P = 0.00007 + (0.00001 * UpperError);
-    else UpperArm_P = 0.00007;
-
-    LowerError = Math.abs(m_armGripper.getLowerArmAngleRelative() - LOWER_SET);
-    if (LowerError > 10.0) LowerArm_P = 0.00007 + (0.00001 * LowerError);
-    else LowerArm_P = 0.00007;
-
-    SmartDashboard.putNumber("lowerError", Math.abs(m_armGripper.getLowerArmAngleRelative()-LOWER_SET));
-    SmartDashboard.putNumber("upperError", Math.abs(m_armGripper.getUpperArmAngleRelative()-UPPER_SET));
-    SmartDashboard.putNumber("extensionError", Math.abs(m_armGripper.getExtensionDistance()-EXTENSION_SET));
+    // SmartDashboard.putNumber("lowerError", Math.abs(m_armGripper.getLowerArmAngleRelative()-LOWER_SET));
+    // SmartDashboard.putNumber("upperError", Math.abs(m_armGripper.getUpperArmAngleRelative()-UPPER_SET));
+    // SmartDashboard.putNumber("extensionError", Math.abs(m_armGripper.getExtensionDistance()-EXTENSION_SET));
+    prevLoop = Timer.getFPGATimestamp();
     //SmartDashboard.putNumber("Lower Arm P", UpperArm_P);
     //SmartDashboard.putNumber("Upper Arm P", LowerArm_P);
   }

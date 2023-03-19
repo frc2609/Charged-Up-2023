@@ -1,0 +1,31 @@
+{
+  "Clients": {
+    "open": true
+  },
+  "Connections": {
+    "open": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "serverTeam": "10.26.9.2"
+  },
+  "retained": {
+    "CameraPublisher": {
+      "limelight": {
+        "open": true
+      },
+      "open": true
+    },
+    "limelight": {
+      "open": true
+    }
+  },
+  "transitory": {
+    "Shuffleboard": {
+      "open": true
+    },
+    "SmartDashboard": {
+      "open": true
+    }
+  }
+}
