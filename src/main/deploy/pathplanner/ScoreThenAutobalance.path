@@ -1,0 +1,62 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 1.7570485140970284,
+        "y": 3.3
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.0121373889034,
+        "y": 3.3
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "MoveArmToHigh",
+          "OpenGripper"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.875630465546646,
+        "y": 3.55
+      },
+      "prevControl": {
+        "x": 2.886982516428648,
+        "y": 3.55
+      },
+      "nextControl": null,
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "Autobalance"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 0.20000000000000004,
+      "names": [
+        "CloseGripper",
+        "MoveArmToStow"
+      ]
+    }
+  ]
+}
