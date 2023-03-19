@@ -134,11 +134,11 @@ public final class Constants {
         /** X and Y PID constants for path following. 
          * Setting these to 0 will use only feedforward.
          */
-        public static final PIDConstants translationPIDConstants = new PIDConstants(1, 0, 0);
+        public static final PIDConstants translationPIDConstants = new PIDConstants(0, 0, 0);
         /** Rotation PID constants for path following.
          * Setting these to 0 will use only feedforward.
         */
-        public static final PIDConstants rotationPIDConstants = new PIDConstants(1, 0, 0);
+        public static final PIDConstants rotationPIDConstants = new PIDConstants(0, 0, 0);
     }
     /** IDs of all CAN bus devices. */
     public final static class CANID {
@@ -183,9 +183,21 @@ public final class Constants {
          * with any controller using these gains.
          */
         public final static class Gains {
-            public static final double drivePID_kP = 1;
+            public static final double drivePID_kP = 0.001;
             public static final double drivePID_kI = 0;
             public static final double drivePID_kD = 0;
+
+            
+            public static final double drivePID_kP_auto = 0.001;
+            public static final double drivePID_kI_auto = 0;
+            public static final double drivePID_kD_auto = 0;
+            public static final double drivePID_kF_auto = 0.3;
+
+            
+            public static final double rotationPID_kP_auto = 1;
+            public static final double rotationPID_kI_auto = 0.0001;
+            public static final double rotationPID_kD_auto = 1.0;
+            public static final double rotationPID_IZone_auto = 0.001;
 
             public static final double rotationPID_kP = 0.4;
             public static final double rotationPID_kI = 0.0001;
@@ -195,6 +207,11 @@ public final class Constants {
             public static final double driveFF_kS = 0;
             public static final double driveFF_kV = 3.333;
             public static final double driveFF_kA = 0;
+
+            
+            public static final double driveFF_kS_auto = 0;
+            public static final double driveFF_kV_auto = 2.609;
+            public static final double driveFF_kA_auto = 0;
 
             // SparkMaxPIDController only has 1 feedforward constant.
             public static final double rotationFF = 0;

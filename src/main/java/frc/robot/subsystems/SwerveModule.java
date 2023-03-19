@@ -7,8 +7,11 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.Swerve.*;
 import static frc.robot.Constants.Swerve.Gains.*;
 
+import java.lang.constant.Constable;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -19,7 +22,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //import edu.wpi.first.util.sendable.Sendable;
 //import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Limits;
+import frc.robot.utils.BeaverLogger;
 
 /**
  * Represents a single swerve drive module.
@@ -56,8 +62,8 @@ public class SwerveModule { // implements Sendable {
     m_rotationMotor = new CANSparkMax(rotationMotorID, MotorType.kBrushless);
 
     // TODO: that's not good. SwerveMotorGroup should handle this (or eliminate it if needed)
-    m_driveMotors.getEncoder().setPositionConversionFactor(DRIVE_POSITION_CONVERSION);
-    m_driveMotors.getEncoder().setVelocityConversionFactor(DRIVE_VELOCITY_CONVERSION);
+    // m_driveMotors.getEncoder().setPositionConversionFactor(DRIVE_POSITION_CONVERSION);
+    // m_driveMotors.getEncoder().setVelocityConversionFactor(DRIVE_VELOCITY_CONVERSION);
     
     m_rotationEncoder = m_rotationMotor.getEncoder();
     m_rotationEncoder.setPositionConversionFactor(ROTATION_POSITION_CONVERSION);
@@ -80,6 +86,10 @@ public class SwerveModule { // implements Sendable {
     SmartDashboard.putNumber(m_name + " Drive Setpoint (m/s)", 0);
     SmartDashboard.putNumber(m_name + " Angle Setpoint (rad)", 0);
     SmartDashboard.putNumber(m_name + " Drive Voltage", 0);
+  }
+
+  public void simulateECVT(){
+    m_driveMotors.simulateECVT();
   }
 
   /** Update data being sent and recieved from NetworkTables. */
@@ -210,7 +220,7 @@ public class SwerveModule { // implements Sendable {
    * the module. (Does not reset encoder velocity.)
    */
   public void resetEncoders() {
-    m_driveMotors.getEncoder().setPosition(0);
+    m_driveMotors.resetEncoders();
     m_rotationEncoder.setPosition(0);
   }
 
@@ -225,6 +235,14 @@ public class SwerveModule { // implements Sendable {
      * when the robot is not moving, which is the default behaviour of
      * ChassisSpeeds and SwerveModuleState.
      */
+    
+     m_rotationPIDController.setP(Constants.Swerve.Gains.rotationPID_kP_auto);
+     m_rotationPIDController.setI(Constants.Swerve.Gains.rotationPID_kI_auto);
+     m_rotationPIDController.setD(Constants.Swerve.Gains.rotationPID_kD_auto);
+     m_rotationPIDController.setFF(0.07);
+     
+    // Temp
+    m_rotationMotor.setIdleMode(IdleMode.kBrake);
     if (Math.abs(desiredState.speedMetersPerSecond) < MODULE_SPEED_DEADBAND) {
       stop();
       return;
@@ -240,6 +258,32 @@ public class SwerveModule { // implements Sendable {
     m_rotationPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
   }
 
+  public void setDesiredStateAuto(SwerveModuleState desiredState, double secondaryThrottle, boolean maxSpeedEnabled) {
+    /* If the robot is not being instructed to move, do not move any motors. 
+     * This prevents the swerve module from returning to its original position
+     * when the robot is not moving, which is the default behaviour of
+     * ChassisSpeeds and SwerveModuleState.
+     */
+    m_rotationMotor.setIdleMode(IdleMode.kBrake);
+    m_rotationPIDController.setP(Constants.Swerve.Gains.rotationPID_kP_auto);
+    m_rotationPIDController.setI(Constants.Swerve.Gains.rotationPID_kI_auto);
+    m_rotationPIDController.setD(Constants.Swerve.Gains.rotationPID_kD_auto);
+    m_rotationPIDController.setFF(0.07);
+    
+    // Optimize the desired state to avoid spinning further than 90 degrees
+    SwerveModuleState optimizedState =
+        SwerveModuleState.optimize(desiredState, new Rotation2d(m_rotationEncoder.getPosition()));
+
+    SmartDashboard.putNumber(m_name + "Set M/S", optimizedState.angle.getRadians());
+    m_driveMotors.setAuto(optimizedState.speedMetersPerSecond, secondaryThrottle, maxSpeedEnabled);
+    SmartDashboard.putNumber(m_name + "Set Angle", optimizedState.angle.getRadians());
+    m_rotationPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+    
+  }
+  public void setRotCoast(){
+    this.m_rotationMotor.setIdleMode(IdleMode.kCoast);
+  }
+
   /**
    * Rotate the module to the specified angle.
    * This method must be called periodically in order to function.
@@ -249,6 +293,9 @@ public class SwerveModule { // implements Sendable {
   public void rotateTo(double desiredAngle) {
     SmartDashboard.putNumber(m_name + " Angle Setpoint (rad)", desiredAngle);
     m_rotationPIDController.setReference(desiredAngle, ControlType.kPosition);
+  }
+  public double getRotateAngle(){
+    return m_rotationEncoder.getPosition();
   }
 
   /**

@@ -15,6 +15,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Limits;
 
 // velocity conversion factors with/without motors
@@ -37,16 +38,30 @@ public class SwerveMotorGroup {
       this.sunEncoder = sunEncoder;
     }
     public double getOutputSpeed(){
-      return bevelToWheel*(carrierSpur/driveSpur)*((sunEncoder.getVelocity()*(sunTeeth/(sunTeeth+ringInner))+(ringEncoder.getVelocity()*(spurTeeth/ringOuter)*(ringInner/(sunTeeth+ringInner)))))*Constants.Swerve.DRIVE_VELOCITY_CONVERSION;
+      return ((2.0/15.0)*(ringEncoder.getVelocity()+sunEncoder.getVelocity())*Constants.Swerve.WHEEL_CIRCUMFERENCE)/60.0;
     }
     public double getSunSetpoint(double targetVelocity){
-      return (targetVelocity-(ringEncoder.getVelocity()*(spurTeeth/ringOuter)*(ringInner/(sunTeeth+ringInner))*bevelToWheel*(carrierSpur/driveSpur)*Constants.Swerve.DRIVE_VELOCITY_CONVERSION))/Constants.Swerve.DRIVE_VELOCITY_CONVERSION;
+      return (((targetVelocity-((ringEncoder.getVelocity()*(2.0/15.0)*Constants.Swerve.WHEEL_CIRCUMFERENCE)/60.0))*60.0)/Constants.Swerve.WHEEL_CIRCUMFERENCE)*(7.5);
+    }
+    public double getRingSetpoint(double targetVelocity){
+      return (((targetVelocity-((sunEncoder.getVelocity()*(2.0/15.0)*Constants.Swerve.WHEEL_CIRCUMFERENCE)/60.0))*60.0)/Constants.Swerve.WHEEL_CIRCUMFERENCE)*(7.5);
+    }
+    
+    public double SIM_getSunSetpoint(double targetVelocity, double ringVel){
+      return (((targetVelocity-((ringVel*(2.0/15.0)*Constants.Swerve.WHEEL_CIRCUMFERENCE)/60.0))*60.0)/Constants.Swerve.WHEEL_CIRCUMFERENCE)*(7.5);
+    }
+    public double SIM_getOutputSpeed(double sunVel, double ringVel){
+      return ((2.0/15.0)*(sunVel+ringVel)*Constants.Swerve.WHEEL_CIRCUMFERENCE)/60.0;
+    }
+    public double getPositionMeters(){
+      return ((2.0/15.0)*(sunEncoder.getPosition()+ringEncoder.getPosition()))*Constants.Swerve.WHEEL_CIRCUMFERENCE;
     }
   }
 
   private final CANSparkMax m_primaryMotor;
   private final CANSparkMax m_secondaryMotor;
-
+  private boolean isPrimaryOverThreshold;
+  private int primarySpeedCounter = 0;
   private final RelativeEncoder m_primaryEncoder;
   private final RelativeEncoder m_secondaryEncoder;
   private final ECVT m_ecvt;
@@ -69,6 +84,10 @@ public class SwerveMotorGroup {
     m_secondaryMotor = new CANSparkMax(secondaryDriveMotorID, MotorType.kBrushless);
     m_primaryEncoder = m_primaryMotor.getEncoder();
     m_secondaryEncoder = m_secondaryMotor.getEncoder();
+    m_primaryEncoder.setVelocityConversionFactor(1);
+    m_secondaryEncoder.setVelocityConversionFactor(1);
+    m_primaryEncoder.setPositionConversionFactor(1);
+    m_secondaryEncoder.setPositionConversionFactor(1);
     m_primaryMotor.setInverted(invertDriveMotors);
     m_secondaryMotor.setInverted(invertDriveMotors);
     m_primaryMotor.setIdleMode(IdleMode.kBrake);
@@ -77,17 +96,23 @@ public class SwerveMotorGroup {
     m_secondaryMotor.setSmartCurrentLimit(Limits.DRIVE_SECONDARY_CURRENT);
     m_ecvt = new ECVT(m_secondaryEncoder, m_primaryEncoder);
     m_name = name;
+    
+    SmartDashboard.putNumber("Test Secondary RPM", 0);
+    SmartDashboard.putNumber("Test Primary RPM", 0);
+    SmartDashboard.putNumber("Test Target Vel", 1);
   }
 
-  public RelativeEncoder getEncoder() {
-    return m_primaryEncoder;
-  }
 
   // shouldn't exist
   public double getPosition() {
     // have fun
     // temp:
-    return m_primaryEncoder.getPosition();
+    // return m_secondaryEncoder.getPosition();
+    return m_ecvt.getPositionMeters();
+  }
+  public void resetEncoders(){
+    m_primaryEncoder.setPosition(0);
+    m_secondaryEncoder.setPosition(0);
   }
 
   // shouldn't exist
@@ -96,10 +121,20 @@ public class SwerveMotorGroup {
     return m_ecvt.getOutputSpeed();
   }
 
+  public void simulateECVT(){
+    SmartDashboard.putNumber("Output SIM", m_ecvt.SIM_getOutputSpeed(SmartDashboard.getNumber("Test Primary RPM", 0), SmartDashboard.getNumber("Test Secondary RPM", 0)));
+    SmartDashboard.putNumber("SunSetp SIM", m_ecvt.SIM_getSunSetpoint(SmartDashboard.getNumber("Test Target Vel", 0), SmartDashboard.getNumber("Test Secondary RPM", 0)));
+    SmartDashboard.putNumber("position", m_ecvt.getPositionMeters());
+  }
+
   public void set(double speedMetersPerSecond, double secondaryThrottle, boolean maxSpeedEnabled) {
     // Calculate the drive output from the drive PID controller.
+    
+    // m_primaryPID.setP(Constants.Swerve.Gains.drivePID_kP_auto);
+    // m_primaryPID.setI(Constants.Swerve.Gains.drivePID_kI_auto);
+    // m_primaryPID.setD(Constants.Swerve.Gains.drivePID_kD_auto);
     // final double driveOutput =
-        // m_primaryPID.calculate(m_secondaryEncoder.getVelocity(), speedMetersPerSecond);//m_primaryEncoder.getVelocity(), speedMetersPerSecond); // why isn't this swapped for secondary motor?
+    // m_primaryPID.calculate(m_secondaryEncoder.getVelocity(), m_ecvt.getRingSetpoint(speedMetersPerSecond));;//m_primaryEncoder.getVelocity(), speedMetersPerSecond); // why isn't this swapped for secondary motor?
         // this also doesn't use metres per second
     final double driveFeedforward = m_primaryFF.calculate(speedMetersPerSecond);
     // swerve has not a clue as to what speed it is going
@@ -110,7 +145,53 @@ public class SwerveMotorGroup {
     // m_primaryMotor.setVoltage(driveVoltage);
     // copy sign
     // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+    // if(m_primaryEncoder.getVelocity() > )
+    SmartDashboard.putNumber("drive voltage", driveVoltage);
+    SmartDashboard.putNumber("Primary velocity", m_secondaryEncoder.getVelocity());
+    SmartDashboard.putNumber("Secondary velocity", m_primaryEncoder.getVelocity());
+    SmartDashboard.putNumber("ecvt velocity", m_ecvt.getOutputSpeed());
+    // if(Math.abs(m_secondaryEncoder.getVelocity()) > 3000){
+    //   primarySpeedCounter++;
+    //   if(primarySpeedCounter > 5){
+    //     isPrimaryOverThreshold = true;
+    //     RobotContainer.LED.set(0.05);
+    //   }
+    // }else{
+    //   primarySpeedCounter += -1;
+    //   if(primarySpeedCounter == 0){
+    //     isPrimaryOverThreshold = false;
+    //   }
+    // }
+    // if(!isPrimaryOverThreshold){
+    //   maxSpeedEnabled = false;
+    //   RobotContainer.LED.set(-0.15);
+    // }
+    // if(maxSpeedEnabled){
+    //   RobotContainer.LED.set(0.07);
+    // }
     m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+  }
+  public void setAuto(double speedMetersPerSecond, double secondaryThrottle, boolean maxSpeedEnabled) {
+    // Calculate the drive output from the drive PID controller.
+    m_primaryPID.setP(Constants.Swerve.Gains.drivePID_kP_auto);
+    m_primaryPID.setI(Constants.Swerve.Gains.drivePID_kI_auto);
+    m_primaryPID.setD(Constants.Swerve.Gains.drivePID_kD_auto);
+    final double driveOutput =
+    m_primaryPID.calculate(m_primaryEncoder.getVelocity(), m_ecvt.getSunSetpoint(speedMetersPerSecond));//m_primaryEncoder.getVelocity(), speedMetersPerSecond); // why isn't this swapped for secondary motor?
+        // this also doesn't use metres per second
+    final double driveFeedforward = m_primaryFF.calculate(speedMetersPerSecond);
+    // swerve has not a clue as to what speed it is going
+
+    final double driveVoltage = driveOutput + driveFeedforward;
+    m_primaryMotor.setVoltage(driveVoltage);
+    // m_primaryMotor.setVoltage(driveVoltage);
+    // copy sign
+    // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+    // if(m_primaryEncoder.getVelocity() > )
+    SmartDashboard.putNumber("Primary velocity", m_secondaryEncoder.getVelocity());
+    SmartDashboard.putNumber("Secondary velocity", m_primaryEncoder.getVelocity());
+    SmartDashboard.putNumber("ecvt velocity", m_ecvt.getOutputSpeed());
+    // m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
   }
 
   /** Update data being sent and recieved from NetworkTables. */

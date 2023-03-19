@@ -29,6 +29,7 @@ import edu.wpi.first.math.MathUtil;
 // import edu.wpi.first.math.controller.PIDController;
 // import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -84,6 +85,7 @@ public class SwerveDrive extends SubsystemBase {
   private boolean m_maxSpeedEnabled = false;
   private double m_secondaryThrottle = 0; // 0 to 1
 
+
   /** Creates a new SwerveDrive. */
   public SwerveDrive(AHRS gyro, XboxController driverController, HashMap<String, Command> eventMap) {
     m_driverController = driverController;
@@ -110,6 +112,7 @@ public class SwerveDrive extends SubsystemBase {
     SmartDashboard.putData("Field", m_field);
     SmartDashboard.putBoolean("Reset Encoders", false); // display button
     // Configure logging sources
+    this.resetModuleEncoders();
     m_pathLogger.setSources(this::getPose);
     PPSwerveControllerCommand.setLoggingCallbacks(
         m_pathLogger::setActiveTrajectory,
@@ -124,7 +127,7 @@ public class SwerveDrive extends SubsystemBase {
       m_kinematics,
       Autonomous.translationPIDConstants,
       Autonomous.rotationPIDConstants,
-      this::setDesiredStates,
+      this::setDesiredStatesAuto,
       eventMap,
       true,
       this
@@ -140,6 +143,19 @@ public class SwerveDrive extends SubsystemBase {
   //   // getter always sets value to false to reset button
   //   builder.addBooleanProperty("Reset Encoders", ()->false, (boolean pressed)->{if (pressed) resetModuleEncoders();});
   // }
+  public void setRotCoast(){
+    m_frontLeft.setRotCoast();
+    m_frontRight.setRotCoast();
+    m_rearLeft.setRotCoast();
+    m_rearRight.setRotCoast();
+  }
+  public double getYaw(){
+    return m_gyro.getYaw();
+  }
+
+  public void setPose(Pose2d pose){
+    m_odometry.resetPosition(new Rotation2d(), getModulePositions(), pose);
+  }
 
   // This method will be called once per scheduler run.
   @Override
@@ -151,6 +167,8 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.updateNetworkTables();
     m_rearLeft.updateNetworkTables();
     m_rearRight.updateNetworkTables();
+    
+    m_rearLeft.simulateECVT();
     // handle button input from NetworkTables
     // m_isFieldRelative = SmartDashboard.getBoolean("Is Field Relative", true);
     // SmartDashboard.putBoolean("Is Field Relative", m_isFieldRelative);
@@ -197,6 +215,10 @@ public class SwerveDrive extends SubsystemBase {
     double velocity = m_driverController.getLeftY();
     m_debugAngleSetpoint += m_driverController.getRightX() * DEBUG_DRIVE_ANGLE_SENSITIVITY;
     set(velocity, m_debugAngleSetpoint);
+  }
+
+  public SwerveDriveKinematics getKinemaics(){
+    return this.m_kinematics;
   }
 
   /** 
@@ -261,6 +283,14 @@ public class SwerveDrive extends SubsystemBase {
    */
   public Command generateFullAuto(List<PathPlannerTrajectory> trajectoryGroup) {
     return m_autoBuilder.fullAuto(trajectoryGroup);
+  }
+
+  public Command generateAutoWithEvents(List<PathPlannerTrajectory> trajectoryGroup){
+    return m_autoBuilder.followPathGroupWithEvents(trajectoryGroup);
+  }
+  
+  public SwerveAutoBuilder getSwerveAutoBuilder(){
+    return m_autoBuilder;
   }
 
   /**
@@ -413,6 +443,15 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.setDesiredState(states[1], m_secondaryThrottle, m_maxSpeedEnabled);
     m_rearLeft.setDesiredState(states[2], m_secondaryThrottle, m_maxSpeedEnabled);
     m_rearRight.setDesiredState(states[3], m_secondaryThrottle, m_maxSpeedEnabled);
+    // BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates());
+  }
+
+  public void setDesiredStatesAuto(SwerveModuleState[] states) {
+    // Array index order must match the order that m_kinematics was initialized with.
+    m_frontLeft.setDesiredStateAuto(states[0], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_frontRight.setDesiredStateAuto(states[1], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_rearLeft.setDesiredStateAuto(states[2], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_rearRight.setDesiredStateAuto(states[3], m_secondaryThrottle, m_maxSpeedEnabled);
     BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates());
   }
 
@@ -424,6 +463,13 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.stop();
     m_rearLeft.stop();
     m_rearRight.stop();
+  }
+  public boolean setRotationAngle(double angle){
+    m_frontLeft.rotateTo(angle);
+    m_frontRight.rotateTo(angle);
+    m_rearLeft.rotateTo(angle);
+    m_rearRight.rotateTo(angle);
+    return Math.abs(m_frontLeft.getRotateAngle()-angle) < 0.1 && Math.abs(m_frontRight.getRotateAngle()-angle) < 0.1 && Math.abs(m_rearLeft.getRotateAngle()-angle) < 0.1 && Math.abs(m_rearRight.getRotateAngle()-angle) <0.1;
   }
 
   /** Updates the field relative position of the robot. */
