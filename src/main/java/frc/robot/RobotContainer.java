@@ -82,17 +82,17 @@ public class RobotContainer {
   // private final JoystickButton m_resetEncoderButton =
   //     new JoystickButton(
   //         m_driverController, XboxController.Button.kStart.value);
-  private final JoystickButton m_zeroYawButton =
-      new JoystickButton(m_driverController, XboxController.Button.kY.value);
-  // private final JoystickButton m_driverPickup = new JoystickButton(
-  //     m_driverController, XboxController.Button.kRightBumper.value);
-  private final JoystickButton m_driverGroundPickup = new JoystickButton(
+  private final JoystickButton m_zeroYawButton = new JoystickButton(
+      m_driverController, XboxController.Button.kStart.value);
+  private final JoystickButton m_driverPickup = new JoystickButton(
       m_driverController, XboxController.Button.kRightBumper.value);
+  private final JoystickButton m_driverGroundPickup = new JoystickButton(
+      m_driverController, XboxController.Button.kLeftBumper.value);
   private final JoystickButton m_driverStow = new JoystickButton(
       m_driverController, XboxController.Button.kX.value);
   private final JoystickButton m_executeQueuedCommand = new JoystickButton(
-    m_driverController, XboxController.Button.kRightBumper.value);
-        
+      m_driverController, XboxController.Button.kY.value);
+
   // operator controls
   private final JoystickButton m_openGripper = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftBumper.value);
