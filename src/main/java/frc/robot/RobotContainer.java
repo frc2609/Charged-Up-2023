@@ -39,6 +39,7 @@ import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToPickup;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.OpenGripper;
+import frc.robot.commands.QueueCommand;
 import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
 import frc.robot.commands.autonomous.AutoScoreConeHigh;
@@ -83,12 +84,15 @@ public class RobotContainer {
   //         m_driverController, XboxController.Button.kStart.value);
   private final JoystickButton m_zeroYawButton =
       new JoystickButton(m_driverController, XboxController.Button.kY.value);
-  private final JoystickButton m_driverPickup = new JoystickButton(
-      m_driverController, XboxController.Button.kRightBumper.value);
+  // private final JoystickButton m_driverPickup = new JoystickButton(
+  //     m_driverController, XboxController.Button.kRightBumper.value);
   private final JoystickButton m_driverGroundPickup = new JoystickButton(
-      m_driverController, XboxController.Button.kLeftBumper.value);
+      m_driverController, XboxController.Button.kRightBumper.value);
   private final JoystickButton m_driverStow = new JoystickButton(
       m_driverController, XboxController.Button.kX.value);
+  private final JoystickButton m_executeQueuedCommand = new JoystickButton(
+    m_driverController, XboxController.Button.kRightBumper.value);
+        
   // operator controls
   private final JoystickButton m_openGripper = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftBumper.value);
@@ -153,15 +157,15 @@ public class RobotContainer {
     // this one left in for easy access to resetYaw
     m_zeroYawButton.onTrue(new InstantCommand(m_navx::zeroYaw));
     m_driverGroundPickup.onTrue(new MoveArmToGroundPickup(m_armGripper));
-    m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper));
+    // m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper)); // TODO: ADD QUEUED COMMAND TO OPERATOR STICK 
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     // m_pickupButton.onTrue(new MoveArmToPickup(m_armGripper));
     // m_groundPickupButton.onTrue(new MoveArmToGroundPickup(m_armGripper));
-    m_scoreLowButton.onTrue(new MoveArmToLow(m_armGripper));
-    m_scoreMidButton.onTrue(new MoveArmToMid(m_armGripper));
-    m_scoreHighButton.onTrue(new MoveArmToHigh(m_armGripper));
+    m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
+    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToMid(m_armGripper)));
+    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToHigh(m_armGripper)));
     m_closeGripper.onTrue(new CloseGripper(m_armGripper));
     m_openGripper.onTrue(new OpenGripper(m_armGripper));
     // m_decreaseUpperSetpoint.onTrue(new AdjustUpperSetpoint(m_armGripper, -2.0));
