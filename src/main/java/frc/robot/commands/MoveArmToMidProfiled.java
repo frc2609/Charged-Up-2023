@@ -47,9 +47,11 @@ public class MoveArmToMidProfiled extends CommandBase {
     }
     System.out.println(i);
     // i++;
-    m_armGripper.setLowerTargetAngle(lowerSetpoint[i]);
-    m_armGripper.setUpperTargetAngle(upperSetpoint[i]);
-    m_armGripper.setExtensionTargetLength(extensionSetpoint[i]);
+    if(i <= lowerSetpoint.length){
+      m_armGripper.setLowerTargetAngle(lowerSetpoint[i]);
+      m_armGripper.setUpperTargetAngle(upperSetpoint[i]);
+      m_armGripper.setExtensionTargetLength(extensionSetpoint[i]);
+    }
 
     // SmartDashboard.putNumber("lowerError", Math.abs(m_armGripper.getLowerArmAngleRelative()-LOWER_SET));
     // SmartDashboard.putNumber("upperError", Math.abs(m_armGripper.getUpperArmAngleRelative()-UPPER_SET));
@@ -62,6 +64,10 @@ public class MoveArmToMidProfiled extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+      System.out.println("PROFILED ARM TO MID FINISHED");
+      m_armGripper.setLowerTargetAngle(lowerSetpoint[lowerSetpoint.length-1]);
+      m_armGripper.setUpperTargetAngle(upperSetpoint[upperSetpoint.length-1]);
+      m_armGripper.setExtensionTargetLength(upperSetpoint[upperSetpoint.length-1]);
   }
 
   // Returns true when the command should end.
@@ -70,6 +76,7 @@ public class MoveArmToMidProfiled extends CommandBase {
     boolean isLowerInTolerance = Math.abs(m_armGripper.getLowerArmAngleRelative()-lowerSetpoint[lowerSetpoint.length-1]) < Tolerances.LOWER_ANGLE; 
     boolean isUpperInTolerance = Math.abs(m_armGripper.getUpperArmAngleRelative()-upperSetpoint[upperSetpoint.length-1]) < Tolerances.UPPER_ANGLE; 
     boolean isExtensionInTolerance = Math.abs(m_armGripper.getExtensionDistance()-upperSetpoint[upperSetpoint.length-1]) < Tolerances.EXTENSION_LENGTH;
+    //return i>lowerSetpoint.length-1 // try this if it finishes too early
     return isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance;
   }
 }
