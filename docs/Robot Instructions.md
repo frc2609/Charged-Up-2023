@@ -73,10 +73,14 @@ However, in teleop mode, the robot can collide with parts of the field, and othe
 | Left Joystick X Axis  | Move robot left and right   |
 | Left Joystick Y Axis  | Move robot forward and back |
 | Right Joystick X Axis | Rotate robot left and right |
+| Right Trigger Axis    | Boost throttle              |
 | Left Bumper           | Move to ground pickup       |
 | Right Bumper          | Move to station pickup      |
+| Start Button          | Toggle Manual Control       |
+| A Button              | Enable Boost                |
+| B Button              | Autoalign to cone node      |
 | X Button              | Move to stow position       |
-| Y Button              | Reset gyro yaw angle        |
+| Y Button              | Confirm queued command      |
 
 ### Operator:
 | Control               | Function                    |
@@ -86,13 +90,17 @@ However, in teleop mode, the robot can collide with parts of the field, and othe
 | Left Bumper           | Open Gripper                |
 | Right Bumper          | Close Gripper               |
 | Start Button          | Toggle Manual Control       |
+| Select Button         | Move swerve modules to zero |
+| A Button              | Queue low node              |
+| B Button              | Queue mid node              |
+| Y Button              | Queue high node             |
 | X Button              | Move to stow position       |
-| A Button              | Move to low node            |
-| B Button              | Move to mid node            |
-| Y Button              | Move to high node           |
 | DPAD Up               | Manual: Extend extension    |
 | DPAD Down             | Manual: Retract extension   |
-
+* How to remember queue buttons:
+    * Y is highest = high node
+    * A is lowest = low node
+    * B is in between = middle node
 
 ## Dashboard
 This repository comes with a premade Shuffleboard layout. To use it, open Shuffleboard, open the File menu and press Load layout, then select `robot-shuffleboard-layout.json` in the root of this repository.

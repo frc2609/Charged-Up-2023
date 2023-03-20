@@ -114,8 +114,8 @@ public class RobotContainer {
       m_operatorController, XboxController.Button.kStart.value);
 
       private final JoystickButton visionButton = new JoystickButton(m_driverController, XboxController.Button.kB.value);
-      private final JoystickButton resetButton = new JoystickButton(m_driverController, XboxController.Button.kA.value);
-      private final JoystickButton breakButton = new JoystickButton(m_driverController, XboxController.Button.kStart.value);
+      private final JoystickButton resetButton = new JoystickButton(m_operatorController, XboxController.Button.kBack.value);
+      // private final JoystickButton breakButton = new JoystickButton(m_driverController, XboxController.Button.kStart.value);
   PPSwerveControllerCommand tempAutoCommand;
   PathLogger m_pathLogger;
   public static Spark LED;
@@ -157,7 +157,7 @@ public class RobotContainer {
     // this one left in for easy access to resetYaw
     m_zeroYawButton.onTrue(new InstantCommand(m_navx::zeroYaw));
     m_driverGroundPickup.onTrue(new MoveArmToGroundPickup(m_armGripper));
-    // m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper)); // TODO: ADD QUEUED COMMAND TO OPERATOR STICK 
+    m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper)); // TODO: ADD QUEUED COMMAND TO OPERATOR STICK 
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
@@ -175,7 +175,8 @@ public class RobotContainer {
     // TODO: move Gripper into own subsystem so that these don't cancel arm commands
     m_toggleManualControl.toggleOnTrue(new ManualArmControl(m_armGripper));
     visionButton.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
-    breakButton.whileTrue(new MoveArmToMidProfiled(m_armGripper));
+    resetButton.onTrue(new ResetModules(m_swerveDrive, 0));
+    // breakButton.whileTrue(new MoveArmToMidProfiled(m_armGripper));
     // breakButton.onTrue(new AutoScoreConeHigh(m_armGripper));
   }
 
