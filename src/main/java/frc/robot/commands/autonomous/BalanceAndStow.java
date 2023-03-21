@@ -6,21 +6,12 @@ package frc.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathPlanner;
 
-import java.util.List;
-
 import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlannerTrajectory;
 
-
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import frc.robot.commands.CloseGripper;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.SwerveDrive;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class BalanceAndStow extends ParallelDeadlineGroup {
   /** Creates a new BalanceAndStow. */
   
