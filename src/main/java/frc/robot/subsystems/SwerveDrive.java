@@ -337,6 +337,16 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
+   * Returns a reference to the robot's gyro.
+   * Do not reset the gyro using this method.
+   * 
+   * @return The robot's navX IMU.
+   */
+  public AHRS getGyro() {
+    return m_gyro;
+  }
+
+  /**
    * Returns an array containing the position of each swerve module.
    * The position of a swerve module contains the drive motor position instead
    * of its velocity.

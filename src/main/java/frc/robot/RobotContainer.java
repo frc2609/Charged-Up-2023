@@ -79,6 +79,7 @@ public class RobotContainer {
       m_driverController, XboxController.Button.kY.value);
   private final JoystickButton m_alignToNode = new JoystickButton(
       m_driverController, XboxController.Button.kB.value);
+
   // operator controls
   private final JoystickButton m_openGripper = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftBumper.value);
@@ -123,7 +124,7 @@ public class RobotContainer {
     // driver controls
     m_zeroYawButton.onTrue(new InstantCommand(m_navx::zeroYaw));
     m_driverGroundPickup.onTrue(new MoveArmToGroundPickup(m_armGripper));
-    m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper)); // TODO: ADD QUEUED COMMAND TO OPERATOR STICK 
+    m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
     // breakButton.whileTrue(new MoveArmToMidProfiled(m_armGripper));
@@ -201,12 +202,13 @@ public class RobotContainer {
    * Update NetworkTables values set by RobotContainer.
    */
   public void updateNetworkTables() {
-    SmartDashboard.putNumber("Gyro Angle", m_navx.getAngle());
     SmartDashboard.putBoolean("Navx Connected", m_navx.isConnected());
     if (SmartDashboard.getBoolean("Zero Yaw", false)) {
       m_navx.zeroYaw();
       SmartDashboard.putBoolean("Zero Yaw", false); // reset the button
     }
+    SmartDashboard.putNumber("Gyro Yaw (rad)", m_navx.getRotation2d().getRadians());
+    SmartDashboard.putNumber("Gyro Yaw (deg)", m_navx.getRotation2d().getDegrees());
     SmartDashboard.putNumber("Robot Current Draw (A)", m_powerDistribution.getTotalCurrent());
   }
 

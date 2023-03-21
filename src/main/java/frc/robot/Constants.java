@@ -124,6 +124,15 @@ public final class Constants {
     }
     /** Autonomous-Related Constants */
     public static final class Autonomous {
+        /** Autobalance-related constants. */
+        public static final class Balance {
+            /** P gain for going up the ramp on the charge station. */
+            public static final double START_P = 0.4;
+            /** P gain for staying on the charge station. */
+            public static final double HOLD_P = 0.2;
+            /** The acceptable amount of tilt error in degrees. */
+            public static final double ANGLE_TOLERANCE = 5;
+        }
         /** The NAME of the path, excluding its filepath and extension.
          * Path assumed to be `src/main/deploy/pathplanner/`.
          * Extension assumed to be `.path`.
