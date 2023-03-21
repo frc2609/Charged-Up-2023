@@ -179,7 +179,7 @@ public class ArmGripper extends SubsystemBase {
     m_extensionPID.setI(SmartDashboard.getNumber("Extension I", 0.000000001));
     m_extensionPID.setD(SmartDashboard.getNumber("Extension D", 0.0000003));
     m_extensionPID.setIZone(0.5);
-    m_extensionPID.setFF(0.001); // unstable, 0.003 broke the gearbox
+    m_extensionPID.setFF(0.001); // TODO: tune (0.003 gittery)
     m_extensionPID.setOutputRange(-1.0, 1.0);
     m_extensionPID.setSmartMotionMaxVelocity(11000, 0); // NEO 550 free rpm
     m_extensionPID.setSmartMotionMaxAccel(15000, 0);
