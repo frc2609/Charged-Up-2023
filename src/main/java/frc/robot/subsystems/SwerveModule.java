@@ -7,8 +7,6 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.Swerve.*;
 import static frc.robot.Constants.Swerve.Gains.*;
 
-import java.lang.constant.Constable;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -22,10 +20,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //import edu.wpi.first.util.sendable.Sendable;
 //import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
-import frc.robot.RobotContainer;
+
 import frc.robot.Constants.Limits;
-import frc.robot.utils.BeaverLogger;
 
 /**
  * Represents a single swerve drive module.
@@ -38,6 +34,8 @@ public class SwerveModule { // implements Sendable {
   private final SparkMaxPIDController m_rotationPIDController;
 
   private final String m_name;
+
+  // TODO: now using B to drive and A for boost, change documentation accordingly
 
   /** 
    * Creates a new SwerveModule.
@@ -245,10 +243,10 @@ public class SwerveModule { // implements Sendable {
      * ChassisSpeeds and SwerveModuleState.
      */
     
-     m_rotationPIDController.setP(Constants.Swerve.Gains.rotationPID_kP_auto);
-     m_rotationPIDController.setI(Constants.Swerve.Gains.rotationPID_kI_auto);
-     m_rotationPIDController.setD(Constants.Swerve.Gains.rotationPID_kD_auto);
-     m_rotationPIDController.setFF(0.07);
+     m_rotationPIDController.setP(rotationPID_kP_auto);
+     m_rotationPIDController.setI(rotationPID_kI_auto);
+     m_rotationPIDController.setD(rotationPID_kD_auto);
+     m_rotationPIDController.setFF(rotationFF_auto);
      
     // Temp
     m_rotationMotor.setIdleMode(IdleMode.kBrake);
@@ -274,10 +272,10 @@ public class SwerveModule { // implements Sendable {
      * ChassisSpeeds and SwerveModuleState.
      */
     m_rotationMotor.setIdleMode(IdleMode.kBrake);
-    m_rotationPIDController.setP(Constants.Swerve.Gains.rotationPID_kP_auto);
-    m_rotationPIDController.setI(Constants.Swerve.Gains.rotationPID_kI_auto);
-    m_rotationPIDController.setD(Constants.Swerve.Gains.rotationPID_kD_auto);
-    m_rotationPIDController.setFF(0.07);
+    m_rotationPIDController.setP(rotationPID_kP_auto);
+    m_rotationPIDController.setI(rotationPID_kI_auto);
+    m_rotationPIDController.setD(rotationPID_kD_auto);
+    m_rotationPIDController.setFF(rotationFF_auto);
     
     // Optimize the desired state to avoid spinning further than 90 degrees
     SwerveModuleState optimizedState =

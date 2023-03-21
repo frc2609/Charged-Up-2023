@@ -215,6 +215,7 @@ public final class Constants {
 
             // SparkMaxPIDController only has 1 feedforward constant.
             public static final double rotationFF = 0;
+            public static final double rotationFF_auto = 0.07;
         }
         public final static class IsInverted {
             public static final boolean frontLeftDrive = true;
@@ -295,6 +296,11 @@ public final class Constants {
             public static final double MAX_LINEAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED;
         }
         // Miscellaneous:
+        /** 
+         * The allowed rotation error in radians when rotating a module to a
+         * specific angle (not used when setting a SwerveModuleState).
+         */
+        public static final double ROTATION_ANGLE_TOLERANCE = 0.1;
         public static final double DEBUG_DRIVE_ANGLE_SENSITIVITY = 0.25;
         /** The maximum angular acceleration the robot can achieve in radians/s^2. */
         // public static final double MAX_POSSIBLE_ANGULAR_ACCELERATION = 2 * Math.PI; // unused
