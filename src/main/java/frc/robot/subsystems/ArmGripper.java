@@ -115,6 +115,10 @@ public class ArmGripper extends SubsystemBase {
     // TODO: move to constants
     m_lowerEncoderRelative.setPositionConversionFactor(1.8);
     m_upperEncoderRelative.setPositionConversionFactor(3.0);
+    // 48/18 -> sprockets
+    // gearbox bottom is 45:1
+    // 360 / 120 to convert 
+    // every 360 degrees, rotates 120 times
 
     // TODO: configure as necessary
     m_lowerEncoderAbsolute.setDistancePerRotation(Encoder.LOWER_DISTANCE_PER_ROTATION); // TODO: should not be 0
