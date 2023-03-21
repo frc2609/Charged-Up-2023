@@ -64,21 +64,19 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_lowerPID = m_lowerMotor.getPIDController();
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
-  private ColorSensorV3 intakeSensor;
+  private final ColorSensorV3 intakeSensor = new ColorSensorV3(I2C.Port.kMXP);
 
   XboxController m_operatorController;
 
   /** Creates a new ArmGripper. */
   public ArmGripper(XboxController operatorController) {
     m_compressor.enableDigital();
-
     m_lowerMotor.restoreFactoryDefaults();
     m_upperMotor.restoreFactoryDefaults();
     m_extensionMotor.restoreFactoryDefaults();
     configureEncoders();
     configureMotors();
     configurePIDs();
-    intakeSensor = new ColorSensorV3(I2C.Port.kMXP);
     m_operatorController = operatorController;
   }
 
