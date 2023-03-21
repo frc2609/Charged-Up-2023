@@ -4,34 +4,32 @@
 
 package frc.robot.commands.autonomous;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.CloseGripper;
-import frc.robot.commands.OpenGripper;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.SwerveDrive;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class AutoScoreConeThenBalance extends SequentialCommandGroup {
   /** Creates a new AutoScoreConeThenBalance. */
-  List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("ScoreThenAutobalance", new PathConstraints(1.7, 2.3));
+  List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(
+      "ScoreThenAutobalance",
+      new PathConstraints(1.7, 2.3)
+  );
 
-  public AutoScoreConeThenBalance(ArmGripper gripper, SwerveDrive drive) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
-    // new AutoScoreConeHigh(gripper)
-    addCommands(new SetOdometry(drive, pathGroup.get(0).getInitialPose()), new AutoScoreConeHigh(gripper),new OpenGripper(gripper),new BalanceAndStow(gripper, drive), new StopDrive(drive), new MoveArmToStow(gripper));
+  public AutoScoreConeThenBalance(ArmGripper armGripper, SwerveDrive drive) {
+    addCommands(
+        new SetOdometry(drive, pathGroup.get(0).getInitialHolonomicPose()),
+        new AutoScoreConeHigh(armGripper),
+        new InstantCommand(armGripper::openGripper),
+        new BalanceAndStow(armGripper, drive),
+        new InstantCommand(drive::stop, drive),
+        new MoveArmToStow(armGripper)
+    );
   }
-  
 }

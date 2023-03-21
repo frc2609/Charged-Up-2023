@@ -7,8 +7,6 @@ package frc.robot;
 import java.util.HashMap;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -21,7 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.CloseGripper;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.MoveArmToGroundPickup;
@@ -31,7 +28,6 @@ import frc.robot.commands.MoveArmToHigh;
 import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToPickup;
 import frc.robot.commands.MoveArmToStow;
-import frc.robot.commands.OpenGripper;
 import frc.robot.commands.QueueCommand;
 import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
@@ -39,7 +35,7 @@ import frc.robot.commands.autonomous.AutoScoreConeHigh;
 import frc.robot.commands.autonomous.AutoScoreConeThenBalance;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.SwerveDrive;
-import frc.robot.utils.BeaverLogger;
+import frc.robot.utils.BeaverLogger; // where is this used
 import frc.robot.utils.PathLogger;
 
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
@@ -66,8 +62,8 @@ public class RobotContainer {
   private final SwerveDrive m_swerveDrive;
   private final PowerDistribution m_powerDistribution =
       new PowerDistribution(1, ModuleType.kRev);
-  PPSwerveControllerCommand tempAutoCommand;
-  PathLogger m_pathLogger;
+  PPSwerveControllerCommand tempAutoCommand; // unused, why
+  PathLogger m_pathLogger; // also unused
   private Spark LED = new Spark(1);
   
   // driver controls
@@ -137,8 +133,8 @@ public class RobotContainer {
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
     m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToMid(m_armGripper)));
     m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToHigh(m_armGripper)));
-    m_closeGripper.onTrue(new CloseGripper(m_armGripper));
-    m_openGripper.onTrue(new OpenGripper(m_armGripper));
+    m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
+    m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
     m_resetSwerveModules.onTrue(new ResetModules(m_swerveDrive, 0));
     // this will interrupt any running arm commands, is this a good idea?
     // also, the operator will lose control of the arm when open or close gripper is scheduled.
@@ -151,7 +147,7 @@ public class RobotContainer {
    */
   private void configureEventMap() {
     // m_eventMap.put("MarkerName", new CommandName(parameters));
-    m_eventMap.put("CloseGripper", new CloseGripper(m_armGripper));
+    m_eventMap.put("CloseGripper", new InstantCommand(m_armGripper::closeGripper));
     m_eventMap.put("MoveArmToStow", new MoveArmToStow(m_armGripper));
   }
 
