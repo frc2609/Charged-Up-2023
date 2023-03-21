@@ -9,14 +9,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+/**
+ * Wait for a trigger to schedule a command.
+ * Automatically cancels queuedCommand if another command is scheduled which
+ * requires one of its subsystems. (This is normal CommandScheduler behaviour.)
+ */
 public class QueueCommand extends SequentialCommandGroup {
   /** Creates a new QueueCommand. */
   public QueueCommand(Trigger trigger, Command queuedCommand) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new WaitUntilTrigger(trigger), queuedCommand);
+    addCommands(Commands.waitUntil(trigger::getAsBoolean), queuedCommand);
   }
 }
