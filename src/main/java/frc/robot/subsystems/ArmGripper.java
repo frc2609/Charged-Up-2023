@@ -159,18 +159,18 @@ public class ArmGripper extends SubsystemBase {
   }
 
   private void configurePIDs() {
-    m_lowerPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00007));
-    m_lowerPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00000000005));
-    m_lowerPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.00000003));
+    m_lowerPID.setP(SmartDashboard.getNumber("Lower Arm P", 0.00007));
+    m_lowerPID.setI(SmartDashboard.getNumber("Lower Arm I", 0.00000000005));
+    m_lowerPID.setD(SmartDashboard.getNumber("Lower Arm D", 0.00000003));
     m_lowerPID.setIZone(0.5);
     m_lowerPID.setFF(0.00015);
     m_lowerPID.setOutputRange(-1.0, 1.0);
     m_lowerPID.setSmartMotionMaxVelocity(3000, 0);
     m_lowerPID.setSmartMotionMaxAccel(15000, 0);
 
-    m_upperPID.setP(SmartDashboard.getNumber("Lower Arm P", 0.00007));
-    m_upperPID.setI(SmartDashboard.getNumber("Lower Arm I", 0.00000000005));
-    m_upperPID.setD(SmartDashboard.getNumber("Lower Arm D", 0.00000003));
+    m_upperPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00007));
+    m_upperPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00000000005));
+    m_upperPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.00000003));
     m_upperPID.setIZone(0.5);
     m_upperPID.setFF(0.00015);
     m_upperPID.setOutputRange(-1.0, 1.0);
