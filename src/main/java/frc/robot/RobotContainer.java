@@ -5,14 +5,11 @@
 package frc.robot;
 
 import java.util.HashMap;
-import java.util.Map;
-import static java.util.Map.entry;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -22,13 +19,9 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-// import edu.wpi.first.wpilibj2.command.button.Trigger;
-// import frc.robot.commands.AdjustUpperSetpoint;
 import frc.robot.commands.CloseGripper;
-import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.MoveArmToGroundPickup;
@@ -59,8 +52,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
  */
 public class RobotContainer {
   /** Entries in this map must be non-null, or the program will crash. */
-  
-  final HashMap<String, Command> m_eventMap = new HashMap<>();
+  private final HashMap<String, Command> m_eventMap = new HashMap<>();
 
   private static AHRS m_navx;
   private final XboxController m_driverController = new XboxController(
@@ -74,14 +66,11 @@ public class RobotContainer {
   private final SwerveDrive m_swerveDrive;
   private final PowerDistribution m_powerDistribution =
       new PowerDistribution(1, ModuleType.kRev);
+  PPSwerveControllerCommand tempAutoCommand;
+  PathLogger m_pathLogger;
+  private Spark LED = new Spark(1);
   
   // driver controls
-  // private final JoystickButton m_fieldOrientedToggleButton = 
-  //     new JoystickButton(
-  //         m_driverController, XboxController.Button.kBack.value);
-  // private final JoystickButton m_resetEncoderButton =
-  //     new JoystickButton(
-  //         m_driverController, XboxController.Button.kStart.value);
   private final JoystickButton m_zeroYawButton = new JoystickButton(
       m_driverController, XboxController.Button.kStart.value);
   private final JoystickButton m_driverPickup = new JoystickButton(
@@ -92,16 +81,13 @@ public class RobotContainer {
       m_driverController, XboxController.Button.kX.value);
   private final JoystickButton m_executeQueuedCommand = new JoystickButton(
       m_driverController, XboxController.Button.kY.value);
-
+  private final JoystickButton m_alignToNode = new JoystickButton(
+      m_driverController, XboxController.Button.kB.value);
   // operator controls
   private final JoystickButton m_openGripper = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftBumper.value);
   private final JoystickButton m_closeGripper = new JoystickButton(
       m_operatorController, XboxController.Button.kRightBumper.value);
-  // private final JoystickButton m_pickupButton = new JoystickButton(
-  //     m_operatorController, XboxController.Button.kLeftStick.value);
-  // private final JoystickButton m_groundPickupButton = new JoystickButton(
-  //     m_operatorController, XboxController.Button.kRightStick.value);
   private final JoystickButton m_stowButton = new JoystickButton(
       m_operatorController, XboxController.Button.kX.value);
   private final JoystickButton m_scoreLowButton = new JoystickButton(
@@ -112,15 +98,8 @@ public class RobotContainer {
       m_operatorController, XboxController.Button.kY.value);
   private final JoystickButton m_toggleManualControl = new JoystickButton(
       m_operatorController, XboxController.Button.kStart.value);
-
-      private final JoystickButton visionButton = new JoystickButton(m_driverController, XboxController.Button.kB.value);
-      private final JoystickButton resetButton = new JoystickButton(m_operatorController, XboxController.Button.kBack.value);
-      // private final JoystickButton breakButton = new JoystickButton(m_driverController, XboxController.Button.kStart.value);
-  PPSwerveControllerCommand tempAutoCommand;
-  PathLogger m_pathLogger;
-  public static Spark LED;
-  // private final Trigger m_decreaseUpperSetpoint = new Trigger(() -> { return m_operatorController.getLeftTriggerAxis() >= 0.5; });
-  // private final Trigger m_increaseUpperSetpoint = new Trigger(() -> { return m_operatorController.getLeftTriggerAxis() >= 0.5; });
+  private final JoystickButton m_resetSwerveModules = new JoystickButton(
+      m_operatorController, XboxController.Button.kBack.value);
           
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -131,14 +110,11 @@ public class RobotContainer {
     }
     m_armGripper = new ArmGripper(m_operatorController);
     m_pathLogger = new PathLogger();
-    m_eventMap.put("CloseGripper", new CloseGripper(m_armGripper)); // markerName, Command
-    m_eventMap.put("MoveArmToStow", new MoveArmToStow(m_armGripper));
     m_swerveDrive = new SwerveDrive(m_navx, m_driverController, m_eventMap);
-    configureButtonBindings();
-    SmartDashboard.putBoolean("Zero Yaw", false); // display the button
     m_swerveDrive.resetModuleEncoders();
-    
-    LED = new Spark(1);
+    configureButtonBindings();
+    configureEventMap();
+    SmartDashboard.putBoolean("Zero Yaw", false); // display the button
   }
 
   /**
@@ -149,35 +125,34 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // driver controls
-    // replaced with SmartDashboard buttons
-    // m_fieldOrientedToggleButton.onTrue(new InstantCommand(
-    //   () -> m_isFieldRelative = !m_isFieldRelative));
-    // m_resetEncoderButton.onTrue(new InstantCommand(
-    //   m_swerveDrive::resetModuleEncoders, m_swerveDrive));
-    // this one left in for easy access to resetYaw
     m_zeroYawButton.onTrue(new InstantCommand(m_navx::zeroYaw));
     m_driverGroundPickup.onTrue(new MoveArmToGroundPickup(m_armGripper));
     m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper)); // TODO: ADD QUEUED COMMAND TO OPERATOR STICK 
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
+    m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
+    // breakButton.whileTrue(new MoveArmToMidProfiled(m_armGripper));
+    // breakButton.onTrue(new AutoScoreConeHigh(m_armGripper));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
-    // m_pickupButton.onTrue(new MoveArmToPickup(m_armGripper));
-    // m_groundPickupButton.onTrue(new MoveArmToGroundPickup(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
     m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToMid(m_armGripper)));
     m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToHigh(m_armGripper)));
     m_closeGripper.onTrue(new CloseGripper(m_armGripper));
     m_openGripper.onTrue(new OpenGripper(m_armGripper));
-    // m_decreaseUpperSetpoint.onTrue(new AdjustUpperSetpoint(m_armGripper, -2.0));
-    // m_increaseUpperSetpoint.onTrue(new AdjustUpperSetpoint(m_armGripper, 2.0));
+    m_resetSwerveModules.onTrue(new ResetModules(m_swerveDrive, 0));
     // this will interrupt any running arm commands, is this a good idea?
     // also, the operator will lose control of the arm when open or close gripper is scheduled.
     // TODO: move Gripper into own subsystem so that these don't cancel arm commands
     m_toggleManualControl.toggleOnTrue(new ManualArmControl(m_armGripper));
-    visionButton.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
-    resetButton.onTrue(new ResetModules(m_swerveDrive, 0));
-    // breakButton.whileTrue(new MoveArmToMidProfiled(m_armGripper));
-    // breakButton.onTrue(new AutoScoreConeHigh(m_armGripper));
+  }
+
+  /** 
+   * Add markers to the autonomous event map.
+   */
+  private void configureEventMap() {
+    // m_eventMap.put("MarkerName", new CommandName(parameters));
+    m_eventMap.put("CloseGripper", new CloseGripper(m_armGripper));
+    m_eventMap.put("MoveArmToStow", new MoveArmToStow(m_armGripper));
   }
 
   /**
@@ -217,12 +192,12 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    // TODO: Shuffleboard auto command selector
     return new AutoScoreConeThenBalance(m_armGripper, m_swerveDrive);
-    // return null;
   }
 
   //TODO: Temp til Antoine puts on absolute encoders
-  public void setRotToCoast(){
+  public void setRotToCoast() {
     m_swerveDrive.setRotCoast();
   }
 
