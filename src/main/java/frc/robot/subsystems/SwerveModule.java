@@ -41,8 +41,8 @@ public class SwerveModule { // implements Sendable {
    * Creates a new SwerveModule.
    * 
    * @param name The module's name, added in front of all SmartDashboard values.
-   * @param driveMotorAID The CAN ID of the primary drive motor (always engaged).
-   * @param driveMotorBID The CAN ID of the secondary drive motor (engaged for extra speed).
+   * @param primaryMotorID The CAN ID of the primary drive motor (always engaged).
+   * @param secondaryMotorID The CAN ID of the secondary drive motor (engaged for extra speed).
    * @param rotationMotorID The CAN ID of the rotation motor.
    * // TODO: this javadoc
    * @param invertDriveMotors name see SwerveMotorGroup//driveMotorsInverted Whether or not to invert both drive motors. The wheel should spin forward on positive inputs.
@@ -50,14 +50,14 @@ public class SwerveModule { // implements Sendable {
    */
   public SwerveModule(
     String name,
-    int driveMotorAID,
-    int driveMotorBID,
+    int primaryMotorID,
+    int secondaryMotorID, // swap CANIDs plz
     int rotationMotorID,
     boolean invertDriveMotors,
     boolean invertRotationMotor
     )
   {
-    m_driveMotors = new SwerveMotorGroup(driveMotorAID, driveMotorBID, invertDriveMotors, name);
+    m_driveMotors = new SwerveMotorGroup(primaryMotorID, secondaryMotorID, invertDriveMotors, name);
     m_rotationMotor = new CANSparkMax(rotationMotorID, MotorType.kBrushless);
 
     // TODO: that's not good. SwerveMotorGroup should handle this (or eliminate it if needed)
