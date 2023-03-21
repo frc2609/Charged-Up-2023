@@ -87,6 +87,7 @@ public class ArmGripper extends SubsystemBase {
     // TODO: Modify these as necessary.
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
+    SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoder.getVelocity());
 
     // SmartDashboard.putNumber("Intake Sensor", intakeSensor.getProximity());
     SmartDashboard.putNumber("Intake Sensor", intakeSensor.getBlue());
@@ -115,7 +116,7 @@ public class ArmGripper extends SubsystemBase {
   private void configureEncoders() {
     // TODO: move to constants
     m_lowerEncoderRelative.setPositionConversionFactor(1.8);
-    m_upperEncoderRelative.setPositionConversionFactor(1.8);
+    m_upperEncoderRelative.setPositionConversionFactor(3.0);
 
     // TODO: configure as necessary
     m_lowerEncoderAbsolute.setDistancePerRotation(Encoder.LOWER_DISTANCE_PER_ROTATION); // TODO: should not be 0
@@ -178,9 +179,9 @@ public class ArmGripper extends SubsystemBase {
     m_extensionPID.setI(SmartDashboard.getNumber("Extension I", 0.000000001));
     m_extensionPID.setD(SmartDashboard.getNumber("Extension D", 0.0000003));
     m_extensionPID.setIZone(0.5);
-    m_extensionPID.setFF(0.0005);
+    m_extensionPID.setFF(0.001); // unstable, 0.003 broke the gearbox
     m_extensionPID.setOutputRange(-1.0, 1.0);
-    m_extensionPID.setSmartMotionMaxVelocity(5000, 0);
+    m_extensionPID.setSmartMotionMaxVelocity(11000, 0); // NEO 550 free rpm
     m_extensionPID.setSmartMotionMaxAccel(15000, 0);
   }
 

@@ -92,8 +92,8 @@ public final class Constants {
             public static final float LOWER_REVERSE = 27.45f;   // degrees
             public static final float UPPER_FORWARD = 177.00f;  // degrees
             public static final float UPPER_REVERSE = 10.75f;   // degrees
-            public static final float EXTENSION_FORWARD = 0.48f; // metres
-            public static final float EXTENSION_REVERSE = 0.0f;  // metres
+            public static final float EXTENSION_FORWARD = 0.475f; // metres
+            public static final float EXTENSION_REVERSE = 0.05f;  // metres
         }
         public static final class Tolerances {
             public static final double LOWER_ANGLE = 0.5; // degrees
