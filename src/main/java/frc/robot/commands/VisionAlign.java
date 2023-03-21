@@ -64,7 +64,9 @@ public class VisionAlign extends CommandBase {
     
     SmartDashboard.putNumber("rotPID", rot);
     // rot = rot*Math.signum(strafe);
-    drive.drive(-driverController.getLeftY(), -strafe, -rot, false);
+    // invert forward/back b/c xbox is negative-upwards
+    // invert strafe b/c strafe is left-positive, positive y axis moves right
+    drive.drive(-driverController.getLeftY(), -strafe, rot, true);
   }
 
   // Called once the command ends or is interrupted.
