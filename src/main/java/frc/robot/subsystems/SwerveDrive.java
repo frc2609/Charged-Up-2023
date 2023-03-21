@@ -111,7 +111,6 @@ public class SwerveDrive extends SubsystemBase {
     SmartDashboard.putData("Field", m_field);
     SmartDashboard.putBoolean("Reset Encoders", false); // display button
     // Configure logging sources
-    this.resetModuleEncoders();
     m_pathLogger.setSources(this::getPose);
     PPSwerveControllerCommand.setLoggingCallbacks(
         m_pathLogger::setActiveTrajectory,
