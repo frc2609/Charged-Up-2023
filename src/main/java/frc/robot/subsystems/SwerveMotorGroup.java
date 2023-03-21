@@ -2,6 +2,9 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+// Move ECVT into SwerveModule???
+// TODO: swap motors properly
+
 package frc.robot.subsystems;
 
 import static frc.robot.Constants.Swerve.Gains.*;
@@ -15,7 +18,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.Constants.Limits;
 
 // velocity conversion factors with/without motors
@@ -102,32 +104,50 @@ public class SwerveMotorGroup {
     SmartDashboard.putNumber("Test Target Vel", 1);
   }
 
-
-  // shouldn't exist
+  /** 
+   * Returns the distance driven by the drive motors.
+   * 
+   * @return How far the drive motors have travelled in metres.
+   */
   public double getPosition() {
-    // have fun
-    // temp:
-    // return m_secondaryEncoder.getPosition();
     return m_ecvt.getPositionMeters();
   }
-  public void resetEncoders(){
+
+  /** 
+   * Returns the current wheel velocity.
+   * 
+   * @return How fast the wheel is moving in metres per second.
+   */
+  public double getVelocity() {
+    return m_ecvt.getOutputSpeed();
+  }
+
+  /**
+   * Reset the drive encoder positions.
+   */
+  public void resetEncoders() {
     m_primaryEncoder.setPosition(0);
     m_secondaryEncoder.setPosition(0);
   }
 
-  // shouldn't exist
-  public double getVelocity() {
-    // temp:
-    return m_ecvt.getOutputSpeed();
-  }
-
-  public void simulateECVT(){
+  /**
+   * TODO: javadoc
+   */
+  public void simulateECVT() {
     SmartDashboard.putNumber("Output SIM", m_ecvt.SIM_getOutputSpeed(SmartDashboard.getNumber("Test Primary RPM", 0), SmartDashboard.getNumber("Test Secondary RPM", 0)));
     SmartDashboard.putNumber("SunSetp SIM", m_ecvt.SIM_getSunSetpoint(SmartDashboard.getNumber("Test Target Vel", 0), SmartDashboard.getNumber("Test Secondary RPM", 0)));
     SmartDashboard.putNumber("position", m_ecvt.getPositionMeters());
   }
 
+  /**
+   * TODO: describe
+   * 
+   * @param speedMetersPerSecond The target speed in metres per second.
+   * @param secondaryThrottle Boost throttle (0 to 1).
+   * @param maxSpeedEnabled Whether or not to use boost.
+   */
   public void set(double speedMetersPerSecond, double secondaryThrottle, boolean maxSpeedEnabled) {
+    // TODO: rewrite this function
     // Calculate the drive output from the drive PID controller.
     
     // m_primaryPID.setP(Constants.Swerve.Gains.drivePID_kP_auto);
@@ -171,7 +191,16 @@ public class SwerveMotorGroup {
     // }
     m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
   }
+
+  /**
+   * TODO: describe
+   * 
+   * @param speedMetersPerSecond
+   * @param secondaryThrottle
+   * @param maxSpeedEnabled
+   */
   public void setAuto(double speedMetersPerSecond, double secondaryThrottle, boolean maxSpeedEnabled) {
+    // TODO: a bit of cleanup
     // Calculate the drive output from the drive PID controller.
     m_primaryPID.setP(Constants.Swerve.Gains.drivePID_kP_auto);
     m_primaryPID.setI(Constants.Swerve.Gains.drivePID_kI_auto);
