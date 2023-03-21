@@ -8,12 +8,12 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDrive;
 
 public class ResetModules extends CommandBase {
+  private final SwerveDrive drive;
+  private final double angle;
+  private boolean isReset;
+
   /** Creates a new ResetModules. */
-  SwerveDrive drive;
-  boolean isReset;
-  double angle;
   public ResetModules(SwerveDrive drive, double angle) {
-    // Use addRequirements() here to declare subsystem dependencies.
     this.drive = drive;
     this.angle = angle;
   }
@@ -26,13 +26,13 @@ public class ResetModules extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    isReset = this.drive.setRotationAngle(angle);
+    isReset = drive.setRotationAngle(angle);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    System.out.println("RESET");
+    System.out.println("Swerve Modules Reset Successfully.");
   }
 
   // Returns true when the command should end.
