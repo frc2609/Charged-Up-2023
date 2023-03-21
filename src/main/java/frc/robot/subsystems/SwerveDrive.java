@@ -80,7 +80,6 @@ public class SwerveDrive extends SubsystemBase {
   /** Displays the robot's position relative to the field through NetworkTables. */
   private final Field2d m_field = new Field2d();
 
-  // private boolean m_isFieldRelative = true;
   private double m_debugAngleSetpoint = 0; // radians
   private boolean m_maxSpeedEnabled = false;
   private double m_secondaryThrottle = 0; // 0 to 1
@@ -148,10 +147,10 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.setRotCoast();
     m_rearLeft.setRotCoast();
     m_rearRight.setRotCoast();
-  }
+  } // Map to user button?
   public double getYaw(){
     return m_gyro.getYaw();
-  }
+  } // Replace with drive.getGyro when implemented
 
   public void setPose(Pose2d pose){
     m_odometry.resetPosition(new Rotation2d(), getModulePositions(), pose);
@@ -456,6 +455,17 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
+   * Rotate each module to the specified angle.
+   * 
+   * @param angle The module angle to move to in radians.
+   * @return Whether or not all modules have finished rotating.
+   */
+  public boolean setRotationAngle(double angle){
+    return m_frontLeft.rotateTo(angle) && m_frontRight.rotateTo(angle) 
+        && m_rearLeft.rotateTo(angle) && m_rearRight.rotateTo(angle);
+  }
+
+  /**
    * Stop all swerve modules.
    */
   public void stop() {
@@ -463,13 +473,6 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.stop();
     m_rearLeft.stop();
     m_rearRight.stop();
-  }
-  public boolean setRotationAngle(double angle){
-    m_frontLeft.rotateTo(angle);
-    m_frontRight.rotateTo(angle);
-    m_rearLeft.rotateTo(angle);
-    m_rearRight.rotateTo(angle);
-    return Math.abs(m_frontLeft.getRotateAngle()-angle) < 0.1 && Math.abs(m_frontRight.getRotateAngle()-angle) < 0.1 && Math.abs(m_rearLeft.getRotateAngle()-angle) < 0.1 && Math.abs(m_rearRight.getRotateAngle()-angle) <0.1;
   }
 
   /** Updates the field relative position of the robot. */
