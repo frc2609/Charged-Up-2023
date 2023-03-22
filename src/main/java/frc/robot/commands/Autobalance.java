@@ -8,6 +8,7 @@ import static frc.robot.Constants.Autonomous.Balance.*;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.Autonomous.Balance;
 import frc.robot.subsystems.SwerveDrive;
 
 /**
@@ -25,10 +26,9 @@ public class Autobalance extends CommandBase {
   /** 
    * Creates a new Autobalance.
    * @param swerveDrive The Swerve Drive subsystem.
-   * @param angleTolerance The acceptable amount of tilt error in degrees.
-  */
-  public Autobalance(SwerveDrive swerveDrive, double angleTolerance) {
-    m_anglePIDController.setTolerance(angleTolerance);
+   */
+  public Autobalance(SwerveDrive swerveDrive) {
+    m_anglePIDController.setTolerance(Balance.ANGLE_TOLERANCE);
     m_swerveDrive = swerveDrive;
     addRequirements(swerveDrive);
   }
