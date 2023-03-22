@@ -4,6 +4,7 @@
 
 package frc.robot.commands.autonomous;
 
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -20,6 +21,7 @@ public class ScoreConeHigh extends SequentialCommandGroup {
             new VisionAlign(drive, null),
             new MoveArmToHigh(arm)
         ),
+        Commands.waitSeconds(0.5),
         new InstantCommand(arm::openGripper, arm)
     );
   }
