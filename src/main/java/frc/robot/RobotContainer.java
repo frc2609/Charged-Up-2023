@@ -6,15 +6,10 @@ package frc.robot;
 
 import java.util.HashMap;
 
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -53,12 +48,6 @@ public class RobotContainer {
   /** Entries in this map must be non-null, or the program will crash. */
   private final HashMap<String, Command> m_eventMap = new HashMap<>();
   private final SendableChooser<PathPlannerTrajectory> m_pathChooser = new SendableChooser<>();
-
-  private static AHRS m_navx;
-  private final XboxController m_driverController = new XboxController(
-      Constants.Xbox.DRIVER_CONTROLLER_PORT);
-  private final XboxController m_operatorController = new XboxController(
-      Constants.Xbox.OPERATOR_CONTROLLER_PORT);
   /* Subsystems should be marked as private so they can only be accessed by
    * commands that require them. This prevents a subsystem from being used by
    * multiple things at once, which may potentially cause issues. */
@@ -67,7 +56,10 @@ public class RobotContainer {
   private final SwerveAutoBuilder m_autoBuilder;
   private final PowerDistribution m_powerDistribution =
       new PowerDistribution(1, ModuleType.kRev);
-  private Spark LED = new Spark(1);
+  private final XboxController m_driverController = new XboxController(
+      Constants.Xbox.DRIVER_CONTROLLER_PORT);
+  private final XboxController m_operatorController = new XboxController(
+      Constants.Xbox.OPERATOR_CONTROLLER_PORT);
   
   // driver controls
   private final JoystickButton m_zeroYawButton = new JoystickButton(
@@ -103,13 +95,8 @@ public class RobotContainer {
           
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    try {
-      m_navx = new AHRS(SerialPort.Port.kMXP);
-    } catch (RuntimeException e) {
-      DriverStation.reportError("Navx initialization failed", false);
-    }
     m_armGripper = new ArmGripper(m_operatorController);
-    m_swerveDrive = new SwerveDrive(m_navx, m_driverController);
+    m_swerveDrive = new SwerveDrive(m_driverController);
     m_swerveDrive.resetModuleEncoders();
     configureButtonBindings();
     configureEventMap();
@@ -125,7 +112,6 @@ public class RobotContainer {
       true,
       m_swerveDrive
     );
-    SmartDashboard.putBoolean("Zero Yaw", false); // display the button
   }
 
   /**
@@ -136,7 +122,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // driver controls
-    m_zeroYawButton.onTrue(new InstantCommand(m_navx::zeroYaw));
+    m_zeroYawButton.onTrue(new InstantCommand(m_swerveDrive::zeroYaw));
     m_driverGroundPickup.onTrue(new MoveArmToGroundPickup(m_armGripper));
     m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
@@ -226,17 +212,6 @@ public class RobotContainer {
    * Update NetworkTables values set by RobotContainer.
    */
   public void updateNetworkTables() {
-    SmartDashboard.putBoolean("Navx Connected", m_navx.isConnected());
-    if (SmartDashboard.getBoolean("Zero Yaw", false)) {
-      m_navx.zeroYaw();
-      SmartDashboard.putBoolean("Zero Yaw", false); // reset the button
-    }
-    SmartDashboard.putNumber("Gyro Yaw (rad)", m_navx.getRotation2d().getRadians());
-    SmartDashboard.putNumber("Gyro Yaw (deg)", m_navx.getRotation2d().getDegrees());
     SmartDashboard.putNumber("Robot Current Draw (A)", m_powerDistribution.getTotalCurrent());
-  }
-
-  public void resetEncoders(){
-    m_swerveDrive.resetModuleEncoders();
   }
 }

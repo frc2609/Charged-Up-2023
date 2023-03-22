@@ -33,6 +33,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //import edu.wpi.first.util.sendable.SendableBuilder;
 //import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,7 +45,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * Controls all swerve drive modules.
  */
 public class SwerveDrive extends SubsystemBase {
-  private final AHRS m_gyro;
+  /**
+   * The yaw offset of the navx cannot be set to an arbitrary value (useful at
+   * the start of autonomous), so autonomous sets the yaw offset of
+   * SwerveDriveOdometry instead. Since SwerveDriveOdometry handles the yaw
+   * offset, m_navx.zeroYaw() should not be called, and any navx function
+   * making use of the navx's yaw should not be used (as it will be incorrect).
+   * <p> The yaw should only be used for updating odometry.
+   */
+  private static AHRS m_navx;
   private final XboxController m_driverController;
 
   // x and y are relative to robot (x front/rear, y left/right)
@@ -67,7 +76,7 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
           m_frontLeftLocation, m_frontRightLocation, m_rearLeftLocation, m_rearRightLocation);
-  
+
   private final SwerveDriveOdometry m_odometry;
   /** Displays the robot's position relative to the field through NetworkTables. */
   private final Field2d m_field = new Field2d();
@@ -78,16 +87,16 @@ public class SwerveDrive extends SubsystemBase {
 
 
   /** Creates a new SwerveDrive. */
-  public SwerveDrive(AHRS gyro, XboxController driverController) {
+  public SwerveDrive(XboxController driverController) {
     m_driverController = driverController;
-    m_gyro = gyro;
-    if (!m_gyro.isConnected()) {
-      DriverStation.reportError(
-          "Navx not initialized - Could not setup SwerveDriveOdometry", false);
+    try {
+      m_navx = new AHRS(SerialPort.Port.kMXP);
+    } catch (RuntimeException e) {
+      DriverStation.reportError("Navx initialization failed - Could not setup SwerveDriveOdometry", false);
     }
     m_odometry = new SwerveDriveOdometry(
         m_kinematics,
-        m_gyro.getRotation2d(),
+        m_navx.getRotation2d(),
         getModulePositions()
     );
     resetModuleEncoders();
@@ -127,9 +136,6 @@ public class SwerveDrive extends SubsystemBase {
     m_rearLeft.setRotCoast();
     m_rearRight.setRotCoast();
   } // Map to user button?
-  public double getYaw(){
-    return m_gyro.getYaw();
-  } // Replace with drive.getGyro when implemented
 
   public void setPose(Pose2d pose){
     m_odometry.resetPosition(new Rotation2d(), getModulePositions(), pose);
@@ -148,13 +154,18 @@ public class SwerveDrive extends SubsystemBase {
     
     m_rearLeft.simulateECVT();
     // handle button input from NetworkTables
-    // m_isFieldRelative = SmartDashboard.getBoolean("Is Field Relative", true);
-    // SmartDashboard.putBoolean("Is Field Relative", m_isFieldRelative);
     if (SmartDashboard.getBoolean("Reset Encoders", false)) {
       resetModuleEncoders();
+      resetPose(new Pose2d());
       SmartDashboard.putBoolean("Reset Encoders", false); // reset the button
     }
     SmartDashboard.putNumber("Boost Multiplier", m_secondaryThrottle);
+    // navx
+    SmartDashboard.putBoolean("Navx Connected", m_navx.isConnected());
+    SmartDashboard.putNumber("Gyro Pitch (deg)", m_navx.getPitch());
+    SmartDashboard.putNumber("Gyro Roll (deg)", m_navx.getRoll());
+    SmartDashboard.putNumber("Odometry Yaw (rad)", getPose().getRotation().getRadians());
+    SmartDashboard.putNumber("Odometry Yaw (deg)", getPose().getRotation().getDegrees());
   }
 
   /** 
@@ -174,7 +185,7 @@ public class SwerveDrive extends SubsystemBase {
     SwerveModuleState[] states = 
         m_kinematics.toSwerveModuleStates(
             isFieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, m_gyro.getRotation2d())
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, getYaw())
                 : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
     // Prevent robot from going faster than it should.
     SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
@@ -230,7 +241,7 @@ public class SwerveDrive extends SubsystemBase {
   //       MP
   //   );
   // }
-
+  
   /**
    * Drive the robot using joystick inputs from the driver's Xbox controller 
    * (controller specified in class constructor).
@@ -277,12 +288,12 @@ public class SwerveDrive extends SubsystemBase {
 
   /**
    * Returns a reference to the robot's gyro.
-   * Do not reset the gyro using this method.
+   * Do not attempt to modify or access the robot yaw using this method.
    * 
    * @return The robot's navX IMU.
    */
   public AHRS getGyro() {
-    return m_gyro;
+    return m_navx;
   }
 
   // javadoc
@@ -332,6 +343,18 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
+   * Returns the reported yaw of the robot according to the odometry.
+   * Use this value instead of the yaw value from the navx because this will
+   * take into account the autonomous starting position, meaning the angle will
+   * be offset correctly during a match.
+   * 
+   * @return The yaw of the robot as a Rotation2d.
+   */
+  public Rotation2d getYaw() {
+    return getPose().getRotation();
+  }
+
+  /**
    * Reset the angle setpoint used for debugDrive.
    */
   public void resetDebugAngle() {
@@ -363,7 +386,7 @@ public class SwerveDrive extends SubsystemBase {
    * @param pose The new position of the robot.
   */
   public void resetPose(Pose2d pose) {
-    m_odometry.resetPosition(m_gyro.getRotation2d(), getModulePositions(), pose);
+    m_odometry.resetPosition(m_navx.getRotation2d(), getModulePositions(), pose);
   }
 
   /**
@@ -431,6 +454,13 @@ public class SwerveDrive extends SubsystemBase {
 
   /** Updates the field relative position of the robot. */
   public void updateOdometry() {
-    m_odometry.update(m_gyro.getRotation2d(), getModulePositions());
+    m_odometry.update(m_navx.getRotation2d(), getModulePositions());
+  }
+
+  /**
+   * Reset the yaw reported by SwerveDriveOdometry.
+   */
+  public void zeroYaw() {
+    resetPose(new Pose2d(m_odometry.getPoseMeters().getTranslation(), new Rotation2d(0)));
   }
 }

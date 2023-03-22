@@ -51,7 +51,7 @@ public class VisionAlign extends CommandBase {
     rotationController.setSetpoint(SmartDashboard.getNumber("Align to Node Rotation Set", 0));
     rotationController.setP(SmartDashboard.getNumber("Align to Node Rotation P", 0.01));
     strafeController.setP(SmartDashboard.getNumber("Align to Node Strafe P", 0.01));
-    double rot = rotationController.calculate(drive.getYaw()%180); // also getYaw? already getGyro
+    double rot = rotationController.calculate(drive.getYaw().getDegrees() % 180);
     double strafe = strafeController.calculate(limelight.getEntry("tx").getDouble(0));
     rot = MathUtil.clamp(rot, -ROT_MAX_OUTPUT, ROT_MAX_OUTPUT);
     strafe = MathUtil.clamp(strafe, -STRAFE_MAX_OUTPUT, STRAFE_MAX_OUTPUT);
