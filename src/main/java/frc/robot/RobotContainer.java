@@ -19,11 +19,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.Autonomous;
+import frc.robot.Constants.Swerve.AutonomousLimits;
+import frc.robot.commands.Autobalance;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.MoveArmToGroundPickup;
 import frc.robot.commands.MoveArmToMid;
-import frc.robot.commands.MoveArmToMidProfiled;
 import frc.robot.commands.MoveArmToHigh;
 import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToPickup;
@@ -31,13 +33,16 @@ import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.QueueCommand;
 import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
-import frc.robot.commands.autonomous.AutoScoreConeHigh;
-import frc.robot.commands.autonomous.AutoScoreConeThenBalance;
+import frc.robot.commands.autonomous.ScoreConeHigh;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.utils.BeaverLogger; // where is this used
-import frc.robot.utils.PathLogger;
+import frc.robot.utils.PathLogger; // why in robot container?
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 /**
@@ -49,6 +54,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 public class RobotContainer {
   /** Entries in this map must be non-null, or the program will crash. */
   private final HashMap<String, Command> m_eventMap = new HashMap<>();
+  private final HashMap<String, PathPlannerTrajectory> m_pathMap = new HashMap<>();
 
   private static AHRS m_navx;
   private final XboxController m_driverController = new XboxController(
@@ -60,6 +66,7 @@ public class RobotContainer {
    * multiple things at once, which may potentially cause issues. */
   private final ArmGripper m_armGripper;
   private final SwerveDrive m_swerveDrive;
+  private final SwerveAutoBuilder m_autoBuilder;
   private final PowerDistribution m_powerDistribution =
       new PowerDistribution(1, ModuleType.kRev);
   PPSwerveControllerCommand tempAutoCommand; // unused, why
@@ -107,11 +114,25 @@ public class RobotContainer {
     }
     m_armGripper = new ArmGripper(m_operatorController);
     m_pathLogger = new PathLogger();
-    m_swerveDrive = new SwerveDrive(m_navx, m_driverController, m_eventMap);
+    m_swerveDrive = new SwerveDrive(m_navx, m_driverController);
     m_swerveDrive.resetModuleEncoders();
     configureButtonBindings();
     configureEventMap();
+    configurePathMap();
+    // m_autonomousTest = new AutonomousTest(m_swerveDrive, m_eventMap);
+    m_autoBuilder = new SwerveAutoBuilder(
+      m_swerveDrive::getPose,
+      m_swerveDrive::resetPose,
+      m_swerveDrive.getKinematics(),
+      Autonomous.translationPIDConstants,
+      Autonomous.rotationPIDConstants,
+      m_swerveDrive::setDesiredStatesAuto,
+      m_eventMap,
+      true,
+      m_swerveDrive
+    );
     SmartDashboard.putBoolean("Zero Yaw", false); // display the button
+    SmartDashboard.putString("Autonomous Path", "PATH_NAME"); // put into sendable chooser and eliminate map
   }
 
   /**
@@ -127,8 +148,6 @@ public class RobotContainer {
     m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
-    // breakButton.whileTrue(new MoveArmToMidProfiled(m_armGripper));
-    // breakButton.onTrue(new AutoScoreConeHigh(m_armGripper));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
@@ -137,8 +156,6 @@ public class RobotContainer {
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
     m_resetSwerveModules.onTrue(new ResetModules(m_swerveDrive, 0));
-    // this will interrupt any running arm commands, is this a good idea?
-    // also, the operator will lose control of the arm when open or close gripper is scheduled.
     // TODO: move Gripper into own subsystem so that these don't cancel arm commands
     m_toggleManualControl.toggleOnTrue(new ManualArmControl(m_armGripper));
   }
@@ -147,9 +164,18 @@ public class RobotContainer {
    * Add markers to the autonomous event map.
    */
   private void configureEventMap() {
-    // m_eventMap.put("MarkerName", new CommandName(parameters));
-    m_eventMap.put("CloseGripper", new InstantCommand(m_armGripper::closeGripper));
+    m_eventMap.put("Autobalance", new Autobalance(m_swerveDrive));
     m_eventMap.put("MoveArmToStow", new MoveArmToStow(m_armGripper));
+    m_eventMap.put("ScoreHigh", new ScoreConeHigh(m_swerveDrive, m_armGripper));
+  }
+
+  /**
+   * Load possible autonomous paths.
+   */
+  private void configurePathMap() {
+    PathConstraints constraints = new PathConstraints(AutonomousLimits.MAX_LINEAR_VELOCITY, AutonomousLimits.MAX_LINEAR_ACCELERATION);
+    m_pathMap.put("ScoreThenBalance", PathPlanner.loadPath("ScoreThenAutobalanceNew", constraints));
+    m_pathMap.put("ScoreThenDrive", PathPlanner.loadPath("ScoreThenDrive", constraints));
   }
 
   /**
@@ -189,8 +215,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // TODO: Shuffleboard auto command selector
-    return new AutoScoreConeThenBalance(m_armGripper, m_swerveDrive);
+    // TODO: Proper Shuffleboard auto command selector
+    String pathName = SmartDashboard.getString("Path Name", "Null");
+    return m_autoBuilder.fullAuto(m_pathMap.get(pathName));
   }
 
   //TODO: Temp til Antoine puts on absolute encoders

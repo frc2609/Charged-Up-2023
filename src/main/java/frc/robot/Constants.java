@@ -293,9 +293,9 @@ public final class Constants {
          */
         public final static class AutonomousLimits {
             /** The maximum linear acceleration the robot should achieve in m/s^2. */
-            public static final double MAX_LINEAR_ACCELERATION = 1.0; // TODO: adjust value
+            public static final double MAX_LINEAR_ACCELERATION = 3.0;
             /** The maximum speed the drivetrain should go in autonomous in m/s. */
-            public static final double MAX_LINEAR_VELOCITY = 2.0;
+            public static final double MAX_LINEAR_VELOCITY = 4.0;
         }
         /** Teleop acceleration and velocity limits */
         public final static class TeleopLimits {

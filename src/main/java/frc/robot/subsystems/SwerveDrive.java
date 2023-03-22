@@ -7,22 +7,16 @@ package frc.robot.subsystems;
 // static imports allow access to all constants in the class without using its name
 import static frc.robot.Constants.Swerve.*;
 
-import java.util.HashMap;
-import java.util.List;
-
 import frc.robot.Constants.Swerve.Dimensions;
 import frc.robot.Constants.Swerve.IsInverted;
 import frc.robot.Constants.Swerve.PhysicalLimits;
 import frc.robot.Constants.Swerve.TeleopLimits;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.PathLogger;
-import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.CANID;
 import frc.robot.Constants.Xbox;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.MathUtil;
@@ -42,7 +36,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 // import edu.wpi.first.wpilibj2.command.InstantCommand;
 // import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -69,7 +62,6 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveModule m_rearLeft = new SwerveModule("Rear Left", CANID.rearLeftPrimary, CANID.rearLeftSecondary, CANID.rearLeftRotation, IsInverted.rearLeftDrive, IsInverted.rearLeftRotation);
   private final SwerveModule m_rearRight = new SwerveModule("Rear Right", CANID.rearRightPrimary, CANID.rearRightSecondary, CANID.rearRightRotation, IsInverted.rearRightDrive, IsInverted.rearRightRotation);
   
-  private final SwerveAutoBuilder m_autoBuilder;
   private final PathLogger m_pathLogger = new PathLogger();
 
   private final SwerveDriveKinematics m_kinematics =
@@ -86,7 +78,7 @@ public class SwerveDrive extends SubsystemBase {
 
 
   /** Creates a new SwerveDrive. */
-  public SwerveDrive(AHRS gyro, XboxController driverController, HashMap<String, Command> eventMap) {
+  public SwerveDrive(AHRS gyro, XboxController driverController) {
     m_driverController = driverController;
     m_gyro = gyro;
     if (!m_gyro.isConnected()) {
@@ -117,18 +109,6 @@ public class SwerveDrive extends SubsystemBase {
         m_pathLogger::setTargetPose,
         m_pathLogger::setSetpoint,
         m_pathLogger::setError
-    );
-    // Setup autonomous command
-    m_autoBuilder = new SwerveAutoBuilder(
-      this::getPose,
-      this::resetPose,
-      m_kinematics,
-      Autonomous.translationPIDConstants,
-      Autonomous.rotationPIDConstants,
-      this::setDesiredStatesAuto,
-      eventMap,
-      true,
-      this
     );
   }
 
@@ -215,10 +195,6 @@ public class SwerveDrive extends SubsystemBase {
     set(velocity, m_debugAngleSetpoint);
   }
 
-  public SwerveDriveKinematics getKinemaics(){
-    return this.m_kinematics;
-  }
-
   /** 
    * Follow an autonomous trajectory. Resets odometry to path start point if 
    * this is the first path.
@@ -254,42 +230,6 @@ public class SwerveDrive extends SubsystemBase {
   //       MP
   //   );
   // }
-
-  /**
-   * Follow a trajectory with markers.
-   * Markers are defined by the path.
-   * Marker-command bindings are specified in `Constants.Autonomous.eventMap`.
-   * 
-   * @param trajectory The trajectory to follow.
-   * 
-   * @return A command which follows the trajectory while triggering commands
-   * at path-defined markers.
-   */
-  public Command generateFullAuto(PathPlannerTrajectory trajectory) {
-    return m_autoBuilder.fullAuto(trajectory);
-  }
-
-  /**
-   * Follow a group of trajectories with markers.
-   * Markers are defined by each individual path.
-   * Marker-command bindings are specified in `Constants.Autonomous.eventMap`.
-   * 
-   * @param trajectoryGroup A list of trajectories to follow.
-   * 
-   * @return A command which follows each trajectory while triggering commands
-   * at path-defined markers.
-   */
-  public Command generateFullAuto(List<PathPlannerTrajectory> trajectoryGroup) {
-    return m_autoBuilder.fullAuto(trajectoryGroup);
-  }
-
-  public Command generateAutoWithEvents(List<PathPlannerTrajectory> trajectoryGroup){
-    return m_autoBuilder.followPathGroupWithEvents(trajectoryGroup);
-  }
-  
-  public SwerveAutoBuilder getSwerveAutoBuilder(){
-    return m_autoBuilder;
-  }
 
   /**
    * Drive the robot using joystick inputs from the driver's Xbox controller 
@@ -343,6 +283,11 @@ public class SwerveDrive extends SubsystemBase {
    */
   public AHRS getGyro() {
     return m_gyro;
+  }
+
+  // javadoc
+  public SwerveDriveKinematics getKinematics() {
+    return m_kinematics;
   }
 
   /**
