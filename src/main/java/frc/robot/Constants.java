@@ -92,8 +92,8 @@ public final class Constants {
             public static final float LOWER_REVERSE = 27.45f;   // degrees
             public static final float UPPER_FORWARD = 177.00f;  // degrees
             public static final float UPPER_REVERSE = 10.75f;   // degrees
-            public static final float EXTENSION_FORWARD = 0.475f; // metres
-            public static final float EXTENSION_REVERSE = 0.05f;  // metres
+            public static final float EXTENSION_FORWARD = 0.48f; // metres
+            public static final float EXTENSION_REVERSE = 0.0f;  // metres
         }
         public static final class Tolerances {
             public static final double LOWER_ANGLE = 0.5; // degrees
@@ -127,11 +127,13 @@ public final class Constants {
         /** Autobalance-related constants. */
         public static final class Balance {
             /** P gain for going up the ramp on the charge station. */
-            public static final double START_P = 0.4;
+            public static final double START_P = 0.05;
             /** P gain for staying on the charge station. */
-            public static final double HOLD_P = 0.2;
+            public static final double HOLD_P = 0.03;
             /** The acceptable amount of tilt error in degrees. */
             public static final double ANGLE_TOLERANCE = 5;
+            /** The maximum autobalance speed in metres per second. */
+            public static final double MAX_SPEED = 1.5;
         }
         /** Which port PathPlannerServer should connect to on the RoboRIO. */
         public static final int PATHPLANNER_SERVER_PORT = 5811;
@@ -288,9 +290,9 @@ public final class Constants {
          */
         public final static class AutonomousLimits {
             /** The maximum linear acceleration the robot should achieve in m/s^2. */
-            public static final double MAX_LINEAR_ACCELERATION = 3.0;
+            public static final double MAX_LINEAR_ACCELERATION = 1.5;
             /** The maximum speed the drivetrain should go in autonomous in m/s. */
-            public static final double MAX_LINEAR_VELOCITY = 4.0;
+            public static final double MAX_LINEAR_VELOCITY = 2.0;
         }
         /** Teleop acceleration and velocity limits */
         public final static class TeleopLimits {
