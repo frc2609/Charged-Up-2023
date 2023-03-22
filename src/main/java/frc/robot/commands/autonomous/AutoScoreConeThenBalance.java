@@ -26,7 +26,7 @@ public class AutoScoreConeThenBalance extends SequentialCommandGroup {
   public AutoScoreConeThenBalance(ArmGripper armGripper, SwerveDrive drive) {
     addCommands(
         new SetOdometry(drive, pathGroup.get(0).getInitialHolonomicPose()),
-        new AutoScoreConeHigh(armGripper),
+        new ScoreConeHigh(drive, armGripper),
         new InstantCommand(armGripper::openGripper),
         new BalanceAndStow(armGripper, drive),
         new InstantCommand(drive::stop, drive),
