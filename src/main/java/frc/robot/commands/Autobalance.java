@@ -6,9 +6,10 @@ package frc.robot.commands;
 
 import static frc.robot.Constants.Autonomous.Balance.*;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.Autonomous.Balance;
 import frc.robot.subsystems.SwerveDrive;
 
 /**
@@ -28,7 +29,7 @@ public class Autobalance extends CommandBase {
    * @param swerveDrive The Swerve Drive subsystem.
    */
   public Autobalance(SwerveDrive swerveDrive) {
-    m_anglePIDController.setTolerance(Balance.ANGLE_TOLERANCE);
+    m_anglePIDController.setTolerance(ANGLE_TOLERANCE);
     m_swerveDrive = swerveDrive;
     addRequirements(swerveDrive);
   }
@@ -52,8 +53,11 @@ public class Autobalance extends CommandBase {
     if (m_anglePIDController.atSetpoint()) {
       m_anglePIDController.setP(HOLD_P);
     }
-
-    final double xSpeed = m_anglePIDController.calculate(-m_swerveDrive.getGyro().getRoll(), 0);
+    double roll = -m_swerveDrive.getGyro().getRoll();
+    double output = m_anglePIDController.calculate(roll, 0);
+    SmartDashboard.putNumber("Autobalance Output", output);
+    double xSpeed = MathUtil.clamp(output, -MAX_SPEED, MAX_SPEED);
+    SmartDashboard.putNumber("Autobalance Limited Output", xSpeed);
     m_swerveDrive.drive(xSpeed, 0, 0, false);
   }
 
@@ -66,6 +70,6 @@ public class Autobalance extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return false; // this causes issues on flat ground
   }
 }
