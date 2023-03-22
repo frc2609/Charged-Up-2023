@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -36,14 +37,11 @@ import frc.robot.commands.VisionAlign;
 import frc.robot.commands.autonomous.ScoreConeHigh;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.SwerveDrive;
-import frc.robot.utils.BeaverLogger; // where is this used
-import frc.robot.utils.PathLogger; // why in robot container?
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -54,7 +52,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 public class RobotContainer {
   /** Entries in this map must be non-null, or the program will crash. */
   private final HashMap<String, Command> m_eventMap = new HashMap<>();
-  private final HashMap<String, PathPlannerTrajectory> m_pathMap = new HashMap<>();
+  private final SendableChooser<PathPlannerTrajectory> m_pathChooser = new SendableChooser<>();
 
   private static AHRS m_navx;
   private final XboxController m_driverController = new XboxController(
@@ -69,8 +67,6 @@ public class RobotContainer {
   private final SwerveAutoBuilder m_autoBuilder;
   private final PowerDistribution m_powerDistribution =
       new PowerDistribution(1, ModuleType.kRev);
-  PPSwerveControllerCommand tempAutoCommand; // unused, why
-  PathLogger m_pathLogger; // also unused
   private Spark LED = new Spark(1);
   
   // driver controls
@@ -113,13 +109,11 @@ public class RobotContainer {
       DriverStation.reportError("Navx initialization failed", false);
     }
     m_armGripper = new ArmGripper(m_operatorController);
-    m_pathLogger = new PathLogger();
     m_swerveDrive = new SwerveDrive(m_navx, m_driverController);
     m_swerveDrive.resetModuleEncoders();
     configureButtonBindings();
     configureEventMap();
-    configurePathMap();
-    // m_autonomousTest = new AutonomousTest(m_swerveDrive, m_eventMap);
+    configurePathChooser();
     m_autoBuilder = new SwerveAutoBuilder(
       m_swerveDrive::getPose,
       m_swerveDrive::resetPose,
@@ -132,7 +126,6 @@ public class RobotContainer {
       m_swerveDrive
     );
     SmartDashboard.putBoolean("Zero Yaw", false); // display the button
-    SmartDashboard.putString("Autonomous Path", "PATH_NAME"); // put into sendable chooser and eliminate map
   }
 
   /**
@@ -172,10 +165,16 @@ public class RobotContainer {
   /**
    * Load possible autonomous paths.
    */
-  private void configurePathMap() {
+  private void configurePathChooser() {
     PathConstraints constraints = new PathConstraints(AutonomousLimits.MAX_LINEAR_VELOCITY, AutonomousLimits.MAX_LINEAR_ACCELERATION);
-    m_pathMap.put("ScoreThenBalance", PathPlanner.loadPath("ScoreThenAutobalanceNew", constraints));
-    m_pathMap.put("ScoreThenDrive", PathPlanner.loadPath("ScoreThenDrive", constraints));
+    /* 
+     * Do not include filepath or extension in path name.
+     * File path assumed to be `src/main/deploy/pathplanner/`.
+     * Extension assumed to be `.path`.
+     */
+    m_pathChooser.setDefaultOption("ScoreThenAutobalance", PathPlanner.loadPath("ScoreThenAutobalance", constraints));
+    m_pathChooser.addOption("ScoreThenDriveOut", PathPlanner.loadPath("ScoreThenDriveOut", constraints));
+    SmartDashboard.putData(m_pathChooser);
   }
 
   /**
@@ -212,12 +211,10 @@ public class RobotContainer {
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
-   * @return the command to run in autonomous
+   * @return The selected autonomous command.
    */
   public Command getAutonomousCommand() {
-    // TODO: Proper Shuffleboard auto command selector
-    String pathName = SmartDashboard.getString("Path Name", "Null");
-    return m_autoBuilder.fullAuto(m_pathMap.get(pathName));
+    return m_autoBuilder.fullAuto(m_pathChooser.getSelected());
   }
 
   //TODO: Temp til Antoine puts on absolute encoders

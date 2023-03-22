@@ -133,11 +133,6 @@ public final class Constants {
             /** The acceptable amount of tilt error in degrees. */
             public static final double ANGLE_TOLERANCE = 5;
         }
-        /** The NAME of the path, excluding its filepath and extension.
-         * Path assumed to be `src/main/deploy/pathplanner/`.
-         * Extension assumed to be `.path`.
-        */
-        public static final String PATH_NAME = "Triangle";
         /** Which port PathPlannerServer should connect to on the RoboRIO. */
         public static final int PATHPLANNER_SERVER_PORT = 5811;
         /** X and Y PID constants for path following. 
