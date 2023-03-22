@@ -72,11 +72,9 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveModule m_rearRight = new SwerveModule("Rear Right", CANID.rearRightPrimary, CANID.rearRightSecondary, CANID.rearRightRotation, IsInverted.rearRightDrive, IsInverted.rearRightRotation);
   
   private final PathLogger m_pathLogger = new PathLogger();
-
   private final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
           m_frontLeftLocation, m_frontRightLocation, m_rearLeftLocation, m_rearRightLocation);
-
   private final SwerveDriveOdometry m_odometry;
   /** Displays the robot's position relative to the field through NetworkTables. */
   private final Field2d m_field = new Field2d();
@@ -84,7 +82,6 @@ public class SwerveDrive extends SubsystemBase {
   private double m_debugAngleSetpoint = 0; // radians
   private boolean m_maxSpeedEnabled = false;
   private double m_secondaryThrottle = 0; // 0 to 1
-
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive(XboxController driverController) {
@@ -130,16 +127,6 @@ public class SwerveDrive extends SubsystemBase {
   //   // getter always sets value to false to reset button
   //   builder.addBooleanProperty("Reset Encoders", ()->false, (boolean pressed)->{if (pressed) resetModuleEncoders();});
   // }
-  public void setRotCoast(){
-    m_frontLeft.setRotCoast();
-    m_frontRight.setRotCoast();
-    m_rearLeft.setRotCoast();
-    m_rearRight.setRotCoast();
-  } // Map to user button?
-
-  public void setPose(Pose2d pose){
-    m_odometry.resetPosition(new Rotation2d(), getModulePositions(), pose);
-  }
 
   // This method will be called once per scheduler run.
   @Override
@@ -151,7 +138,6 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.updateNetworkTables();
     m_rearLeft.updateNetworkTables();
     m_rearRight.updateNetworkTables();
-    
     m_rearLeft.simulateECVT();
     // handle button input from NetworkTables
     if (SmartDashboard.getBoolean("Reset Encoders", false)) {
@@ -241,50 +227,7 @@ public class SwerveDrive extends SubsystemBase {
   //       MP
   //   );
   // }
-  
-  /**
-   * Drive the robot using joystick inputs from the driver's Xbox controller 
-   * (controller specified in class constructor).
-   */
-  public void manualDrive() {
-    /* getLeftY() is used for xSpeed because xSpeed moves robot forward/back.
-     * (The same applies for getLeftX()). This occurs because of the way robot
-     * coordinates are implemented in WPILib.
-     * (See https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/coordinate-systems.html.)
-     */
-    /* Speeds are inverted because Xbox controllers return negative values when
-     * joystick is pushed forward or to the left.
-     */
-    final double xInput = MathUtil.applyDeadband(-m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND);
-    final double xSpeedSquare = xInput >= 0.0 ? xInput * xInput : -(xInput * xInput);
-    final double xSpeed = xSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
-    // final double xSpeed =
-    //     -m_xSpeedLimiter.calculate(MathUtil.applyDeadband(
-    //         m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND))
-    //             * TeleopLimits.MAX_LINEAR_VELOCITY; // m/s
-    //             // scale value from 0-1 to 0-MAX_LINEAR_SPEED
 
-    final double yInput = MathUtil.applyDeadband(-m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND);
-    final double ySpeedSquare = yInput >= 0.0 ? yInput * yInput : -(yInput * yInput);
-    final double ySpeed = ySpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
-    // final double ySpeed =
-    //     -m_ySpeedLimiter.calculate(MathUtil.applyDeadband(
-    //         m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND))
-    //             * TeleopLimits.MAX_LINEAR_VELOCITY;
-
-    final double rotInput = MathUtil.applyDeadband(-m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND);
-    final double rotSpeedSquare = rotInput >= 0.0 ? rotInput * rotInput : -(rotInput * rotInput);
-    final double rotSpeed = rotSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
-    // final double rotationSpeed =
-    //     -m_rotationLimiter.calculate(MathUtil.applyDeadband(
-    //         m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
-    //             * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
-
-    m_maxSpeedEnabled = m_driverController.getAButton();
-    m_secondaryThrottle = m_driverController.getRightTriggerAxis() / 2.0;
-
-    drive(xSpeed, ySpeed, rotSpeed, true);
-  }
 
   /**
    * Returns a reference to the robot's gyro.
@@ -296,7 +239,11 @@ public class SwerveDrive extends SubsystemBase {
     return m_navx;
   }
 
-  // javadoc
+  /**
+   * Returns the swerve drive kinematics.
+   * 
+   * @return The swerve drive kinematics
+   */
   public SwerveDriveKinematics getKinematics() {
     return m_kinematics;
   }
@@ -355,6 +302,50 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
+   * Drive the robot using joystick inputs from the driver's Xbox controller 
+   * (controller specified in class constructor).
+   */
+  public void manualDrive() {
+    /* getLeftY() is used for xSpeed because xSpeed moves robot forward/back.
+     * (The same applies for getLeftX()). This occurs because of the way robot
+     * coordinates are implemented in WPILib.
+     * (See https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/coordinate-systems.html.)
+     */
+    /* Speeds are inverted because Xbox controllers return negative values when
+     * joystick is pushed forward or to the left.
+     */
+    final double xInput = MathUtil.applyDeadband(-m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND);
+    final double xSpeedSquare = xInput >= 0.0 ? xInput * xInput : -(xInput * xInput);
+    final double xSpeed = xSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
+    // final double xSpeed =
+    //     -m_xSpeedLimiter.calculate(MathUtil.applyDeadband(
+    //         m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND))
+    //             * TeleopLimits.MAX_LINEAR_VELOCITY; // m/s
+    //             // scale value from 0-1 to 0-MAX_LINEAR_SPEED
+
+    final double yInput = MathUtil.applyDeadband(-m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND);
+    final double ySpeedSquare = yInput >= 0.0 ? yInput * yInput : -(yInput * yInput);
+    final double ySpeed = ySpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
+    // final double ySpeed =
+    //     -m_ySpeedLimiter.calculate(MathUtil.applyDeadband(
+    //         m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND))
+    //             * TeleopLimits.MAX_LINEAR_VELOCITY;
+
+    final double rotInput = MathUtil.applyDeadband(-m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND);
+    final double rotSpeedSquare = rotInput >= 0.0 ? rotInput * rotInput : -(rotInput * rotInput);
+    final double rotSpeed = rotSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
+    // final double rotationSpeed =
+    //     -m_rotationLimiter.calculate(MathUtil.applyDeadband(
+    //         m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
+    //             * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
+
+    m_maxSpeedEnabled = m_driverController.getAButton();
+    m_secondaryThrottle = m_driverController.getRightTriggerAxis() / 2.0;
+
+    drive(xSpeed, ySpeed, rotSpeed, true);
+  }
+
+  /**
    * Reset the angle setpoint used for debugDrive.
    */
   public void resetDebugAngle() {
@@ -378,7 +369,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /** 
-   * Reset the position (relative to the field) of the robot.
+   * Set the position (relative to the field) of the robot.
    * 
    * It is not necessary to reset the rotation or distance encoders, or the
    * gyro angle before calling this function (this should not be done).
@@ -441,6 +432,13 @@ public class SwerveDrive extends SubsystemBase {
     return m_frontLeft.rotateTo(angle) && m_frontRight.rotateTo(angle) 
         && m_rearLeft.rotateTo(angle) && m_rearRight.rotateTo(angle);
   }
+
+  public void setRotCoast(){
+    m_frontLeft.setRotCoast();
+    m_frontRight.setRotCoast();
+    m_rearLeft.setRotCoast();
+    m_rearRight.setRotCoast();
+  } // Map to user button?
 
   /**
    * Stop all swerve modules.
