@@ -31,6 +31,7 @@ import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
 import frc.robot.commands.autonomous.ScoreConeHigh;
 import frc.robot.subsystems.ArmGripper;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.SwerveDrive;
 
 import com.pathplanner.lib.PathConstraints;
@@ -92,6 +93,10 @@ public class RobotContainer {
       m_operatorController, XboxController.Button.kStart.value);
   private final JoystickButton m_resetSwerveModules = new JoystickButton(
       m_operatorController, XboxController.Button.kBack.value);
+  private final JoystickButton m_requestCone = new JoystickButton(
+      m_operatorController, XboxController.Button.kLeftStick.value);
+  private final JoystickButton m_requestCube = new JoystickButton(
+      m_operatorController, XboxController.Button.kRightStick.value);
           
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -135,6 +140,8 @@ public class RobotContainer {
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
     m_resetSwerveModules.onTrue(new ResetModules(m_swerveDrive, 0));
+    m_requestCone.onTrue(new InstantCommand(LED::setCone));
+    m_requestCube.onTrue(new InstantCommand(LED::setCube));
     // TODO: move Gripper into own subsystem so that these don't cancel arm commands
     m_toggleManualControl.toggleOnTrue(new ManualArmControl(m_armGripper));
   }

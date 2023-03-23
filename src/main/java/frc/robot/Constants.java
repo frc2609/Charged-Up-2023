@@ -179,6 +179,9 @@ public final class Constants {
         public static final int UPPER_ARM_CURRENT = 40;
         public static final int EXTENSION_CURRENT = 40;
     }
+    public static final class PWMID {
+        public static final int REV_BLINKIN = 0;
+    }
     /** Swerve drive related constants. */
     public final static class Swerve {
         /** Swerve drive PID and feedforward gains. 

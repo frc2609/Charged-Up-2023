@@ -87,6 +87,8 @@ However, in teleop mode, the robot can collide with parts of the field, and othe
 | --------------------- | --------------------------- |
 | Left Joystick Y Axis  | Manual: Move lower arm      |
 | Right Joystick Y Axis | Manual: Move upper arm      |
+| Left Stick Button     | Request cone                |
+| Right Stick Button    | Request cube                |
 | Left Bumper           | Open Gripper                |
 | Right Bumper          | Close Gripper               |
 | Start Button          | Toggle Manual Control       |
