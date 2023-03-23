@@ -130,6 +130,8 @@ public class ArmGripper extends SubsystemBase {
     // TODO: move to constants
     m_lowerEncoderRelative.setPositionConversionFactor(1.8);
     m_upperEncoderRelative.setPositionConversionFactor(3.0);
+    m_lowerEncoderRelative.setVelocityConversionFactor((1.8*60.0)); // TODO CHECK IF THIS IS CORRECT ASSUMING ROT/S
+    m_upperEncoderRelative.setVelocityConversionFactor((3.0*60.0)); // TODO CHECK IF THIS IS CORRECT ASSUMING ROT/S
     // 48/18 -> sprockets
     // gearbox bottom is 45:1
     // 360 / 120 to convert 
@@ -139,6 +141,7 @@ public class ArmGripper extends SubsystemBase {
     m_lowerEncoderAbsolute.setDistancePerRotation(Encoder.LOWER_DISTANCE_PER_ROTATION); // TODO: should not be 0
     m_upperEncoderAbsolute.setDistancePerRotation(Encoder.UPPER_DISTANCE_PER_ROTATION);
     m_extensionEncoder.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
+    m_extensionEncoder.setVelocityConversionFactor((Encoder.EXTENSION_POSITION_CONVERSION*60.0)); //TODO CHECK IF THIS IS CORRECT ASSUMING M/s
 
     // Copy absolute position to NEO encoders
     m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
@@ -227,6 +230,9 @@ public class ArmGripper extends SubsystemBase {
   public double getLowerArmAngleRelative(){
     return m_lowerEncoderRelative.getPosition();
   }
+  public double getLowerJointAngularVelocity(){
+    return m_lowerEncoderRelative.getVelocity();
+  }
 
   /**
    * Returns the length of the lower arm.
@@ -258,6 +264,10 @@ public class ArmGripper extends SubsystemBase {
   public double getUpperArmAngleRelative(){
     return m_upperEncoderRelative.getPosition();
   }
+  
+  public double getUpperJointAngularVelocity(){
+    return m_upperEncoderRelative.getVelocity();
+  }
 
   /**
    * Returns the length of the upper arm without the extension.
@@ -273,6 +283,9 @@ public class ArmGripper extends SubsystemBase {
    */
   public double getUpperArmTotalLength() {
     return getExtensionDistance() + getUpperArmBaseLength();
+  }
+  public double getExtensionVelocity(){
+    return m_extensionEncoder.getVelocity();
   }
 
   /**
