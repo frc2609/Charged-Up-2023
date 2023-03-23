@@ -22,6 +22,7 @@ import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.MoveArmToGroundPickup;
 import frc.robot.commands.MoveArmToMid;
+import frc.robot.commands.MoveArmToMidProfiled;
 import frc.robot.commands.MoveArmToHigh;
 import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToPickup;
@@ -134,7 +135,7 @@ public class RobotContainer {
     m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToHigh(m_armGripper)));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
-    m_resetSwerveModules.onTrue(new ResetModules(m_swerveDrive, 0));
+    m_resetSwerveModules.onTrue(new MoveArmToMidProfiled(m_armGripper));
     // TODO: move Gripper into own subsystem so that these don't cancel arm commands
     m_toggleManualControl.toggleOnTrue(new ManualArmControl(m_armGripper));
   }
@@ -212,6 +213,6 @@ public class RobotContainer {
    * Update NetworkTables values set by RobotContainer.
    */
   public void updateNetworkTables() {
-    SmartDashboard.putNumber("Robot Current Draw (A)", m_powerDistribution.getTotalCurrent());
+    // SmartDashboard.putNumber("Robot Current Draw (A)", m_powerDistribution.getTotalCurrent());
   }
 }

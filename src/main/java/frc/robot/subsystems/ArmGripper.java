@@ -17,6 +17,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.I2C;
@@ -64,7 +65,7 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_lowerPID = m_lowerMotor.getPIDController();
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
-  private final ColorSensorV3 intakeSensor = new ColorSensorV3(I2C.Port.kMXP);
+  private final DigitalInput intakeSensor = new DigitalInput(7);
 
   XboxController m_operatorController;
 
@@ -74,22 +75,36 @@ public class ArmGripper extends SubsystemBase {
     m_lowerMotor.restoreFactoryDefaults();
     m_upperMotor.restoreFactoryDefaults();
     m_extensionMotor.restoreFactoryDefaults();
+    
+    SmartDashboard.putNumber("Lower Arm P",0);
+    SmartDashboard.putNumber("Lower Arm I",0);
+    SmartDashboard.putNumber("Lower Arm D",0);
+    SmartDashboard.putNumber("Upper Arm P",0);
+    SmartDashboard.putNumber("Upper Arm I",0);
+    SmartDashboard.putNumber("Upper Arm D",0);
+    SmartDashboard.putNumber("Extension Arm P",0);
+    SmartDashboard.putNumber("Extension Arm I",0);
+    SmartDashboard.putNumber("Upper Arm F",0.0001);
+    SmartDashboard.putNumber("Lower Arm F",0.0001);
+
+    
     configureEncoders();
     configureMotors();
     configurePIDs();
     m_operatorController = operatorController;
+
   }
 
   @Override
   public void periodic() {
+    configurePIDs();
+    SmartDashboard.putBoolean("IntakeSensor", intakeSensor.get());
     // TODO: Modify these as necessary.
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoder.getVelocity());
 
     // SmartDashboard.putNumber("Intake Sensor", intakeSensor.getProximity());
-    SmartDashboard.putNumber("Intake Sensor", intakeSensor.getBlue());
-    SmartDashboard.putBoolean("Intake Sensor connected", intakeSensor.isConnected());
     // angles
     SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerArmAngleRelative());
@@ -159,27 +174,27 @@ public class ArmGripper extends SubsystemBase {
   }
 
   private void configurePIDs() {
-    m_lowerPID.setP(SmartDashboard.getNumber("Lower Arm P", 0.00007));
-    m_lowerPID.setI(SmartDashboard.getNumber("Lower Arm I", 0.00000000005));
-    m_lowerPID.setD(SmartDashboard.getNumber("Lower Arm D", 0.00000003));
+    m_lowerPID.setP(SmartDashboard.getNumber("Lower Arm P", 0));
+    m_lowerPID.setI(SmartDashboard.getNumber("Lower Arm I", 0));
+    m_lowerPID.setD(SmartDashboard.getNumber("Lower Arm D", 0));
     m_lowerPID.setIZone(0.5);
-    m_lowerPID.setFF(0.00015);
-    m_lowerPID.setOutputRange(-1.0, 1.0);
+    m_lowerPID.setFF(SmartDashboard.getNumber("Lower Arm F", 0.000015));
+    m_lowerPID.setOutputRange(-0.5, 0.5);
     m_lowerPID.setSmartMotionMaxVelocity(3000, 0);
     m_lowerPID.setSmartMotionMaxAccel(15000, 0);
 
-    m_upperPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00007));
-    m_upperPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00000000005));
-    m_upperPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.00000003));
+    m_upperPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.0));
+    m_upperPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.0));
+    m_upperPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.0));
     m_upperPID.setIZone(0.5);
-    m_upperPID.setFF(0.00015);
-    m_upperPID.setOutputRange(-1.0, 1.0);
+    m_upperPID.setFF(SmartDashboard.getNumber("Upper Arm F", 0.000015));
+    m_upperPID.setOutputRange(-0.5, 0.5);
     m_upperPID.setSmartMotionMaxVelocity(3000, 0);
     m_upperPID.setSmartMotionMaxAccel(15000, 0);
 
-    m_extensionPID.setP(SmartDashboard.getNumber("Extension P", 0.00005));
-    m_extensionPID.setI(SmartDashboard.getNumber("Extension I", 0.000000001));
-    m_extensionPID.setD(SmartDashboard.getNumber("Extension D", 0.0000003));
+    m_extensionPID.setP(SmartDashboard.getNumber("Extension P", 0.0));
+    m_extensionPID.setI(SmartDashboard.getNumber("Extension I", 0.0));
+    m_extensionPID.setD(SmartDashboard.getNumber("Extension D", 0.0));
     m_extensionPID.setIZone(0.5);
     m_extensionPID.setFF(0.001); // TODO: tune (0.003 gittery)
     m_extensionPID.setOutputRange(-1.0, 1.0);
