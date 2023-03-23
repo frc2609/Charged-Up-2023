@@ -9,9 +9,11 @@ import frc.robot.Constants.Arm.Tolerances;
 import frc.robot.subsystems.ArmGripper;
 
 public class MoveArmToSetpoint extends CommandBase {
+  private static final int MAX_LOOP_ITERATIONS = 3;
   private double m_lowerSetpoint, m_upperSetpoint, m_extensionSetpoint;
   private final boolean m_holdLower, m_holdUpper, m_holdSlider;
   private final ArmGripper m_armGripper;
+  private int loopsAtSetpoint = 0;
 
   /** Moves arm to given setpoint. Finishes once within tolerance. */
   public MoveArmToSetpoint(
@@ -36,6 +38,7 @@ public class MoveArmToSetpoint extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    loopsAtSetpoint = 0;
     if (m_holdLower) {
       m_lowerSetpoint = m_armGripper.getLowerArmAngleRelative();
     }
@@ -63,6 +66,13 @@ public class MoveArmToSetpoint extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    if (isWithinTolerance()) loopsAtSetpoint++;
+    else loopsAtSetpoint = 0; // reset if no longer at setpoint
+    // wait until at setpoint for a certain amount of time
+    return loopsAtSetpoint >= MAX_LOOP_ITERATIONS;
+  }
+
+  private boolean isWithinTolerance() {
     double lowerError = m_armGripper.getLowerArmAngleRelative() - m_lowerSetpoint;
     double upperError = m_armGripper.getUpperArmAngleRelative() - m_upperSetpoint;
     double extensionError = m_armGripper.getExtensionDistance() - m_extensionSetpoint;
