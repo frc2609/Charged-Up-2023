@@ -167,6 +167,7 @@ public class RobotContainer {
      */
     m_pathChooser.setDefaultOption("ScoreThenAutobalance", PathPlanner.loadPath("ScoreThenAutobalance", constraints));
     m_pathChooser.addOption("ScoreThenDriveOut", PathPlanner.loadPath("ScoreThenDriveOut", constraints));
+    m_pathChooser.addOption("ScoreThenDriveOutAndRotate", PathPlanner.loadPath("ScoreThenDriveOutAndRotate", constraints));
     SmartDashboard.putData(m_pathChooser);
   }
 
