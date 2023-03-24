@@ -59,9 +59,9 @@ public final class Constants {
             public static final double HIGH_LOWER = 58.5;
             public static final double HIGH_UPPER = 156.0;
             public static final double HIGH_EXTENSION = 0.440;
-            public static final double PICKUP_LOWER = 93.1;
-            public static final double PICKUP_UPPER = 101.5;
-            public static final double PICKUP_EXTENSION = 0.0;
+            public static final double PICKUP_LOWER = 98.9;
+            public static final double PICKUP_UPPER = 91.3;
+            public static final double PICKUP_EXTENSION = 0.07;
             public static final double RETRACT_LOWER = 110.0;
             public static final double RETRACT_UPPER = 94.0;
             public static final double RETRACT_EXTENSION = 0.0;
