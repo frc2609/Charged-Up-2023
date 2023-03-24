@@ -1,7 +1,6 @@
 # CHECK BEFORE MATCH
 
 ## Technician
-
 ### Arm
 * Arm in correct position (not exiting frame perimeter)
     * If not: Power off and adjust arm position
@@ -64,7 +63,11 @@
 * Robot connected
     * If not: Operator check ethernet cable connection, if good operator contact field admin
 * Robot has robot code
-    * If not, proceed until fixed: Wait 20s, reset roboRIO, close and reopen Driver Station
+    * If not:
+        * Check Driver Station console for unhandled exceptions
+            * If present: Correct robot code and redeploy
+        * Restart roboRIO
+        * Close and reopen Driver Station
 * Controllers connected to driver station
     * If not: Operator reset driver station
 * Driver and Operator controllers are correctly assigned
@@ -88,7 +91,6 @@
         * Technician remove motor and check gearbox for resistance
             * Repair gearbox if movement is difficult
         * Replace motor if motor is unusually difficult to move
-
 ### Pneumatics
 * No solenoid errors reported in Riolog
     * If errors reported: Technician check solenoid wires for shorts, then operator reset robot code
