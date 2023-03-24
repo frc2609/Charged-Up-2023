@@ -72,5 +72,12 @@
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.05,
+      "names": [
+        "MoveArmToStow"
+      ]
+    }
+  ]
 }
