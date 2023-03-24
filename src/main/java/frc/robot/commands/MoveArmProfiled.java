@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.Arm.Tolerances;
 import frc.robot.subsystems.ArmGripper;
+import frc.robot.utils.BeaverLogger;
 
 public class MoveArmProfiled extends CommandBase {
   double[][] currentPath;
@@ -19,7 +21,7 @@ public class MoveArmProfiled extends CommandBase {
   double UpperError, UpperArm_P;
   double LowerError, LowerArm_P;
   ArmGripper m_armGripper;
-  Map<String,double[][]> paths;
+  HashMap<String,double[][]> paths = new HashMap<String,double[][]>();
   int i = 0;
   double prevLoop;
   double jointErrorTolerance = Math.sqrt(50+Math.pow(3*Tolerances.EXTENSION_LENGTH,2)); // 5 Degrees each way
@@ -94,7 +96,7 @@ public class MoveArmProfiled extends CommandBase {
     i=0;
     m_armGripper.setLowerTargetAngle(currentPath[i][0]);
     m_armGripper.setUpperTargetAngle(currentPath[i][1]);
-    m_armGripper.setExtensionTargetLength(currentPath[i][2]);
+    // m_armGripper.setExtensionTargetLength(currentPath[i][2]);
     prevLoop = Timer.getFPGATimestamp();
     i++;
   }
@@ -105,15 +107,18 @@ public class MoveArmProfiled extends CommandBase {
     // if (isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance){
     //   i++;
     // }
-    i++;
+    // i++;
+    getNearestSetpoint(Timer.getFPGATimestamp()-prevLoop);
     System.out.println(i);
     // i++;
 
     if(i <= currentPath.length-1){
       m_armGripper.setLowerTargetAngle(currentPath[i][0]);
       m_armGripper.setUpperTargetAngle(currentPath[i][1]);
-      m_armGripper.setExtensionTargetLength(currentPath[i][2]);
+      // m_armGripper.setExtensionTargetLength(currentPath[i][2]);
     }
+    
+    BeaverLogger.getInstance().logArm(currentPath[i], m_armGripper);
 
     SmartDashboard.putNumber("lowerSetp", currentPath[i][0]);
     SmartDashboard.putNumber("upperSetp", currentPath[i][1]);

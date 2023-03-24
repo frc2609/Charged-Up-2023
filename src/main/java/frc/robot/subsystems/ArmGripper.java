@@ -182,8 +182,8 @@ public class ArmGripper extends SubsystemBase {
     m_lowerPID.setD(SmartDashboard.getNumber("Lower Arm D", 0));
     m_lowerPID.setIZone(0.5);
     m_lowerPID.setFF(SmartDashboard.getNumber("Lower Arm F", 0.000015));
-    m_lowerPID.setOutputRange(-0.5, 0.5);
-    m_lowerPID.setSmartMotionMaxVelocity(3000, 0);
+    m_lowerPID.setOutputRange(-1,1);
+    m_lowerPID.setSmartMotionMaxVelocity(5000, 0);
     m_lowerPID.setSmartMotionMaxAccel(15000, 0);
 
     m_upperPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.0));
@@ -191,8 +191,8 @@ public class ArmGripper extends SubsystemBase {
     m_upperPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.0));
     m_upperPID.setIZone(0.5);
     m_upperPID.setFF(SmartDashboard.getNumber("Upper Arm F", 0.000015));
-    m_upperPID.setOutputRange(-0.5, 0.5);
-    m_upperPID.setSmartMotionMaxVelocity(3000, 0);
+    m_upperPID.setOutputRange(-1, 1);
+    m_upperPID.setSmartMotionMaxVelocity(5000, 0);
     m_upperPID.setSmartMotionMaxAccel(15000, 0);
 
     m_extensionPID.setP(SmartDashboard.getNumber("Extension P", 0.0));

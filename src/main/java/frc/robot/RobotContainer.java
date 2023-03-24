@@ -20,6 +20,7 @@ import frc.robot.Constants.Swerve.AutonomousLimits;
 import frc.robot.commands.Autobalance;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
+import frc.robot.commands.MoveArmProfiled;
 import frc.robot.commands.MoveArmToGroundPickup;
 import frc.robot.commands.MoveArmToMid;
 import frc.robot.commands.MoveArmToMidProfiled;
@@ -135,7 +136,7 @@ public class RobotContainer {
     m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToHigh(m_armGripper)));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
-    m_resetSwerveModules.onTrue(new MoveArmToMidProfiled(m_armGripper));
+    m_resetSwerveModules.onTrue(new MoveArmProfiled(m_armGripper, "StowIntMid"));
     // TODO: move Gripper into own subsystem so that these don't cancel arm commands
     m_toggleManualControl.toggleOnTrue(new ManualArmControl(m_armGripper));
   }
