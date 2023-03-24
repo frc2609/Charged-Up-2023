@@ -206,13 +206,13 @@ public class SwerveMotorGroup {
     m_primaryPID.setI(Constants.Swerve.Gains.drivePID_kI_auto);
     m_primaryPID.setD(Constants.Swerve.Gains.drivePID_kD_auto);
     final double driveOutput =
-    m_primaryPID.calculate(m_primaryEncoder.getVelocity(), m_ecvt.getSunSetpoint(speedMetersPerSecond));//m_primaryEncoder.getVelocity(), speedMetersPerSecond); // why isn't this swapped for secondary motor?
+    m_primaryPID.calculate(m_secondaryEncoder.getVelocity(), m_ecvt.getRingSetpoint(speedMetersPerSecond));//m_primaryEncoder.getVelocity(), speedMetersPerSecond); // why isn't this swapped for secondary motor?
         // this also doesn't use metres per second
     final double driveFeedforward = m_primaryFF.calculate(speedMetersPerSecond);
     // swerve has not a clue as to what speed it is going
 
     final double driveVoltage = driveOutput + driveFeedforward;
-    m_primaryMotor.setVoltage(driveVoltage);
+    m_secondaryMotor.setVoltage(driveVoltage);
     // m_primaryMotor.setVoltage(driveVoltage);
     // copy sign
     // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
