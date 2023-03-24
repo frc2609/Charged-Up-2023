@@ -58,7 +58,7 @@ public class Autobalance extends CommandBase {
     SmartDashboard.putNumber("Autobalance Output", output);
     double xSpeed = MathUtil.clamp(output, -MAX_SPEED, MAX_SPEED);
     SmartDashboard.putNumber("Autobalance Limited Output", xSpeed);
-    m_swerveDrive.drive(xSpeed, 0, 0, false);
+    m_swerveDrive.driveAuto(xSpeed, 0, 0, false);
   }
 
   // Called once the command ends or is interrupted.
