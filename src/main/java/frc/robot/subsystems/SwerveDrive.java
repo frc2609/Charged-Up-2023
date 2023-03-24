@@ -400,6 +400,21 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
+   * Rotate each module to a 45 degree angle away from the centre of the robot
+   * so that the robot cannot be rotated or translated. This helps to hold the
+   * robot on the balance platform.
+   * <p>This does not work currently.
+   * 
+   * @return Whether or not each module is at the setpoint.
+   */
+  // public boolean setBalanceLock() {
+  //   return m_frontLeft.rotateTo(-Math.PI / 2.0)
+  //   && m_frontRight.rotateTo(Math.PI / 2.0)
+  //   && m_rearLeft.rotateTo(Math.PI / 2.0)
+  //   && m_frontRight.rotateTo(-Math.PI / 2.0);
+  // }
+
+  /**
    * Set the desired state of each swerve module.
    * 
    * @param states An array containing each SwerveModuleState.

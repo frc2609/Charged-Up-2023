@@ -77,6 +77,7 @@ However, in teleop mode, the robot can collide with parts of the field, and othe
 | Left Bumper           | Move to ground pickup       |
 | Right Bumper          | Move to station pickup      |
 | Start Button          | Toggle Manual Control       |
+| Select Button         | (Hold) Lock charge position |
 | A Button              | Enable Boost                |
 | B Button              | Autoalign to cone node      |
 | X Button              | Move to stow position       |
