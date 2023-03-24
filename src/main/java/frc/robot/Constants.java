@@ -59,9 +59,8 @@ public final class Constants {
             public static final double HIGH_LOWER = 58.5;
             public static final double HIGH_UPPER = 156.0;
             public static final double HIGH_EXTENSION = 0.440;
-            // TODO: Measure pickup values
             public static final double PICKUP_LOWER = 93.1;
-            public static final double PICKUP_UPPER = 103.0;
+            public static final double PICKUP_UPPER = 101.5;
             public static final double PICKUP_EXTENSION = 0.0;
             public static final double RETRACT_LOWER = 110.0;
             public static final double RETRACT_UPPER = 94.0;
@@ -129,7 +128,7 @@ public final class Constants {
             /** P gain for going up the ramp on the charge station. */
             public static final double START_P = 0.05;
             /** P gain for staying on the charge station. */
-            public static final double HOLD_P = 0.03;
+            public static final double HOLD_P = 0.025;
             /** The acceptable amount of tilt error in degrees. */
             public static final double ANGLE_TOLERANCE = 5;
             /** The maximum autobalance speed in metres per second. */
