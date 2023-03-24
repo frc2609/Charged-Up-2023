@@ -25,6 +25,7 @@ import frc.robot.commands.MoveArmToMid;
 import frc.robot.commands.MoveArmToHigh;
 import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToPickup;
+import frc.robot.commands.MoveArmToPickupNew;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.QueueCommand;
 import frc.robot.commands.ResetModules;
@@ -67,6 +68,8 @@ public class RobotContainer {
       m_driverController, XboxController.Button.kStart.value);
   private final JoystickButton m_driverPickup = new JoystickButton(
       m_driverController, XboxController.Button.kRightBumper.value);
+  private final JoystickButton m_driverNewPickup = new JoystickButton(
+      m_driverController, XboxController.Button.kBack.value);
   private final JoystickButton m_driverGroundPickup = new JoystickButton(
       m_driverController, XboxController.Button.kLeftBumper.value);
   private final JoystickButton m_driverStow = new JoystickButton(
@@ -130,6 +133,7 @@ public class RobotContainer {
     m_zeroYawButton.onTrue(new InstantCommand(m_swerveDrive::zeroYaw));
     m_driverGroundPickup.onTrue(new MoveArmToGroundPickup(m_armGripper));
     m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper));
+    m_driverNewPickup.onTrue(new MoveArmToPickupNew(m_armGripper));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
     // operator controls
