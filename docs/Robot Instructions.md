@@ -76,7 +76,7 @@ However, in teleop mode, the robot can collide with parts of the field, and othe
 | Right Trigger Axis    | Boost throttle              |
 | Left Bumper           | Move to ground pickup       |
 | Right Bumper          | Move to station pickup      |
-| Start Button          | Toggle Manual Control       |
+| Start Button          | Reset odometry yaw          |
 | Select Button         | (Hold) Lock charge position |
 | A Button              | Enable Boost                |
 | B Button              | Autoalign to cone node      |
@@ -93,7 +93,7 @@ However, in teleop mode, the robot can collide with parts of the field, and othe
 | Left Bumper           | Open Gripper                |
 | Right Bumper          | Close Gripper               |
 | Start Button          | Toggle Manual Control       |
-| Select Button         | Move swerve modules to zero |
+| Select Button         | Reset arm encoders to abs   |
 | A Button              | Queue low node              |
 | B Button              | Queue mid node              |
 | Y Button              | Queue high node             |

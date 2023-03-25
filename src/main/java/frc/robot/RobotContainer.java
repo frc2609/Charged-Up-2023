@@ -27,7 +27,7 @@ import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToPickup;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.QueueCommand;
-import frc.robot.commands.ResetModules;
+// import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
 import frc.robot.commands.autonomous.ScoreConeHigh;
 import frc.robot.subsystems.ArmGripper;
@@ -93,7 +93,9 @@ public class RobotContainer {
       m_operatorController, XboxController.Button.kY.value);
   private final JoystickButton m_toggleManualControl = new JoystickButton(
       m_operatorController, XboxController.Button.kStart.value);
-  private final JoystickButton m_resetSwerveModules = new JoystickButton(
+  // private final JoystickButton m_resetSwerveModules = new JoystickButton(
+  //     m_operatorController, XboxController.Button.kBack.value);
+  private final JoystickButton m_resetArmEncoders = new JoystickButton(
       m_operatorController, XboxController.Button.kBack.value);
   private final JoystickButton m_requestCone = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftStick.value);
@@ -142,7 +144,8 @@ public class RobotContainer {
     m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToHigh(m_armGripper)));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
-    m_resetSwerveModules.onTrue(new ResetModules(m_swerveDrive, 0));
+    // m_resetSwerveModules.onTrue(new ResetModules(m_swerveDrive, 0));
+    m_resetArmEncoders.onTrue(new InstantCommand(m_armGripper::setEncoderOffsets));
     m_requestCone.onTrue(new InstantCommand(LED::setCone));
     m_requestCube.onTrue(new InstantCommand(LED::setCube));
     // TODO: move Gripper into own subsystem so that these don't cancel arm commands

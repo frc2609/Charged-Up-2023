@@ -315,6 +315,13 @@ public class ArmGripper extends SubsystemBase {
     m_extensionPID.setReference(length, ControlType.kSmartMotion);
   }
 
+  public void setEncoderOffsets(){
+    System.out.println("Old Lower Value: " + getLowerAngleAbsolute());
+    m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
+    System.out.println("Old Upper Value: " + getUpperArmAngleAbsolute());
+    m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());
+  }
+
   public void stopAllMotors() {
     m_lowerMotor.stopMotor();
     m_upperMotor.stopMotor();
