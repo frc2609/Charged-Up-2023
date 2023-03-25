@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ColorSensorV3;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
@@ -19,7 +18,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -64,7 +62,6 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_lowerPID = m_lowerMotor.getPIDController();
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
-  private final ColorSensorV3 intakeSensor = new ColorSensorV3(I2C.Port.kMXP);
 
   XboxController m_operatorController;
 
@@ -87,9 +84,6 @@ public class ArmGripper extends SubsystemBase {
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoder.getVelocity());
 
-    // SmartDashboard.putNumber("Intake Sensor", intakeSensor.getProximity());
-    SmartDashboard.putNumber("Intake Sensor", intakeSensor.getBlue());
-    SmartDashboard.putBoolean("Intake Sensor connected", intakeSensor.isConnected());
     // angles
     SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerArmAngleRelative());
