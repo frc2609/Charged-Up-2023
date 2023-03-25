@@ -9,7 +9,6 @@ import frc.robot.Constants.PWMID;
 
 /** Add your docs here. */
 public class LED {
-  // add enum
   private static final Spark m_controller = new Spark(PWMID.REV_BLINKIN);
 
   public static void setColour(double colour) {
@@ -25,6 +24,14 @@ public class LED {
   }
 
   public static void setIdle() {
+    m_controller.disable(); // set to default disabled pattern
+  }
+
+  public static void setLime() {
+    setColour(0.73);
+  }
+
+  public static void setPurple() {
     setColour(0.87);
   }
 }

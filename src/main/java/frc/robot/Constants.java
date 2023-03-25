@@ -168,6 +168,7 @@ public final class Constants {
     public static final class DIO {
         public static final int ARM_LOWER_ENCODER = 0;
         public static final int ARM_UPPER_ENCODER = 1;
+        public static final int GRIPPER_SENSOR = 7;
     }
     /** Smart current limits for Spark Max motor controllers in amps. */
     public static final class Limits {

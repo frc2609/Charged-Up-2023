@@ -16,13 +16,15 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.CANID;
 import frc.robot.Constants.DIO;
@@ -49,6 +51,8 @@ public class ArmGripper extends SubsystemBase {
   private final CANSparkMax m_upperMotor = new CANSparkMax(CANID.UPPER_ARM_MOTOR, MotorType.kBrushless);
   private final CANSparkMax m_extensionMotor = new CANSparkMax(CANID.EXTENSION_MOTOR, MotorType.kBrushless);
 
+  private final DigitalInput m_gripperSensor = new DigitalInput(DIO.GRIPPER_SENSOR);
+
   // Absolute encoder range is 0 to 1
   private final DutyCycleEncoder m_lowerEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_LOWER_ENCODER);
   private final DutyCycleEncoder m_upperEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER);
@@ -63,7 +67,9 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
 
-  XboxController m_operatorController;
+  private final Trigger m_pieceDetected = new Trigger(m_gripperSensor::get);
+
+  private final XboxController m_operatorController;
 
   /** Creates a new ArmGripper. */
   public ArmGripper(XboxController operatorController) {
@@ -75,6 +81,10 @@ public class ArmGripper extends SubsystemBase {
     configureMotors();
     configurePIDs();
     m_operatorController = operatorController;
+    m_pieceDetected.onTrue(new InstantCommand(LED::setLime));
+    /* Set LEDs only when going from true -> false
+     * Prevents this from continously cancelling cone/cube LEDs. */
+    m_pieceDetected.onFalse(new InstantCommand(LED::setIdle));
   }
 
   @Override
@@ -83,7 +93,6 @@ public class ArmGripper extends SubsystemBase {
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoder.getVelocity());
-
     // angles
     SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerArmAngleRelative());
@@ -103,6 +112,8 @@ public class ArmGripper extends SubsystemBase {
     if (m_gripperSolenoid.isRevSolenoidDisabled()) {
       System.out.print("CLOSE SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
     }
+    // gripper sensor status
+    SmartDashboard.putBoolean("Gripper Sensor", m_gripperSensor.get());
   }
 
   private void configureEncoders() {
