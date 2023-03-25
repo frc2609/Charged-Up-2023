@@ -8,19 +8,21 @@
     * If not: Power off and adjust extension position, or adjust extension position and reset robot code
 * Extension is not stuck on front guard
     * If not: Power off and adjust extension position
+* Extension power cable is not stuck below extension motor (pull out extension all the way to test)
+    * If stuck: Move cable above the extension motor
 ### Autonomous
 * Arm preloaded with cone or cube
     * If not: Power off and preload cone or cube
 * Robot aligned with correct node to score at
     * If not: Align to correct node according to preload
 ### Pneumatics
-* Pneumatics high pressure (compressor) gauge is at 120 psi
+* Pneumatics high pressure (compressor) gauge is at ~100 psi
     * If too high: Check pressure switch for faults
     * If too low:
         * Operator enable robot and see if compressor runs
         * If running: Check lines for air leaks
         * If not running: Check compressor power, replace if powered
-* Pneumatics low pressure (gripper) gauge is at 60 psi
+* Pneumatics low pressure (gripper) gauge is at ~60 psi
     * If too high: Check regulator is set correctly
     * If too low: Check pneumatics system for leaks
 * Pneumatics Hub is not flashing any LEDs (indicating a short)
@@ -49,6 +51,15 @@
 ### Auto
 * Correct autonomous path is selected
     * If not: Select correct autonomous path in SmartDashboard or Shuffleboard
+### CAN Bus
+* No CAN bus errors in Driver Station
+    * If error: Check Spark Max for power
+        * If no power/no status LED: Check breaker (red blinking light on PDH indicates tripped breaker)
+            * If breaker tripped: Power cycle robot
+            * If breaker good: Put Spark Max in recovery mode (replace if not appearing on computer)
+        * If power, check can bus connections (plug into spark max to check which ones it can see)
+            * If you cannot see a certain CAN device, that is likely where the CAN bus is disconnected
+        * If power and status light, use [Spark Max Status Light Reference](https://docs.revrobotics.com/sparkmax/status-led)
 ### Dashboard
 * NetworkTables is updating
     * If not:
