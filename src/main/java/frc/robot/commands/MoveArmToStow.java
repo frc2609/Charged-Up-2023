@@ -15,8 +15,7 @@ public class MoveArmToStow extends SequentialCommandGroup {
         new InstantCommand(armGripper::closeGripper),
         // retract extension
         new MoveArmToSetpoint(0.0, 0.0, RETRACT_EXTENSION, true, true, false, armGripper),
-        new MoveArmToSetpoint(STOW_LOWER, STOW_UPPER, STOW_EXTENSION, false, false, false, armGripper),
-        new InstantCommand(armGripper::stopAllMotors, armGripper) // Prevent arm from gittering when driving around
+        new MoveArmToSetpoint(STOW_LOWER, STOW_UPPER, STOW_EXTENSION, false, false, false, armGripper)
     );
   }
 }
