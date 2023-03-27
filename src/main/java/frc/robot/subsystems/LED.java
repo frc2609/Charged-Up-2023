@@ -4,34 +4,52 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.Constants.LED.*;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import frc.robot.Constants.PWMID;
 
 /** Add your docs here. */
 public class LED {
+  // REV Blinkin pretends to be a PWM motor controller
   private static final Spark m_controller = new Spark(PWMID.REV_BLINKIN);
 
+  /** Colour values are located in {@link frc.robot.Constants.LED Constants::LED}. */
   public static void setColour(double colour) {
     m_controller.set(colour);
   }
 
+  public static void setBlue() {
+    setColour(BLUE);
+  }
+
   public static void setCone() {
-    setColour(0.69);
+    setColour(YELLOW);
   }
 
   public static void setCube() {
-    setColour(0.91);
+    setColour(VIOLET);
+  }
+
+  public static void setGreen() {
+    setColour(GREEN);
   }
 
   public static void setIdle() {
-    m_controller.disable(); // set to default disabled pattern
+    if (DriverStation.getAlliance().equals(Alliance.Blue)) {
+      setColour(BREATH_BLUE);
+    } else {
+      setColour(BREATH_RED);
+    }
   }
 
   public static void setLime() {
-    setColour(0.73);
+    setColour(LIME);
   }
 
-  public static void setPurple() {
-    setColour(0.87);
+  public static void setRed() {
+    setColour(RED);
   }
 }
