@@ -59,10 +59,9 @@ public final class Constants {
             public static final double HIGH_LOWER = 58.5;
             public static final double HIGH_UPPER = 156.0;
             public static final double HIGH_EXTENSION = 0.440;
-            // TODO: Measure pickup values
-            public static final double PICKUP_LOWER = 93.1;
-            public static final double PICKUP_UPPER = 103.0;
-            public static final double PICKUP_EXTENSION = 0.0;
+            public static final double PICKUP_LOWER = 98.9;
+            public static final double PICKUP_UPPER = 91.3;
+            public static final double PICKUP_EXTENSION = 0.07;
             public static final double RETRACT_LOWER = 110.0;
             public static final double RETRACT_UPPER = 94.0;
             public static final double RETRACT_EXTENSION = 0.0;
@@ -92,8 +91,8 @@ public final class Constants {
             public static final float LOWER_REVERSE = 27.45f;   // degrees
             public static final float UPPER_FORWARD = 177.00f;  // degrees
             public static final float UPPER_REVERSE = 10.75f;   // degrees
-            public static final float EXTENSION_FORWARD = 0.475f; // metres
-            public static final float EXTENSION_REVERSE = 0.05f;  // metres
+            public static final float EXTENSION_FORWARD = 0.48f; // metres
+            public static final float EXTENSION_REVERSE = 0.0f;  // metres
         }
         public static final class Tolerances {
             public static final double LOWER_ANGLE = 0.5; // degrees
@@ -124,11 +123,17 @@ public final class Constants {
     }
     /** Autonomous-Related Constants */
     public static final class Autonomous {
-        /** The NAME of the path, excluding its filepath and extension.
-         * Path assumed to be `src/main/deploy/pathplanner/`.
-         * Extension assumed to be `.path`.
-        */
-        public static final String PATH_NAME = "Triangle";
+        /** Autobalance-related constants. */
+        public static final class Balance {
+            /** P gain for going up the ramp on the charge station. */
+            public static final double START_P = 0.05;
+            /** P gain for staying on the charge station. */
+            public static final double HOLD_P = 0.025;
+            /** The acceptable amount of tilt error in degrees. */
+            public static final double ANGLE_TOLERANCE = 5;
+            /** The maximum autobalance speed in metres per second. */
+            public static final double MAX_SPEED = 1.5;
+        }
         /** Which port PathPlannerServer should connect to on the RoboRIO. */
         public static final int PATHPLANNER_SERVER_PORT = 5811;
         /** X and Y PID constants for path following. 
@@ -163,6 +168,7 @@ public final class Constants {
     public static final class DIO {
         public static final int ARM_LOWER_ENCODER = 0;
         public static final int ARM_UPPER_ENCODER = 1;
+        public static final int GRIPPER_SENSOR = 7;
     }
     /** Smart current limits for Spark Max motor controllers in amps. */
     public static final class Limits {
@@ -172,6 +178,9 @@ public final class Constants {
         public static final int LOWER_ARM_CURRENT = 40;
         public static final int UPPER_ARM_CURRENT = 40;
         public static final int EXTENSION_CURRENT = 40;
+    }
+    public static final class PWMID {
+        public static final int REV_BLINKIN = 0;
     }
     /** Swerve drive related constants. */
     public final static class Swerve {
@@ -215,6 +224,7 @@ public final class Constants {
 
             // SparkMaxPIDController only has 1 feedforward constant.
             public static final double rotationFF = 0;
+            public static final double rotationFF_auto = 0.07;
         }
         public final static class IsInverted {
             public static final boolean frontLeftDrive = true;
@@ -283,7 +293,7 @@ public final class Constants {
          */
         public final static class AutonomousLimits {
             /** The maximum linear acceleration the robot should achieve in m/s^2. */
-            public static final double MAX_LINEAR_ACCELERATION = 1.0; // TODO: adjust value
+            public static final double MAX_LINEAR_ACCELERATION = 1.5;
             /** The maximum speed the drivetrain should go in autonomous in m/s. */
             public static final double MAX_LINEAR_VELOCITY = 2.0;
         }
@@ -295,6 +305,11 @@ public final class Constants {
             public static final double MAX_LINEAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED;
         }
         // Miscellaneous:
+        /** 
+         * The allowed rotation error in radians when rotating a module to a
+         * specific angle (not used when setting a SwerveModuleState).
+         */
+        public static final double ROTATION_ANGLE_TOLERANCE = 0.1;
         public static final double DEBUG_DRIVE_ANGLE_SENSITIVITY = 0.25;
         /** The maximum angular acceleration the robot can achieve in radians/s^2. */
         // public static final double MAX_POSSIBLE_ANGULAR_ACCELERATION = 2 * Math.PI; // unused

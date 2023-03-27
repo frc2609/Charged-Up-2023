@@ -11,7 +11,8 @@ public class MoveArmToHigh extends SequentialCommandGroup {
     addCommands(
         // move arm away from ground
         new MoveArmToSetpoint(RETRACT_LOWER, RETRACT_UPPER, RETRACT_EXTENSION, false, false, true, armGripper),
-        new MoveArmToSetpoint(HIGH_LOWER, HIGH_UPPER, HIGH_EXTENSION, false, false, false, armGripper)
+        new MoveArmToSetpoint(HIGH_LOWER, HIGH_UPPER, 0.0, false, false, true, armGripper),
+        new MoveArmToSetpoint(0.0, 0.0, HIGH_EXTENSION, true, true, false, armGripper)
     );
   }
 }

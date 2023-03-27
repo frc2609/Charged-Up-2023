@@ -7,7 +7,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
 import frc.robot.Constants.Arm.Tolerances;
 import frc.robot.subsystems.ArmGripper;
 
@@ -20,8 +19,8 @@ public class MoveArmProfiled extends CommandBase {
   ArmGripper m_armGripper;
   boolean holdLower, holdUpper, holdSlider;
   double prevLoop;
-  
   int i = 0;
+
   /** Moves arm to given setpoint. Finishes once within tolerance */
   public MoveArmProfiled(double[] lowerSetpoint, double[] upperSetpoint, double[] extensionSetpoint, ArmGripper armGripper) {
     this.lowerSetpoint = lowerSetpoint;

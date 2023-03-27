@@ -120,7 +120,6 @@ public class BeaverLogger {
 			data.append(Double.toString(currentStates[3].speedMetersPerSecond) + ',');
 			data.append(Double.toString(targetStates[3].speedMetersPerSecond) + ',');
 
-			
 			// data.append(Double.toString(currentStates[0].angle.getDegrees()) + ',');
 			// data.append(Double.toString(targetStates[0].angle.getDegrees()) + ',');
 			// data.append(Double.toString(currentStates[1].angle.getDegrees()) + ',');

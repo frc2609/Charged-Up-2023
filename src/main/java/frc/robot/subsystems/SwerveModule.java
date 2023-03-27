@@ -7,8 +7,6 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.Swerve.*;
 import static frc.robot.Constants.Swerve.Gains.*;
 
-import java.lang.constant.Constable;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -22,10 +20,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //import edu.wpi.first.util.sendable.Sendable;
 //import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
-import frc.robot.RobotContainer;
+
 import frc.robot.Constants.Limits;
-import frc.robot.utils.BeaverLogger;
 
 /**
  * Represents a single swerve drive module.
@@ -39,26 +35,29 @@ public class SwerveModule { // implements Sendable {
 
   private final String m_name;
 
+  // TODO: now using B to drive and A for boost, change documentation accordingly
+
   /** 
    * Creates a new SwerveModule.
    * 
    * @param name The module's name, added in front of all SmartDashboard values.
-   * @param driveMotorAID The CAN ID of the primary drive motor (always engaged).
-   * @param driveMotorBID The CAN ID of the secondary drive motor (engaged for extra speed).
+   * @param primaryMotorID The CAN ID of the primary drive motor (always engaged).
+   * @param secondaryMotorID The CAN ID of the secondary drive motor (engaged for extra speed).
    * @param rotationMotorID The CAN ID of the rotation motor.
+   * // TODO: this javadoc
    * @param invertDriveMotors name see SwerveMotorGroup//driveMotorsInverted Whether or not to invert both drive motors. The wheel should spin forward on positive inputs.
    * @param invertRotationMotor Whether or not to invert the rotation motor. The module should rotate counterclockwise on positive inputs.
    */
   public SwerveModule(
     String name,
-    int driveMotorAID,
-    int driveMotorBID,
+    int primaryMotorID,
+    int secondaryMotorID, // swap CANIDs plz
     int rotationMotorID,
     boolean invertDriveMotors,
     boolean invertRotationMotor
     )
   {
-    m_driveMotors = new SwerveMotorGroup(driveMotorAID, driveMotorBID, invertDriveMotors, name);
+    m_driveMotors = new SwerveMotorGroup(primaryMotorID, secondaryMotorID, invertDriveMotors, name);
     m_rotationMotor = new CANSparkMax(rotationMotorID, MotorType.kBrushless);
 
     // TODO: that's not good. SwerveMotorGroup should handle this (or eliminate it if needed)
@@ -85,7 +84,7 @@ public class SwerveModule { // implements Sendable {
      * before setDesiredState() is called for the first time. */
     SmartDashboard.putNumber(m_name + " Drive Setpoint (m/s)", 0);
     SmartDashboard.putNumber(m_name + " Angle Setpoint (rad)", 0);
-    SmartDashboard.putNumber(m_name + " Drive Voltage", 0);
+    SmartDashboard.putNumber(m_name + " Drive Voltage", 0); // TODO: 99% sure not used.
   }
 
   public void simulateECVT(){
@@ -187,7 +186,7 @@ public class SwerveModule { // implements Sendable {
   }
 
   /**
-   * Returns the position of the module
+   * Returns the position of this module.
    * This is similar to `getState()`, but returns the position of the drive
    * motor instead of its velocity.
    * 
@@ -195,9 +194,17 @@ public class SwerveModule { // implements Sendable {
    */
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(
-      m_driveMotors.getPosition(), // TODO: this is not correct
+      m_driveMotors.getPosition(),
       new Rotation2d(m_rotationEncoder.getPosition())
     );
+  }
+
+  /**
+   * Returns the angle of this module.
+   * @return The angle of the swerve module in radians.
+   */
+  public double getRotationAngle() {
+    return m_rotationEncoder.getPosition();
   }
 
   /**
@@ -236,10 +243,10 @@ public class SwerveModule { // implements Sendable {
      * ChassisSpeeds and SwerveModuleState.
      */
     
-     m_rotationPIDController.setP(Constants.Swerve.Gains.rotationPID_kP_auto);
-     m_rotationPIDController.setI(Constants.Swerve.Gains.rotationPID_kI_auto);
-     m_rotationPIDController.setD(Constants.Swerve.Gains.rotationPID_kD_auto);
-     m_rotationPIDController.setFF(0.07);
+     m_rotationPIDController.setP(rotationPID_kP_auto);
+     m_rotationPIDController.setI(rotationPID_kI_auto);
+     m_rotationPIDController.setD(rotationPID_kD_auto);
+     m_rotationPIDController.setFF(rotationFF_auto);
      
     // Temp
     m_rotationMotor.setIdleMode(IdleMode.kBrake);
@@ -265,10 +272,10 @@ public class SwerveModule { // implements Sendable {
      * ChassisSpeeds and SwerveModuleState.
      */
     m_rotationMotor.setIdleMode(IdleMode.kBrake);
-    m_rotationPIDController.setP(Constants.Swerve.Gains.rotationPID_kP_auto);
-    m_rotationPIDController.setI(Constants.Swerve.Gains.rotationPID_kI_auto);
-    m_rotationPIDController.setD(Constants.Swerve.Gains.rotationPID_kD_auto);
-    m_rotationPIDController.setFF(0.07);
+    m_rotationPIDController.setP(rotationPID_kP_auto);
+    m_rotationPIDController.setI(rotationPID_kI_auto);
+    m_rotationPIDController.setD(rotationPID_kD_auto);
+    m_rotationPIDController.setFF(rotationFF_auto);
     
     // Optimize the desired state to avoid spinning further than 90 degrees
     SwerveModuleState optimizedState =
@@ -286,16 +293,16 @@ public class SwerveModule { // implements Sendable {
 
   /**
    * Rotate the module to the specified angle.
-   * This method must be called periodically in order to function.
+   * This method only has to be called once to set the rotation angle. In order
+   * to have a useful return value, this function must be called periodically.
    * 
    * @param desiredAngle The desired angle of the module, in radians.
+   * @return Whether or not the module has finished rotating.
    */
-  public void rotateTo(double desiredAngle) {
+  public boolean rotateTo(double desiredAngle) {
     SmartDashboard.putNumber(m_name + " Angle Setpoint (rad)", desiredAngle);
     m_rotationPIDController.setReference(desiredAngle, ControlType.kPosition);
-  }
-  public double getRotateAngle(){
-    return m_rotationEncoder.getPosition();
+    return (m_rotationEncoder.getPosition() - desiredAngle) < ROTATION_ANGLE_TOLERANCE;
   }
 
   /**
@@ -319,7 +326,6 @@ public class SwerveModule { // implements Sendable {
    * Stop all motors in this module.
    */
   public void stop() {
-    // m_driveMotor.setVoltage(0);
     m_driveMotors.set(0, 0, false);
     m_rotationMotor.setVoltage(0);
   }

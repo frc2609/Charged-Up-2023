@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ColorSensorV3;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
@@ -17,14 +16,15 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.CANID;
 import frc.robot.Constants.DIO;
@@ -51,6 +51,8 @@ public class ArmGripper extends SubsystemBase {
   private final CANSparkMax m_upperMotor = new CANSparkMax(CANID.UPPER_ARM_MOTOR, MotorType.kBrushless);
   private final CANSparkMax m_extensionMotor = new CANSparkMax(CANID.EXTENSION_MOTOR, MotorType.kBrushless);
 
+  private final DigitalInput m_gripperSensor = new DigitalInput(DIO.GRIPPER_SENSOR);
+
   // Absolute encoder range is 0 to 1
   private final DutyCycleEncoder m_lowerEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_LOWER_ENCODER);
   private final DutyCycleEncoder m_upperEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER);
@@ -64,22 +66,25 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_lowerPID = m_lowerMotor.getPIDController();
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
-  private ColorSensorV3 intakeSensor;
 
-  XboxController m_operatorController;
+  private final Trigger m_pieceDetected = new Trigger(m_gripperSensor::get);
+
+  private final XboxController m_operatorController;
 
   /** Creates a new ArmGripper. */
   public ArmGripper(XboxController operatorController) {
     m_compressor.enableDigital();
-
     m_lowerMotor.restoreFactoryDefaults();
     m_upperMotor.restoreFactoryDefaults();
     m_extensionMotor.restoreFactoryDefaults();
     configureEncoders();
     configureMotors();
     configurePIDs();
-    intakeSensor = new ColorSensorV3(I2C.Port.kMXP);
     m_operatorController = operatorController;
+    m_pieceDetected.onTrue(new InstantCommand(LED::setLime));
+    /* Set LEDs only when going from true -> false
+     * Prevents this from continously cancelling cone/cube LEDs. */
+    m_pieceDetected.onFalse(new InstantCommand(LED::setIdle));
   }
 
   @Override
@@ -88,10 +93,6 @@ public class ArmGripper extends SubsystemBase {
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoder.getVelocity());
-
-    // SmartDashboard.putNumber("Intake Sensor", intakeSensor.getProximity());
-    SmartDashboard.putNumber("Intake Sensor", intakeSensor.getBlue());
-    SmartDashboard.putBoolean("Intake Sensor connected", intakeSensor.isConnected());
     // angles
     SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerArmAngleRelative());
@@ -111,12 +112,18 @@ public class ArmGripper extends SubsystemBase {
     if (m_gripperSolenoid.isRevSolenoidDisabled()) {
       System.out.print("CLOSE SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
     }
+    // gripper sensor status
+    SmartDashboard.putBoolean("Gripper Sensor", m_gripperSensor.get());
   }
 
   private void configureEncoders() {
     // TODO: move to constants
     m_lowerEncoderRelative.setPositionConversionFactor(1.8);
     m_upperEncoderRelative.setPositionConversionFactor(3.0);
+    // 48/18 -> sprockets
+    // gearbox bottom is 45:1
+    // 360 / 120 to convert 
+    // every 360 degrees, rotates 120 times
 
     // TODO: configure as necessary
     m_lowerEncoderAbsolute.setDistancePerRotation(Encoder.LOWER_DISTANCE_PER_ROTATION); // TODO: should not be 0
@@ -157,18 +164,18 @@ public class ArmGripper extends SubsystemBase {
   }
 
   private void configurePIDs() {
-    m_lowerPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00007));
-    m_lowerPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00000000005));
-    m_lowerPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.00000003));
+    m_lowerPID.setP(SmartDashboard.getNumber("Lower Arm P", 0.00007));
+    m_lowerPID.setI(SmartDashboard.getNumber("Lower Arm I", 0.00000000005));
+    m_lowerPID.setD(SmartDashboard.getNumber("Lower Arm D", 0.00000003));
     m_lowerPID.setIZone(0.5);
     m_lowerPID.setFF(0.00015);
     m_lowerPID.setOutputRange(-1.0, 1.0);
     m_lowerPID.setSmartMotionMaxVelocity(3000, 0);
     m_lowerPID.setSmartMotionMaxAccel(15000, 0);
 
-    m_upperPID.setP(SmartDashboard.getNumber("Lower Arm P", 0.00007));
-    m_upperPID.setI(SmartDashboard.getNumber("Lower Arm I", 0.00000000005));
-    m_upperPID.setD(SmartDashboard.getNumber("Lower Arm D", 0.00000003));
+    m_upperPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00007));
+    m_upperPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00000000005));
+    m_upperPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.00000003));
     m_upperPID.setIZone(0.5);
     m_upperPID.setFF(0.00015);
     m_upperPID.setOutputRange(-1.0, 1.0);
@@ -306,6 +313,13 @@ public class ArmGripper extends SubsystemBase {
   /** Set the amount to extend the upper arm in metres. */
   public void setExtensionTargetLength(double length) {
     m_extensionPID.setReference(length, ControlType.kSmartMotion);
+  }
+
+  public void setEncoderOffsets(){
+    System.out.println("Old Lower Value: " + getLowerAngleAbsolute());
+    m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
+    System.out.println("Old Upper Value: " + getUpperArmAngleAbsolute());
+    m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());
   }
 
   public void stopAllMotors() {
