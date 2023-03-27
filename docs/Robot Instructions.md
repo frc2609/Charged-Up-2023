@@ -7,6 +7,10 @@
 * Now you can turn the robot on
 
 ## Swerve module alignment
+**THESE ALIGNMENT INSTRUCTIONS ARE FOR THE SWERVE PRACTICE BOT.**
+
+**FOR THE COMPETITION ROBOT, ALIGN THE NOTCH ON EACH MODULE WITH THE NOTCH ON THE ALUMINUM PLATE.**
+
 Before turning on the robot, you must line up all four swerve modules so that the black gear on each wheel faces to the left of the robot:
 
 <img src="images/aligned.jpg" alt="Wheels aligned, view from front right of the robot." width="350"/>
@@ -69,7 +73,37 @@ However, in teleop mode, the robot can collide with parts of the field, and othe
 | Left Joystick X Axis  | Move robot left and right   |
 | Left Joystick Y Axis  | Move robot forward and back |
 | Right Joystick X Axis | Rotate robot left and right |
-| A Button              | Reset gyro yaw angle        |
+| Right Trigger Axis    | Boost throttle              |
+| Left Bumper           | Move to ground pickup       |
+| Right Bumper          | Move to station pickup      |
+| Start Button          | Reset odometry yaw          |
+| Select Button         | (Hold) Lock charge position |
+| A Button              | Enable Boost                |
+| B Button              | Autoalign to cone node      |
+| X Button              | Move to stow position       |
+| Y Button              | Confirm queued command      |
+
+### Operator:
+| Control               | Function                    |
+| --------------------- | --------------------------- |
+| Left Joystick Y Axis  | Manual: Move lower arm      |
+| Right Joystick Y Axis | Manual: Move upper arm      |
+| Left Stick Button     | Request cone                |
+| Right Stick Button    | Request cube                |
+| Left Bumper           | Open Gripper                |
+| Right Bumper          | Close Gripper               |
+| Start Button          | Toggle Manual Control       |
+| Select Button         | Reset arm encoders to abs   |
+| A Button              | Queue low node              |
+| B Button              | Queue mid node              |
+| Y Button              | Queue high node             |
+| X Button              | Move to stow position       |
+| DPAD Up               | Manual: Extend extension    |
+| DPAD Down             | Manual: Retract extension   |
+* How to remember queue buttons:
+    * Y is highest = high node
+    * A is lowest = low node
+    * B is in between = middle node
 
 ## Dashboard
 This repository comes with a premade Shuffleboard layout. To use it, open Shuffleboard, open the File menu and press Load layout, then select `robot-shuffleboard-layout.json` in the root of this repository.

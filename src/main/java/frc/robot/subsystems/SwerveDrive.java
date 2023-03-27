@@ -7,26 +7,23 @@ package frc.robot.subsystems;
 // static imports allow access to all constants in the class without using its name
 import static frc.robot.Constants.Swerve.*;
 
-import java.util.List;
-
-import frc.robot.Constants.Swerve.CanID;
 import frc.robot.Constants.Swerve.Dimensions;
+import frc.robot.Constants.Swerve.IsInverted;
 import frc.robot.Constants.Swerve.PhysicalLimits;
 import frc.robot.Constants.Swerve.TeleopLimits;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.PathLogger;
-import frc.robot.Constants.Autonomous;
+import frc.robot.Constants.CANID;
 import frc.robot.Constants.Xbox;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.MathUtil;
 // import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
+// import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -36,10 +33,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //import edu.wpi.first.util.sendable.SendableBuilder;
 //import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 // import edu.wpi.first.wpilibj2.command.InstantCommand;
 // import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -48,49 +45,55 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * Controls all swerve drive modules.
  */
 public class SwerveDrive extends SubsystemBase {
-  private final AHRS m_gyro;
+  /**
+   * The yaw offset of the navx cannot be set to an arbitrary value (useful at
+   * the start of autonomous), so autonomous sets the yaw offset of
+   * SwerveDriveOdometry instead. Since SwerveDriveOdometry handles the yaw
+   * offset, m_navx.zeroYaw() should not be called, and any navx function
+   * making use of the navx's yaw should not be used (as it will be incorrect).
+   * <p> The yaw should only be used for updating odometry.
+   */
+  private static AHRS m_navx;
   private final XboxController m_driverController;
 
   // x and y are relative to robot (x front/rear, y left/right)
-  private final SlewRateLimiter m_xSpeedLimiter = new SlewRateLimiter(X_SPEED_DELAY);
-  private final SlewRateLimiter m_ySpeedLimiter = new SlewRateLimiter(Y_SPEED_DELAY);
-  private final SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(ROTATION_DELAY);
+  // private final SlewRateLimiter m_xSpeedLimiter = new SlewRateLimiter(X_SPEED_DELAY);
+  // private final SlewRateLimiter m_ySpeedLimiter = new SlewRateLimiter(Y_SPEED_DELAY);
+  // private final SlewRateLimiter m_rotationLimiter = new SlewRateLimiter(ROTATION_DELAY);
 
   private final Translation2d m_frontLeftLocation = new Translation2d(Dimensions.frontLeftX, Dimensions.frontLeftY);
   private final Translation2d m_frontRightLocation = new Translation2d(Dimensions.frontRightX, Dimensions.frontRightY);
   private final Translation2d m_rearLeftLocation = new Translation2d(Dimensions.rearLeftX, Dimensions.rearLeftY);
   private final Translation2d m_rearRightLocation = new Translation2d(Dimensions.rearRightX, Dimensions.rearRightY);
   
-  private final SwerveModule m_frontLeft = new SwerveModule("Front Left", CanID.frontLeftDrive, CanID.frontLeftRotation);
-  private final SwerveModule m_frontRight = new SwerveModule("Front Right", CanID.frontRightDrive, CanID.frontRightRotation);
-  private final SwerveModule m_rearLeft = new SwerveModule("Rear Left", CanID.rearLeftDrive, CanID.rearLeftRotation);
-  private final SwerveModule m_rearRight = new SwerveModule("Rear Right", CanID.rearRightDrive, CanID.rearRightRotation);
+  private final SwerveModule m_frontLeft = new SwerveModule("Front Left", CANID.frontLeftPrimary, CANID.frontLeftSecondary, CANID.frontLeftRotation, IsInverted.frontLeftDrive, IsInverted.frontLeftRotation);
+  private final SwerveModule m_frontRight = new SwerveModule("Front Right", CANID.frontRightPrimary, CANID.frontRightSecondary, CANID.frontRightRotation, IsInverted.frontRightDrive, IsInverted.frontRightRotation);
+  private final SwerveModule m_rearLeft = new SwerveModule("Rear Left", CANID.rearLeftPrimary, CANID.rearLeftSecondary, CANID.rearLeftRotation, IsInverted.rearLeftDrive, IsInverted.rearLeftRotation);
+  private final SwerveModule m_rearRight = new SwerveModule("Rear Right", CANID.rearRightPrimary, CANID.rearRightSecondary, CANID.rearRightRotation, IsInverted.rearRightDrive, IsInverted.rearRightRotation);
   
-  private final SwerveAutoBuilder m_autoBuilder;
   private final PathLogger m_pathLogger = new PathLogger();
-
   private final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
           m_frontLeftLocation, m_frontRightLocation, m_rearLeftLocation, m_rearRightLocation);
-  
   private final SwerveDriveOdometry m_odometry;
   /** Displays the robot's position relative to the field through NetworkTables. */
   private final Field2d m_field = new Field2d();
 
-  private boolean m_isFieldRelative = false;
   private double m_debugAngleSetpoint = 0; // radians
+  private boolean m_maxSpeedEnabled = false;
+  private double m_secondaryThrottle = 0; // 0 to 1
 
   /** Creates a new SwerveDrive. */
-  public SwerveDrive(AHRS gyro, XboxController driverController) {
+  public SwerveDrive(XboxController driverController) {
     m_driverController = driverController;
-    m_gyro = gyro;
-    if (!m_gyro.isConnected()) {
-      DriverStation.reportError(
-          "Navx not initialized - Could not setup SwerveDriveOdometry", false);
+    try {
+      m_navx = new AHRS(SerialPort.Port.kMXP);
+    } catch (RuntimeException e) {
+      DriverStation.reportError("Navx initialization failed - Could not setup SwerveDriveOdometry", false);
     }
     m_odometry = new SwerveDriveOdometry(
         m_kinematics,
-        m_gyro.getRotation2d(),
+        m_navx.getRotation2d(),
         getModulePositions()
     );
     resetModuleEncoders();
@@ -112,18 +115,6 @@ public class SwerveDrive extends SubsystemBase {
         m_pathLogger::setTargetPose,
         m_pathLogger::setSetpoint,
         m_pathLogger::setError
-    );
-    // Setup autonomous command
-    m_autoBuilder = new SwerveAutoBuilder(
-      this::getPose,
-      this::resetPose,
-      m_kinematics,
-      Autonomous.translationPIDConstants,
-      Autonomous.rotationPIDConstants,
-      this::setDesiredStates,
-      Autonomous.eventMap,
-      true,
-      this
     );
   }
 
@@ -147,13 +138,20 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.updateNetworkTables();
     m_rearLeft.updateNetworkTables();
     m_rearRight.updateNetworkTables();
+    m_rearLeft.simulateECVT();
     // handle button input from NetworkTables
-    m_isFieldRelative = SmartDashboard.getBoolean("Is Field Relative", false);
-    SmartDashboard.putBoolean("Is Field Relative", m_isFieldRelative);
     if (SmartDashboard.getBoolean("Reset Encoders", false)) {
       resetModuleEncoders();
+      resetPose(new Pose2d());
       SmartDashboard.putBoolean("Reset Encoders", false); // reset the button
     }
+    SmartDashboard.putNumber("Boost Multiplier", m_secondaryThrottle);
+    // navx
+    SmartDashboard.putBoolean("Navx Connected", m_navx.isConnected());
+    SmartDashboard.putNumber("Gyro Pitch (deg)", m_navx.getPitch());
+    SmartDashboard.putNumber("Gyro Roll (deg)", m_navx.getRoll());
+    SmartDashboard.putNumber("Odometry Yaw (rad)", getPose().getRotation().getRadians());
+    SmartDashboard.putNumber("Odometry Yaw (deg)", getPose().getRotation().getDegrees());
   }
 
   /** 
@@ -173,7 +171,7 @@ public class SwerveDrive extends SubsystemBase {
     SwerveModuleState[] states = 
         m_kinematics.toSwerveModuleStates(
             isFieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, m_gyro.getRotation2d())
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, getYaw())
                 : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
     // Prevent robot from going faster than it should.
     SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
@@ -230,64 +228,24 @@ public class SwerveDrive extends SubsystemBase {
   //   );
   // }
 
+
   /**
-   * Follow a trajectory with markers.
-   * Markers are defined by the path.
-   * Marker-command bindings are specified in `Constants.Autonomous.eventMap`.
+   * Returns a reference to the robot's gyro.
+   * Do not attempt to modify or access the robot yaw using this method.
    * 
-   * @param trajectory The trajectory to follow.
-   * 
-   * @return A command which follows the trajectory while triggering commands
-   * at path-defined markers.
+   * @return The robot's navX IMU.
    */
-  public Command generateFullAuto(PathPlannerTrajectory trajectory) {
-    return m_autoBuilder.fullAuto(trajectory);
+  public AHRS getGyro() {
+    return m_navx;
   }
 
   /**
-   * Follow a group of trajectories with markers.
-   * Markers are defined by each individual path.
-   * Marker-command bindings are specified in `Constants.Autonomous.eventMap`.
+   * Returns the swerve drive kinematics.
    * 
-   * @param trajectoryGroup A list of trajectories to follow.
-   * 
-   * @return A command which follows each trajectory while triggering commands
-   * at path-defined markers.
+   * @return The swerve drive kinematics
    */
-  public Command generateFullAuto(List<PathPlannerTrajectory> trajectoryGroup) {
-    return m_autoBuilder.fullAuto(trajectoryGroup);
-  }
-
-  /**
-   * Drive the robot using joystick inputs from the driver's Xbox controller 
-   * (controller specified in class constructor).
-   */
-  public void manualDrive() {
-    /* getLeftY() is used for xSpeed because xSpeed moves robot forward/back.
-     * (The same applies for getLeftX()). This occurs because of the way robot
-     * coordinates are implemented in WPILib.
-     * (See https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/coordinate-systems.html.)
-     */
-    /* Speeds are inverted because Xbox controllers return negative values when
-     * joystick is pushed forward or to the left.
-     */
-    final double xSpeed =
-        -m_xSpeedLimiter.calculate(MathUtil.applyDeadband(
-            m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_LINEAR_VELOCITY; // m/s
-                // scale value from 0-1 to 0-MAX_LINEAR_SPEED
-
-    final double ySpeed =
-        -m_ySpeedLimiter.calculate(MathUtil.applyDeadband(
-            m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_LINEAR_VELOCITY;
-
-    final double rotationSpeed =
-        -m_rotationLimiter.calculate(MathUtil.applyDeadband(
-            m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
-                * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
-
-    drive(xSpeed, ySpeed, rotationSpeed, m_isFieldRelative);
+  public SwerveDriveKinematics getKinematics() {
+    return m_kinematics;
   }
 
   /**
@@ -332,6 +290,62 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
+   * Returns the reported yaw of the robot according to the odometry.
+   * Use this value instead of the yaw value from the navx because this will
+   * take into account the autonomous starting position, meaning the angle will
+   * be offset correctly during a match.
+   * 
+   * @return The yaw of the robot as a Rotation2d.
+   */
+  public Rotation2d getYaw() {
+    return getPose().getRotation();
+  }
+
+  /**
+   * Drive the robot using joystick inputs from the driver's Xbox controller 
+   * (controller specified in class constructor).
+   */
+  public void manualDrive() {
+    /* getLeftY() is used for xSpeed because xSpeed moves robot forward/back.
+     * (The same applies for getLeftX()). This occurs because of the way robot
+     * coordinates are implemented in WPILib.
+     * (See https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/coordinate-systems.html.)
+     */
+    /* Speeds are inverted because Xbox controllers return negative values when
+     * joystick is pushed forward or to the left.
+     */
+    final double xInput = MathUtil.applyDeadband(-m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND);
+    final double xSpeedSquare = xInput >= 0.0 ? xInput * xInput : -(xInput * xInput);
+    final double xSpeed = xSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
+    // final double xSpeed =
+    //     -m_xSpeedLimiter.calculate(MathUtil.applyDeadband(
+    //         m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND))
+    //             * TeleopLimits.MAX_LINEAR_VELOCITY; // m/s
+    //             // scale value from 0-1 to 0-MAX_LINEAR_SPEED
+
+    final double yInput = MathUtil.applyDeadband(-m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND);
+    final double ySpeedSquare = yInput >= 0.0 ? yInput * yInput : -(yInput * yInput);
+    final double ySpeed = ySpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
+    // final double ySpeed =
+    //     -m_ySpeedLimiter.calculate(MathUtil.applyDeadband(
+    //         m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND))
+    //             * TeleopLimits.MAX_LINEAR_VELOCITY;
+
+    final double rotInput = MathUtil.applyDeadband(-m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND);
+    final double rotSpeedSquare = rotInput >= 0.0 ? rotInput * rotInput : -(rotInput * rotInput);
+    final double rotSpeed = rotSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
+    // final double rotationSpeed =
+    //     -m_rotationLimiter.calculate(MathUtil.applyDeadband(
+    //         m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
+    //             * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
+
+    m_maxSpeedEnabled = m_driverController.getAButton();
+    m_secondaryThrottle = m_driverController.getRightTriggerAxis() / 2.0;
+
+    drive(xSpeed, ySpeed, rotSpeed, true);
+  }
+
+  /**
    * Reset the angle setpoint used for debugDrive.
    */
   public void resetDebugAngle() {
@@ -355,7 +369,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /** 
-   * Reset the position (relative to the field) of the robot.
+   * Set the position (relative to the field) of the robot.
    * 
    * It is not necessary to reset the rotation or distance encoders, or the
    * gyro angle before calling this function (this should not be done).
@@ -363,7 +377,7 @@ public class SwerveDrive extends SubsystemBase {
    * @param pose The new position of the robot.
   */
   public void resetPose(Pose2d pose) {
-    m_odometry.resetPosition(m_gyro.getRotation2d(), getModulePositions(), pose);
+    m_odometry.resetPosition(m_navx.getRotation2d(), getModulePositions(), pose);
   }
 
   /**
@@ -386,18 +400,60 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
+   * Rotate each module to a 45 degree angle away from the centre of the robot
+   * so that the robot cannot be rotated or translated. This helps to hold the
+   * robot on the balance platform.
+   * <p>This does not work currently.
+   * 
+   * @return Whether or not each module is at the setpoint.
+   */
+  // public boolean setBalanceLock() {
+  //   return m_frontLeft.rotateTo(-Math.PI / 2.0)
+  //   && m_frontRight.rotateTo(Math.PI / 2.0)
+  //   && m_rearLeft.rotateTo(Math.PI / 2.0)
+  //   && m_frontRight.rotateTo(-Math.PI / 2.0);
+  // }
+
+  /**
    * Set the desired state of each swerve module.
    * 
    * @param states An array containing each SwerveModuleState.
    */
   public void setDesiredStates(SwerveModuleState[] states) {
     // Array index order must match the order that m_kinematics was initialized with.
-    m_frontLeft.setDesiredState(states[0]);
-    m_frontRight.setDesiredState(states[1]);
-    m_rearLeft.setDesiredState(states[2]);
-    m_rearRight.setDesiredState(states[3]);
+    m_frontLeft.setDesiredState(states[0], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_frontRight.setDesiredState(states[1], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_rearLeft.setDesiredState(states[2], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_rearRight.setDesiredState(states[3], m_secondaryThrottle, m_maxSpeedEnabled);
+    // BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates());
+  }
+
+  public void setDesiredStatesAuto(SwerveModuleState[] states) {
+    // Array index order must match the order that m_kinematics was initialized with.
+    m_frontLeft.setDesiredStateAuto(states[0], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_frontRight.setDesiredStateAuto(states[1], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_rearLeft.setDesiredStateAuto(states[2], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_rearRight.setDesiredStateAuto(states[3], m_secondaryThrottle, m_maxSpeedEnabled);
     BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates());
   }
+
+  /**
+   * Rotate each module to the specified angle.
+   * 
+   * @param angle The module angle to move to in radians.
+   * @return Whether or not all modules have finished rotating.
+   */
+  public boolean setRotationAngle(double angle){
+    return m_frontLeft.rotateTo(angle) && m_frontRight.rotateTo(angle) 
+        && m_rearLeft.rotateTo(angle) && m_rearRight.rotateTo(angle);
+  }
+
+  public void setRotCoast(){
+    m_frontLeft.setRotCoast();
+    m_frontRight.setRotCoast();
+    m_rearLeft.setRotCoast();
+    m_rearRight.setRotCoast();
+  } // Map to user button?
 
   /**
    * Stop all swerve modules.
@@ -411,6 +467,13 @@ public class SwerveDrive extends SubsystemBase {
 
   /** Updates the field relative position of the robot. */
   public void updateOdometry() {
-    m_odometry.update(m_gyro.getRotation2d(), getModulePositions());
+    m_odometry.update(m_navx.getRotation2d(), getModulePositions());
+  }
+
+  /**
+   * Reset the yaw reported by SwerveDriveOdometry.
+   */
+  public void zeroYaw() {
+    resetPose(new Pose2d(m_odometry.getPoseMeters().getTranslation(), new Rotation2d(0)));
   }
 }

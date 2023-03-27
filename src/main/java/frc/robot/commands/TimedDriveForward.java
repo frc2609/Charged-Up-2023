@@ -4,18 +4,16 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import frc.robot.subsystems.SwerveDrive;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class TimedDriveForward extends ParallelDeadlineGroup {
   /** Creates a new TimedDriveForward. */
   public TimedDriveForward(double timerDelay, SwerveDrive swerveDrive) {
     // Add the deadline command in the super() call. Add other commands using
     // addCommands().
-    super(new TimerDelay(timerDelay));
+    super(Commands.waitSeconds(timerDelay));
     addCommands(new DriveForwardWhileSpinning(swerveDrive, 2, Math.PI, 2));
   }
 }
