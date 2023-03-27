@@ -7,7 +7,9 @@ package frc.robot.commands.autonomous;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.Autonomous.Deadline;
 import frc.robot.commands.MoveArmToHigh;
 // import frc.robot.commands.VisionAlign;
 import frc.robot.subsystems.ArmGripper;
@@ -19,8 +21,13 @@ public class ScoreConeHigh extends SequentialCommandGroup {
     addCommands(
         new ParallelCommandGroup(
             // new VisionAlign(drive, null),
-            new MoveArmToHigh(arm)
+            // cancel if movement takes too long
+            new ParallelRaceGroup(
+              Commands.waitSeconds(Deadline.MOVE_TO_HIGH),
+              new MoveArmToHigh(arm)
+            )
         ),
+        // wait for the arm to settle
         Commands.waitSeconds(0.5),
         new InstantCommand(arm::openGripper, arm)
     );

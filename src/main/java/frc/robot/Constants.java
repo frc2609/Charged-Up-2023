@@ -134,6 +134,10 @@ public final class Constants {
             /** The maximum autobalance speed in metres per second. */
             public static final double MAX_SPEED = 1.5;
         }
+        /** Deadlines (in seconds) to wait for a command to finish. */
+        public static final class Deadline {
+            public static final double MOVE_TO_HIGH = 5.0;
+        }
         /** Which port PathPlannerServer should connect to on the RoboRIO. */
         public static final int PATHPLANNER_SERVER_PORT = 5811;
         /** X and Y PID constants for path following. 
