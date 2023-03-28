@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.HashMap;
 
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
@@ -53,6 +54,8 @@ public class RobotContainer {
    * commands that require them. This prevents a subsystem from being used by
    * multiple things at once, which may potentially cause issues. */
   private final ArmGripper m_armGripper;
+  private final NetworkTable m_limelight =
+      NetworkTableInstance.getDefault().getTable("limelight");
   private final SwerveDrive m_swerveDrive;
   private final SwerveAutoBuilder m_autoBuilder;
   private final PowerDistribution m_powerDistribution =
@@ -107,6 +110,9 @@ public class RobotContainer {
     m_armGripper = new ArmGripper(m_operatorController);
     m_swerveDrive = new SwerveDrive(m_driverController);
     m_swerveDrive.resetModuleEncoders();
+    // turn off Limelight LEDs and set to DS camera mode
+    m_limelight.getEntry("ledMode").setNumber(1);
+    m_limelight.getEntry("camMode").setNumber(1);
     configureButtonBindings();
     configureEventMap();
     configurePathChooser();
