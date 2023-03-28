@@ -37,11 +37,11 @@ public class MoveArmProfiled extends CommandBase {
       {103.32522138670555,56.2697786132945,0.0},
       {103.127014988728,63.683917955878435,0.0},
       {102.9769462107873,70.75337448892111,0.0},
-      {102.91134083371442,77.1452772420874,0.0},
-      {103.01240351436242,82.4808763690195,0.0},
-      {103.5147767947738,86.22898413817083,0.0},
-      {105.16870314197386,87.34281289301157,0.0},
-      {107.64298677151268,85.85701322848735,0.0},
+      {102.61134083371442,77.1452772420874,0.0},
+      {101.81240351436242,82.4808763690195,0.0},
+      {101.5147767947738,86.22898413817083,0.0},
+      {101.16870314197386,87.34281289301157,0.0},
+      {100.64298677151268,90.85701322848735,0.0},
       {99.5,93.99999999999999,0.0},
       {96.16269579954607,97.48016134331105,0.0},
       {92.1119805843657,101.93087655849142,0.0},
@@ -72,7 +72,7 @@ public class MoveArmProfiled extends CommandBase {
       double next_lowerError = Math.abs(predicted_lower-currentPath[i+1][0]); 
       double next_upperError = Math.abs(predicted_upper-currentPath[i+1][1]); 
       double next_extensionError = Math.abs(predicted_extension-currentPath[i+1][2]);
-      double curr_to_next_jointError = Math.sqrt(Math.pow(curr_lowerError-next_lowerError,2)+Math.pow(curr_upperError-next_upperError,2)+Math.pow(curr_extensionError-next_extensionError, 2));
+      double curr_to_next_jointError = Math.sqrt(Math.pow(next_lowerError,2)+Math.pow(next_upperError,2)+Math.pow(next_extensionError, 2));
       if(curr_to_next_jointError<curr_to_prev_jointError){
         i++;
         return getNearestSetpoint(dt);
@@ -109,6 +109,7 @@ public class MoveArmProfiled extends CommandBase {
     // }
     // i++;
     getNearestSetpoint(Timer.getFPGATimestamp()-prevLoop);
+    // i++;
     System.out.println(i);
     // i++;
 

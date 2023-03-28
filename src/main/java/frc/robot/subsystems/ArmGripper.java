@@ -77,14 +77,14 @@ public class ArmGripper extends SubsystemBase {
     m_extensionMotor.restoreFactoryDefaults();
     
     SmartDashboard.putNumber("Lower Arm P",0);
-    SmartDashboard.putNumber("Lower Arm I",0);
+    SmartDashboard.putNumber("Lower Arm I",0.0001);
     SmartDashboard.putNumber("Lower Arm D",0);
     SmartDashboard.putNumber("Upper Arm P",0);
     SmartDashboard.putNumber("Upper Arm I",0);
     SmartDashboard.putNumber("Upper Arm D",0);
     SmartDashboard.putNumber("Extension Arm P",0);
     SmartDashboard.putNumber("Extension Arm I",0);
-    SmartDashboard.putNumber("Upper Arm F",0.0001);
+    SmartDashboard.putNumber("Upper Arm F",0.0002);
     SmartDashboard.putNumber("Lower Arm F",0.0001);
 
     
@@ -128,9 +128,9 @@ public class ArmGripper extends SubsystemBase {
 
   private void configureEncoders() {
     // TODO: move to constants
-    m_lowerEncoderRelative.setPositionConversionFactor(1.8);
+    m_lowerEncoderRelative.setPositionConversionFactor(3.0);
     m_upperEncoderRelative.setPositionConversionFactor(3.0);
-    m_lowerEncoderRelative.setVelocityConversionFactor((1.8*60.0)); // TODO CHECK IF THIS IS CORRECT ASSUMING ROT/S
+    m_lowerEncoderRelative.setVelocityConversionFactor((3.0*60.0)); // TODO CHECK IF THIS IS CORRECT ASSUMING ROT/S
     m_upperEncoderRelative.setVelocityConversionFactor((3.0*60.0)); // TODO CHECK IF THIS IS CORRECT ASSUMING ROT/S
     // 48/18 -> sprockets
     // gearbox bottom is 45:1
@@ -180,20 +180,20 @@ public class ArmGripper extends SubsystemBase {
     m_lowerPID.setP(SmartDashboard.getNumber("Lower Arm P", 0));
     m_lowerPID.setI(SmartDashboard.getNumber("Lower Arm I", 0));
     m_lowerPID.setD(SmartDashboard.getNumber("Lower Arm D", 0));
-    m_lowerPID.setIZone(0.5);
+    m_lowerPID.setIZone(2);
     m_lowerPID.setFF(SmartDashboard.getNumber("Lower Arm F", 0.000015));
     m_lowerPID.setOutputRange(-1,1);
-    m_lowerPID.setSmartMotionMaxVelocity(5000, 0);
-    m_lowerPID.setSmartMotionMaxAccel(15000, 0);
+    m_lowerPID.setSmartMotionMaxVelocity(3500, 0);
+    m_lowerPID.setSmartMotionMaxAccel(4000, 0);
 
     m_upperPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.0));
     m_upperPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.0));
     m_upperPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.0));
     m_upperPID.setIZone(0.5);
     m_upperPID.setFF(SmartDashboard.getNumber("Upper Arm F", 0.000015));
-    m_upperPID.setOutputRange(-1, 1);
-    m_upperPID.setSmartMotionMaxVelocity(5000, 0);
-    m_upperPID.setSmartMotionMaxAccel(15000, 0);
+    m_upperPID.setOutputRange(-0.75, 0.75);
+    m_upperPID.setSmartMotionMaxVelocity(3500, 0);
+    m_upperPID.setSmartMotionMaxAccel(8000, 0);
 
     m_extensionPID.setP(SmartDashboard.getNumber("Extension P", 0.0));
     m_extensionPID.setI(SmartDashboard.getNumber("Extension I", 0.0));
@@ -336,6 +336,14 @@ public class ArmGripper extends SubsystemBase {
   /** Set the amount to extend the upper arm in metres. */
   public void setExtensionTargetLength(double length) {
     m_extensionPID.setReference(length, ControlType.kSmartMotion);
+  }
+
+  public void setLowerPower(double power){
+    m_lowerMotor.set(power);
+  }
+
+  public void setUpperPower(double power){
+    m_upperMotor.set(power);
   }
 
   public void stopAllMotors() {
