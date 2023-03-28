@@ -118,7 +118,7 @@ public class ArmGripper extends SubsystemBase {
 
   private void configureEncoders() {
     // TODO: move to constants
-    m_lowerEncoderRelative.setPositionConversionFactor(1.8);
+    m_lowerEncoderRelative.setPositionConversionFactor(3.0);
     m_upperEncoderRelative.setPositionConversionFactor(3.0);
     // 48/18 -> sprockets
     // gearbox bottom is 45:1
