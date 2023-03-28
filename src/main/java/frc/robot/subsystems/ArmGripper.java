@@ -117,19 +117,9 @@ public class ArmGripper extends SubsystemBase {
   }
 
   private void configureEncoders() {
-    // TODO: move to constants
-    m_lowerEncoderRelative.setPositionConversionFactor(3.0);
-    m_upperEncoderRelative.setPositionConversionFactor(3.0);
-    // 48/18 -> sprockets
-    // gearbox bottom is 45:1
-    // 360 / 120 to convert 
-    // every 360 degrees, rotates 120 times
-
-    // TODO: configure as necessary
-    m_lowerEncoderAbsolute.setDistancePerRotation(Encoder.LOWER_DISTANCE_PER_ROTATION); // TODO: should not be 0
-    m_upperEncoderAbsolute.setDistancePerRotation(Encoder.UPPER_DISTANCE_PER_ROTATION);
+    m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
+    m_upperEncoderRelative.setPositionConversionFactor(Encoder.UPPER_POSITION_CONVERSION);
     m_extensionEncoder.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
-
     // Copy absolute position to NEO encoders
     m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
     m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());

@@ -25,15 +25,16 @@ public final class Constants {
         public static final class Encoder {
             /** How many metres the extension extends per motor rotation. */
             public static final double EXTENSION_POSITION_CONVERSION = Ratios.EXTENSION_MOTOR * EXTENSION_PULLEY_CIRCUMFERENCE; // metres
-            // TODO: This is integer division. You likely do not want a distance per rotation of 0.
-            public static final double LOWER_DISTANCE_PER_ROTATION = (18/48); // TODO: determine units
-            public static final double UPPER_DISTANCE_PER_ROTATION = (18/48); // TODO: determine units
+            /** How many degrees the arm moves per motor rotation. */
+            public static final double LOWER_POSITION_CONVERSION = Ratios.LOWER_ARM * 360.0;
+            /** How many degrees the arm moves per motor rotation. */
+            public static final double UPPER_POSITION_CONVERSION = Ratios.UPPER_ARM * 360.0;
             /** Pointing straight up (angle = 90.0 degrees). 
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
-            public static final double LOWER_POSITION_OFFSET = 0.520;
-            /** Parallel robot front (angle = 90.0 degrees). 
+            public static final double LOWER_POSITION_OFFSET = 0.621;
+            /** Parallel robot front (angle = 90.0 degrees).
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
@@ -81,7 +82,7 @@ public final class Constants {
             /** Ratio between shaft pulley (18t) and arm pulley (48t). */
             public static final double UPPER_ARM_CHAIN = 18.0 / 48.0;
             /** Arm shaft rotations per motor rotation. (2x 5:1 + 1x 3:1) */
-            public static final double UPPER_ARM_MOTOR = (1.0 / 5.0) * (1.0 / 5.0) * (1.0 / 3.0);
+            public static final double UPPER_ARM_MOTOR = 1.0 / 45.0;
             /** Total ratio between upper arm motor and upper arm rotation. */
             public static final double UPPER_ARM = UPPER_ARM_MOTOR * UPPER_ARM_CHAIN;
         }
