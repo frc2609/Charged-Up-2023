@@ -94,10 +94,6 @@ public class RobotContainer {
       m_operatorController, XboxController.Button.kB.value);
   private final JoystickButton m_scoreHighButton = new JoystickButton(
       m_operatorController, XboxController.Button.kY.value);
-  private final JoystickButton m_toggleManualControl = new JoystickButton(
-      m_operatorController, XboxController.Button.kStart.value);
-  // private final JoystickButton m_resetSwerveModules = new JoystickButton(
-  //     m_operatorController, XboxController.Button.kBack.value);
   private final JoystickButton m_resetArmEncoders = new JoystickButton(
       m_operatorController, XboxController.Button.kBack.value);
   private final JoystickButton m_requestCone = new JoystickButton(
@@ -150,12 +146,10 @@ public class RobotContainer {
     m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToHigh(m_armGripper)));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
-    // m_resetSwerveModules.onTrue(new ResetModules(m_swerveDrive, 0));
     m_resetArmEncoders.onTrue(new InstantCommand(m_armGripper::setEncoderOffsets));
     m_requestCone.onTrue(new InstantCommand(LED::setCone));
     m_requestCube.onTrue(new InstantCommand(LED::setCube));
     // TODO: move Gripper into own subsystem so that these don't cancel arm commands
-    m_toggleManualControl.toggleOnTrue(new ManualArmControl(m_armGripper));
   }
 
   /** 
@@ -193,7 +187,7 @@ public class RobotContainer {
    * during testing or development.
    */
   public void disableTeleopControl() {
-    // m_armGripper.setDefaultCommand(null);
+    m_armGripper.setDefaultCommand(null);
     m_swerveDrive.setDefaultCommand(null);
   }
 
@@ -207,7 +201,7 @@ public class RobotContainer {
      * teleopPeriodic() allows a command to take over the drivetrain
      * temporarily during teleop. This may be useful for auto-balancing or
      * moving into position to deliver a game piece. */
-    // m_armGripper.setDefaultCommand(new ManualArmControl(m_armGripper));
+    m_armGripper.setDefaultCommand(new ManualArmControl(m_armGripper, m_operatorController));
     m_swerveDrive.setDefaultCommand(new ManualDrive(m_swerveDrive));
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
