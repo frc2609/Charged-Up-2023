@@ -68,42 +68,69 @@ However, in teleop mode, the robot can collide with parts of the field, and othe
 
 ## Controls
 ### Driver:
-| Control               | Function                    |
-| --------------------- | --------------------------- |
-| Left Joystick X Axis  | Move robot left and right   |
-| Left Joystick Y Axis  | Move robot forward and back |
-| Right Joystick X Axis | Rotate robot left and right |
-| Right Trigger Axis    | Boost throttle              |
-| Left Bumper           | Move to ground pickup       |
-| Right Bumper          | Move to station pickup      |
-| Start Button          | Reset odometry yaw          |
-| Select Button         | (Hold) Lock charge position |
-| A Button              | Enable Boost                |
-| B Button              | Autoalign to cone node      |
-| X Button              | Move to stow position       |
-| Y Button              | Confirm queued command      |
+| Axis             | Function |
+| ---------------- | -------- |
+| Left Joystick X  | Drive left/right
+| Left Joystick Y  | Drive forward/back
+| Right Joystick X | Rotate left/right
+| Right Joystick Y | NA
+| Left Trigger     | NA
+| Right Trigger    | Boost throttle
+
+| Button       | Function |
+| ------------ | -------- |
+| Left Stick   | Request cone
+| Right Stick  | Request cube
+| Left Bumper  | Move to ground pickup
+| Right Bumper | Move to station pickup
+| Start        | Reset odometry yaw
+| Select       | **DISABLED** (Hold) Lock charge position
+| A            | Enable Boost
+| B            | Autoalign to cone node
+| X            | Move to stow position
+| Y            | Confirm queued command
+
+| DPAD  | Function |
+| ----- | -------- |
+| Up    | NA
+| Down  | NA
+| Left  | NA
+| Right | NA
 
 ### Operator:
-| Control               | Function                    |
-| --------------------- | --------------------------- |
-| Left Joystick Y Axis  | Manual: Move lower arm      |
-| Right Joystick Y Axis | Manual: Move upper arm      |
-| Left Stick Button     | Request cone                |
-| Right Stick Button    | Request cube                |
-| Left Bumper           | Open Gripper                |
-| Right Bumper          | Close Gripper               |
-| Start Button          | Toggle Manual Control       |
-| Select Button         | Reset arm encoders to abs   |
-| A Button              | Queue low node              |
-| B Button              | Queue mid node              |
-| Y Button              | Queue high node             |
-| X Button              | Move to stow position       |
-| DPAD Up               | Manual: Extend extension    |
-| DPAD Down             | Manual: Retract extension   |
+| Axis             | Function                  |
+| ---------------- | ------------------------- |
+| Left Joystick X  | NA                        |
+| Left Joystick Y  | Manual: Move upper arm    |
+| Right Joystick X | NA                        |
+| Right Joystick Y | Manual: Move lower arm    |
+| Left Trigger     | Manual: Retract extension |
+| Right Trigger    | Manual: Extend extension  |
+
+| Button       | Function |
+| ------------ | -------- |
+| Left Stick   | Request cone
+| Right Stick  | Request cube
+| Left Bumper  | Open gripper
+| Right Bumper | Close gripper
+| Start        | NA
+| Select       | Reset arm encoders to absolute
+| A            | Queue move to low
+| B            | Queue move to mid
+| X            | Move to stow position
+| Y            | Queue move to high
+
 * How to remember queue buttons:
     * Y is highest = high node
     * A is lowest = low node
     * B is in between = middle node
+
+| DPAD  | Function |
+| ----- | -------- |
+| Up    | Manual Adjust: Increase upper setpoint
+| Down  | Manual Adjust: Decrease upper setpoint
+| Left  | Manual Adjust: Retract extension
+| Right | Manual Adjust: Extend extension
 
 ## Dashboard
 This repository comes with a premade Shuffleboard layout. To use it, open Shuffleboard, open the File menu and press Load layout, then select `robot-shuffleboard-layout.json` in the root of this repository.
