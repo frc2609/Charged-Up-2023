@@ -69,6 +69,7 @@ public class ArmGripper extends SubsystemBase {
 
   private final Trigger m_pieceDetected = new Trigger(m_gripperSensor::get);
 
+  /** @deprecated Use commands to control this subsystem instead. */
   private final XboxController m_operatorController;
 
   /** Creates a new ArmGripper. */
@@ -267,6 +268,7 @@ public class ArmGripper extends SubsystemBase {
   /** 
    * Control the arm position using the operator controller.
    * Does not control the gripper solenoids.
+   * @deprecated Use either {@link ManualArmControl} command instead.
    */
   public void manualControl() {
     // set speeds of arm motors
