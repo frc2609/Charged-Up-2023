@@ -26,11 +26,11 @@ public class LED {
   }
 
   public static void setCone() {
-    setColour(YELLOW);
+    setColour(C2_STROBE); // colour 2 = yellow
   }
 
   public static void setCube() {
-    setColour(VIOLET);
+    setColour(C1_STROBE); // colour 1 = purple
   }
 
   public static void setGreen() {
