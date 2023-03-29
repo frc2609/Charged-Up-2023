@@ -112,17 +112,34 @@ public class ArmGripper extends SubsystemBase {
     // SmartDashboard.putNumber("Upper Arm Relative Angle (Deg)", m_upperEncoderAbsolute.getDistance());
     SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperArmAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Upper Arm NEO Encoder Position", getUpperArmAngleRelative());
+
+    SmartDashboard.putNumber("Lower arm raw", m_lowerEncoderAbsolute.getAbsolutePosition());
     // lengths
     SmartDashboard.putNumber("Lower Arm Length (m)", getLowerArmLength());
     SmartDashboard.putNumber("Upper Arm Base Length (m)", getUpperArmBaseLength());
     SmartDashboard.putNumber("Upper Arm Total Length (m)", getUpperArmTotalLength());
     SmartDashboard.putNumber("Arm Extension Distance (m)", getExtensionDistance());
+
+    SmartDashboard.putNumber("Lower Arm Motor Temp (C)", m_lowerMotor.getMotorTemperature());
+    SmartDashboard.putNumber("Upper Arm Motor Temp (C)", m_upperMotor.getMotorTemperature());
+    SmartDashboard.putNumber("Extension Arm Motor Temp (C)", m_extensionMotor.getMotorTemperature());
     // check solenoid status
     if (m_gripperSolenoid.isFwdSolenoidDisabled()) {
       System.out.print("OPEN SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
     }
     if (m_gripperSolenoid.isRevSolenoidDisabled()) {
       System.out.print("CLOSE SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
+    }
+  }
+  public void setBreak(boolean isBreak){
+    if(isBreak){
+      m_lowerMotor.setIdleMode(IdleMode.kBrake);
+      m_upperMotor.setIdleMode(IdleMode.kBrake);
+      m_extensionMotor.setIdleMode(IdleMode.kBrake);
+    }else{
+      m_lowerMotor.setIdleMode(IdleMode.kCoast);
+      m_upperMotor.setIdleMode(IdleMode.kCoast);
+      m_extensionMotor.setIdleMode(IdleMode.kCoast);
     }
   }
 

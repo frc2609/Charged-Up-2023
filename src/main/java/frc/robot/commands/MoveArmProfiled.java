@@ -25,9 +25,11 @@ public class MoveArmProfiled extends CommandBase {
   int i = 0;
   double prevLoop;
   double jointErrorTolerance = Math.sqrt(50+Math.pow(3*Tolerances.EXTENSION_LENGTH,2)); // 5 Degrees each way
+  boolean isReverse = false;
+  String currProfile;
 
   public void createMap(){
-    paths.put("StowIntMid", new double[][]{{104.6,21.09000000000001,0.0},
+    paths.put("LongThrowMid", new double[][]{{104.6,21.09000000000001,0.0},
       {104.55465357828778,22.123830386726777,0.0},
       {104.42968490717931,25.016554159876087,0.0},
       {104.24655879877662,29.45016131784148,0.0},
@@ -57,6 +59,59 @@ public class MoveArmProfiled extends CommandBase {
       {64.75573571530187,138.00140714184099,0.0},
       {63.90103108877357,139.2561117683693,0.0},
       {63.599444373251984,139.700555626748,0.0}});
+    
+    paths.put("ShortThrowMid", new double[][]{{104.6,21.09000000000001,0.0},
+      {107.00625,24.044687500000006,0.0},
+      {112.29999999999998,30.54500000000001,0.0},
+      {117.59374999999999,37.04531249999999,0.0},
+      {119.99999999999999,40.00000000000001,0.0},
+      {119.99999999999999,40.00000000000001,0.0},
+      {116.96875,48.4375,0.0},
+      {110.3,67.0,0.0},
+      {103.63125,85.5625,0.0},
+      {100.60000000000001,93.99999999999999,0.0},
+      {100.60000000000001,93.99999999999999,0.0},
+      {99.27626886145404,95.56721536351165,0.0},
+      {95.72866941015089,99.7673525377229,0.0},
+      {90.59259259259258,105.84814814814814,0.0},
+      {84.50342935528121,113.05733882030177,0.0},
+      {78.0965706447188,120.64266117969822,0.0},
+      {72.0074074074074,127.85185185185183,0.0},
+      {66.87133058984911,133.93264746227706,0.0},
+      {63.323731138545945,138.13278463648834,0.0}});
+    paths.put("PickToStow", new double[][]{{98.9,91.3,0.0},
+    {99.0954732510288,88.89224965706447,0.0},
+    {99.61934156378601,82.43947873799725,0.0},
+    {100.37777777777777,73.09740740740742,0.0},
+    {101.27695473251029,62.02175582990397,0.0},
+    {102.22304526748972,50.36824417009601,0.0},
+    {103.12222222222222,39.2925925925926,0.0},
+    {103.88065843621399,29.950521262002766,0.0},
+    {104.4045267489712,23.49775034293552,0.0}});
+    paths.put("LongThrowPickup", new double[][]{{104.6,21.09000000000001,0.0},
+    {103.88125000000001,31.075937500000006,0.0},
+    {102.3,53.04500000000001,0.0},
+    {100.71875,75.01406249999998,0.0},
+    {100.0,84.99999999999999,0.0},
+    {100.0,84.99999999999999,0.0},
+    {99.45,88.14999999999999,0.0}});
+
+    paths.put("LongThrowHigh", new double[][]{{104.6,21.09000000000001,0.0},
+    {103.4125,31.075937500000006,0.03125},
+    {100.79999999999998,53.04500000000001,0.1},
+    {98.18749999999999,75.01406249999998,0.16875},
+    {97.0,84.99999999999999,0.2},
+    {97.0,84.99999999999999,0.2},
+    {95.67969821673523,87.43484224965707,0.20823045267489712},
+    {92.14128943758573,93.96021947873798,0.23028806584362144},
+    {87.01851851851852,103.40740740740739,0.26222222222222225},
+    {80.94513031550068,114.6076817558299,0.300082304526749},
+    {74.55486968449932,126.3923182441701,0.339917695473251},
+    {68.48148148148148,137.59259259259258,0.37777777777777777},
+    {63.35871056241426,147.03978052126203,0.4097119341563787},
+    {59.820301783264746,153.56515775034293,0.43176954732510286},
+    {58.5,156.0,0.44}});
+
     
   }
   public double[] getNearestSetpoint(double dt){
@@ -88,6 +143,7 @@ public class MoveArmProfiled extends CommandBase {
     currentPath = paths.getOrDefault(path, new double[][]{{0.0,0.0,0.0},{0.0,0.0,0.0}});
     addRequirements(armGripper);
     prevLoop = Timer.getFPGATimestamp();
+    this.currProfile = path;
   }
 
   // Called when the command is initially scheduled.
@@ -96,7 +152,7 @@ public class MoveArmProfiled extends CommandBase {
     i=0;
     m_armGripper.setLowerTargetAngle(currentPath[i][0]);
     m_armGripper.setUpperTargetAngle(currentPath[i][1]);
-    // m_armGripper.setExtensionTargetLength(currentPath[i][2]);
+    m_armGripper.setExtensionTargetLength(currentPath[i][2]);
     prevLoop = Timer.getFPGATimestamp();
     i++;
   }
@@ -108,7 +164,12 @@ public class MoveArmProfiled extends CommandBase {
     //   i++;
     // }
     // i++;
-    getNearestSetpoint(Timer.getFPGATimestamp()-prevLoop);
+    // getNearestSetpoint(Timer.getFPGATimestamp()-prevLoop);
+    if(currProfile == "ShortThrowMid"){
+      i++;
+    }else{
+      getNearestSetpoint(Timer.getFPGATimestamp()-prevLoop);
+    }
     // i++;
     System.out.println(i);
     // i++;
@@ -116,7 +177,7 @@ public class MoveArmProfiled extends CommandBase {
     if(i <= currentPath.length-1){
       m_armGripper.setLowerTargetAngle(currentPath[i][0]);
       m_armGripper.setUpperTargetAngle(currentPath[i][1]);
-      // m_armGripper.setExtensionTargetLength(currentPath[i][2]);
+      m_armGripper.setExtensionTargetLength(currentPath[i][2]);
     }
     
     BeaverLogger.getInstance().logArm(currentPath[i], m_armGripper);

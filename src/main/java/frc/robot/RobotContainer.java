@@ -209,6 +209,9 @@ public class RobotContainer {
   public void setRotToCoast() {
     m_swerveDrive.setRotCoast();
   }
+  public void setArmBreak(boolean isBreak){
+    m_armGripper.setBreak(isBreak);
+  }
 
   /**
    * Update NetworkTables values set by RobotContainer.

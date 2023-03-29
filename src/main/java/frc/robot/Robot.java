@@ -7,6 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.server.PathPlannerServer;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -51,10 +52,15 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_robotContainer.setArmBreak(true);
+    SmartDashboard.putBoolean("ArmBreak", true);
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    m_robotContainer.setArmBreak(SmartDashboard.getBoolean("ArmBreak", true));
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -62,6 +68,7 @@ public class Robot extends TimedRobot {
     // Prevent the robot from being driven by the default command during auto.
     m_robotContainer.disableTeleopControl();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_robotContainer.setArmBreak(true);
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -83,6 +90,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     m_robotContainer.enableTeleopControl();
+    m_robotContainer.setArmBreak(true);
   }
 
   /** This function is called periodically during operator control. */

@@ -32,7 +32,7 @@ public final class Constants {
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
-            public static final double LOWER_POSITION_OFFSET = 0.520;
+            public static final double LOWER_POSITION_OFFSET = 0.625;
             /** Parallel robot front (angle = 90.0 degrees). 
              * Encoder values increase as the arm moves away from the front of
              * the robot.
