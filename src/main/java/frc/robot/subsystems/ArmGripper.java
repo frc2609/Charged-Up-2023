@@ -66,6 +66,7 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_lowerPID = m_lowerMotor.getPIDController();
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
+  // private final DigitalInput intakeSensor = new DigitalInput(7);
 
   private final Trigger m_pieceDetected = new Trigger(m_gripperSensor::get);
 
@@ -89,6 +90,8 @@ public class ArmGripper extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // configurePIDs();
+    // SmartDashboard.putBoolean("IntakeSensor", intakeSensor.get());
     // TODO: Modify these as necessary.
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
@@ -100,11 +103,16 @@ public class ArmGripper extends SubsystemBase {
     // SmartDashboard.putNumber("Upper Arm Relative Angle (Deg)", m_upperEncoderAbsolute.getDistance());
     SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperArmAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Upper Arm NEO Encoder Position", getUpperArmAngleRelative());
+    SmartDashboard.putNumber("Lower Arm Raw Absolute Position", m_lowerEncoderAbsolute.getAbsolutePosition());
     // lengths
     SmartDashboard.putNumber("Lower Arm Length (m)", getLowerArmLength());
     SmartDashboard.putNumber("Upper Arm Base Length (m)", getUpperArmBaseLength());
     SmartDashboard.putNumber("Upper Arm Total Length (m)", getUpperArmTotalLength());
     SmartDashboard.putNumber("Arm Extension Distance (m)", getExtensionDistance());
+
+    SmartDashboard.putNumber("Lower Arm Motor Temp (C)", m_lowerMotor.getMotorTemperature());
+    SmartDashboard.putNumber("Upper Arm Motor Temp (C)", m_upperMotor.getMotorTemperature());
+    SmartDashboard.putNumber("Extension Arm Motor Temp (C)", m_extensionMotor.getMotorTemperature());
     // check solenoid status
     if (m_gripperSolenoid.isFwdSolenoidDisabled()) {
       System.out.print("OPEN SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
@@ -115,11 +123,25 @@ public class ArmGripper extends SubsystemBase {
     // gripper sensor status
     SmartDashboard.putBoolean("Gripper Sensor", m_gripperSensor.get());
   }
+  public void setBrake(boolean isBrake) {
+    if (isBrake) {
+      m_lowerMotor.setIdleMode(IdleMode.kBrake);
+      m_upperMotor.setIdleMode(IdleMode.kBrake);
+      m_extensionMotor.setIdleMode(IdleMode.kBrake);
+    } else {
+      m_lowerMotor.setIdleMode(IdleMode.kCoast);
+      m_upperMotor.setIdleMode(IdleMode.kCoast);
+      m_extensionMotor.setIdleMode(IdleMode.kCoast);
+    }
+  }
 
   private void configureEncoders() {
     m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
     m_upperEncoderRelative.setPositionConversionFactor(Encoder.UPPER_POSITION_CONVERSION);
     m_extensionEncoder.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
+    m_lowerEncoderRelative.setVelocityConversionFactor(Encoder.LOWER_POSITION_CONVERSION*60.0); // rpm -> rps
+    m_upperEncoderRelative.setVelocityConversionFactor(Encoder.LOWER_POSITION_CONVERSION*60.0);
+    m_extensionEncoder.setVelocityConversionFactor(Encoder.LOWER_POSITION_CONVERSION*60.0);
     // Copy absolute position to NEO encoders
     m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
     m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());
@@ -154,29 +176,29 @@ public class ArmGripper extends SubsystemBase {
   }
 
   private void configurePIDs() {
-    m_lowerPID.setP(SmartDashboard.getNumber("Lower Arm P", 0.00007));
-    m_lowerPID.setI(SmartDashboard.getNumber("Lower Arm I", 0.00000000005));
-    m_lowerPID.setD(SmartDashboard.getNumber("Lower Arm D", 0.00000003));
-    m_lowerPID.setIZone(0.5);
-    m_lowerPID.setFF(0.00015);
-    m_lowerPID.setOutputRange(-1.0, 1.0);
-    m_lowerPID.setSmartMotionMaxVelocity(3000, 0);
-    m_lowerPID.setSmartMotionMaxAccel(15000, 0);
+    m_lowerPID.setP(0.0);
+    m_lowerPID.setI(0.0001);
+    m_lowerPID.setD(0.0);
+    m_lowerPID.setIZone(2);
+    m_lowerPID.setFF(0.0001);
+    m_lowerPID.setOutputRange(-1,1);
+    m_lowerPID.setSmartMotionMaxVelocity(3500, 0);
+    m_lowerPID.setSmartMotionMaxAccel(4000, 0);
 
-    m_upperPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00007));
-    m_upperPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00000000005));
-    m_upperPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.00000003));
+    m_upperPID.setP(0.0);
+    m_upperPID.setI(0.0);
+    m_upperPID.setD(0.0);
     m_upperPID.setIZone(0.5);
-    m_upperPID.setFF(0.00015);
-    m_upperPID.setOutputRange(-1.0, 1.0);
-    m_upperPID.setSmartMotionMaxVelocity(3000, 0);
-    m_upperPID.setSmartMotionMaxAccel(15000, 0);
+    m_upperPID.setFF(0.0002);
+    m_upperPID.setOutputRange(-0.75, 0.75);
+    m_upperPID.setSmartMotionMaxVelocity(3500, 0);
+    m_upperPID.setSmartMotionMaxAccel(8000, 0);
 
-    m_extensionPID.setP(SmartDashboard.getNumber("Extension P", 0.00005));
-    m_extensionPID.setI(SmartDashboard.getNumber("Extension I", 0.000000001));
-    m_extensionPID.setD(SmartDashboard.getNumber("Extension D", 0.0000003));
+    m_extensionPID.setP(0);
+    m_extensionPID.setI(0);
+    m_extensionPID.setD(0);
     m_extensionPID.setIZone(0.5);
-    m_extensionPID.setFF(0.001); // TODO: tune (0.003 gittery)
+    m_extensionPID.setFF(0.001);
     m_extensionPID.setOutputRange(-1.0, 1.0);
     m_extensionPID.setSmartMotionMaxVelocity(11000, 0); // NEO 550 free rpm
     m_extensionPID.setSmartMotionMaxAccel(15000, 0);
@@ -204,8 +226,12 @@ public class ArmGripper extends SubsystemBase {
    * Returns the angle of the lower arm relative to the front of the robot using the absolute encoder.
    * @return The robot-relative angle of the lower arm in degrees.
    */
-  public double getLowerArmAngleRelative(){
+  public double getLowerArmAngleRelative() {
     return m_lowerEncoderRelative.getPosition();
+  }
+
+  public double getLowerJointAngularVelocity() {
+    return m_lowerEncoderRelative.getVelocity();
   }
 
   /**
@@ -238,6 +264,10 @@ public class ArmGripper extends SubsystemBase {
   public double getUpperArmAngleRelative(){
     return m_upperEncoderRelative.getPosition();
   }
+  
+  public double getUpperJointAngularVelocity() {
+    return m_upperEncoderRelative.getVelocity();
+  }
 
   /**
    * Returns the length of the upper arm without the extension.
@@ -253,6 +283,10 @@ public class ArmGripper extends SubsystemBase {
    */
   public double getUpperArmTotalLength() {
     return getExtensionDistance() + getUpperArmBaseLength();
+  }
+
+  public double getExtensionVelocity() {
+    return m_extensionEncoder.getVelocity();
   }
 
   /**

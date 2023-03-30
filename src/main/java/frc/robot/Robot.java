@@ -7,6 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.server.PathPlannerServer;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -51,10 +52,18 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_robotContainer.setArmBrake(true);
+    SmartDashboard.putBoolean("ArmBreak", true);
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    m_robotContainer.setArmBrake(SmartDashboard.getBoolean("ArmBreak", true));
+    if(m_robotContainer.m_resetArmEncoders.getAsBoolean()){
+      m_robotContainer.resetArmEncoders();
+    }
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -62,6 +71,7 @@ public class Robot extends TimedRobot {
     // Prevent the robot from being driven by the default command during auto.
     m_robotContainer.disableTeleopControl();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_robotContainer.setArmBrake(true);
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -83,6 +93,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     m_robotContainer.enableTeleopControl();
+    m_robotContainer.setArmBrake(true);
   }
 
   /** This function is called periodically during operator control. */

@@ -21,11 +21,9 @@ import frc.robot.Constants.Swerve.AutonomousLimits;
 import frc.robot.commands.Autobalance;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
+import frc.robot.commands.MoveArmProfiled;
 import frc.robot.commands.MoveArmToGroundPickup;
-import frc.robot.commands.MoveArmToMid;
-import frc.robot.commands.MoveArmToHigh;
 import frc.robot.commands.MoveArmToLow;
-import frc.robot.commands.MoveArmToPickup;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.QueueCommand;
 // import frc.robot.commands.ResetModules;
@@ -98,7 +96,7 @@ public class RobotContainer {
       m_operatorController, XboxController.Button.kStart.value);
   // private final JoystickButton m_resetSwerveModules = new JoystickButton(
   //     m_operatorController, XboxController.Button.kBack.value);
-  private final JoystickButton m_resetArmEncoders = new JoystickButton(
+  public final JoystickButton m_resetArmEncoders = new JoystickButton(
       m_operatorController, XboxController.Button.kBack.value);
   private final JoystickButton m_requestCone = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftStick.value);
@@ -139,15 +137,15 @@ public class RobotContainer {
     // driver controls
     m_zeroYawButton.onTrue(new InstantCommand(m_swerveDrive::zeroYaw));
     m_driverGroundPickup.onTrue(new MoveArmToGroundPickup(m_armGripper));
-    m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper));
+    m_driverPickup.onTrue(new MoveArmProfiled(m_armGripper, "LongThrowPickup"));
     // m_enableBalanceLock.whileTrue(new InstantCommand(m_swerveDrive::setBalanceLock, m_swerveDrive));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
-    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToMid(m_armGripper)));
-    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToHigh(m_armGripper)));
+    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "LongThrowMid")));
+    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "LongThrowHighHD")));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
     // m_resetSwerveModules.onTrue(new ResetModules(m_swerveDrive, 0));
@@ -165,6 +163,9 @@ public class RobotContainer {
     m_eventMap.put("Autobalance", new Autobalance(m_swerveDrive));
     m_eventMap.put("MoveArmToStow", new MoveArmToStow(m_armGripper));
     m_eventMap.put("ScoreHigh", new ScoreConeHigh(m_swerveDrive, m_armGripper));
+  }
+  public void resetArmEncoders(){
+    m_armGripper.setEncoderOffsets();
   }
 
   /**
@@ -226,6 +227,10 @@ public class RobotContainer {
   //TODO: Temp til Antoine puts on absolute encoders
   public void setRotToCoast() {
     m_swerveDrive.setRotCoast();
+  }
+
+  public void setArmBrake(boolean isBrake){
+    m_armGripper.setBrake(isBrake);
   }
 
   /**
