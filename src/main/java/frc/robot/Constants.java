@@ -121,6 +121,14 @@ public final class Constants {
          * Range is between -1 to 1, however, should be >= 0.
          */
         public static final double MANUAL_EXTENSION_SPEED = 0.1;
+        public static final double MANUAL_UPPER_INCREMENT = 2.5;
+        public static final double MANUAL_EXTENSION_INCREMENT = 0.04;
+        /** Change in setpoint in degrees per second. */
+        public static final double MANUAL_LOWER_ACCELERATION = 80.0;
+        /** Change in setpoint in degrees per second. */
+        public static final double MANUAL_UPPER_ACCELERATION = 80.0;
+        /** Change in setpoint in metres per second. */
+        public static final double MANUAL_EXTENSION_ACCELERATION = 40.0 / 100.0;
     }
     /** Autonomous-Related Constants */
     public static final class Autonomous {
