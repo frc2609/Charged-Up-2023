@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.HashMap;
 
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
@@ -22,17 +23,14 @@ import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
 import frc.robot.commands.MoveArmProfiled;
 import frc.robot.commands.MoveArmToGroundPickup;
-import frc.robot.commands.MoveArmToMid;
-import frc.robot.commands.MoveArmToMidProfiled;
-import frc.robot.commands.MoveArmToHigh;
 import frc.robot.commands.MoveArmToLow;
-import frc.robot.commands.MoveArmToPickup;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.QueueCommand;
-import frc.robot.commands.ResetModules;
+// import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
 import frc.robot.commands.autonomous.ScoreConeHigh;
 import frc.robot.subsystems.ArmGripper;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.SwerveDrive;
 
 import com.pathplanner.lib.PathConstraints;
@@ -54,6 +52,8 @@ public class RobotContainer {
    * commands that require them. This prevents a subsystem from being used by
    * multiple things at once, which may potentially cause issues. */
   private final ArmGripper m_armGripper;
+  private final NetworkTable m_limelight =
+      NetworkTableInstance.getDefault().getTable("limelight");
   private final SwerveDrive m_swerveDrive;
   private final SwerveAutoBuilder m_autoBuilder;
   private final PowerDistribution m_powerDistribution =
@@ -68,6 +68,8 @@ public class RobotContainer {
       m_driverController, XboxController.Button.kStart.value);
   private final JoystickButton m_driverPickup = new JoystickButton(
       m_driverController, XboxController.Button.kRightBumper.value);
+  // private final JoystickButton m_enableBalanceLock = new JoystickButton(
+  //     m_driverController, XboxController.Button.kBack.value);
   private final JoystickButton m_driverGroundPickup = new JoystickButton(
       m_driverController, XboxController.Button.kLeftBumper.value);
   private final JoystickButton m_driverStow = new JoystickButton(
@@ -92,14 +94,23 @@ public class RobotContainer {
       m_operatorController, XboxController.Button.kY.value);
   private final JoystickButton m_toggleManualControl = new JoystickButton(
       m_operatorController, XboxController.Button.kStart.value);
-  private final JoystickButton m_resetSwerveModules = new JoystickButton(
+  // private final JoystickButton m_resetSwerveModules = new JoystickButton(
+  //     m_operatorController, XboxController.Button.kBack.value);
+  public final JoystickButton m_resetArmEncoders = new JoystickButton(
       m_operatorController, XboxController.Button.kBack.value);
+  private final JoystickButton m_requestCone = new JoystickButton(
+      m_operatorController, XboxController.Button.kLeftStick.value);
+  private final JoystickButton m_requestCube = new JoystickButton(
+      m_operatorController, XboxController.Button.kRightStick.value);
           
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     m_armGripper = new ArmGripper(m_operatorController);
     m_swerveDrive = new SwerveDrive(m_driverController);
     m_swerveDrive.resetModuleEncoders();
+    // turn off Limelight LEDs and set to DS camera mode
+    m_limelight.getEntry("ledMode").setNumber(1);
+    m_limelight.getEntry("camMode").setNumber(1);
     configureButtonBindings();
     configureEventMap();
     configurePathChooser();
@@ -126,17 +137,21 @@ public class RobotContainer {
     // driver controls
     m_zeroYawButton.onTrue(new InstantCommand(m_swerveDrive::zeroYaw));
     m_driverGroundPickup.onTrue(new MoveArmToGroundPickup(m_armGripper));
-    m_driverPickup.onTrue(new MoveArmToPickup(m_armGripper));
+    m_driverPickup.onTrue(new MoveArmProfiled(m_armGripper, "LongThrowPickup"));
+    // m_enableBalanceLock.whileTrue(new InstantCommand(m_swerveDrive::setBalanceLock, m_swerveDrive));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
-    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToMid(m_armGripper)));
-    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToHigh(m_armGripper)));
+    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "LongThrowMid")));
+    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "LongThrowHighHD")));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
-    m_resetSwerveModules.onTrue(new MoveArmProfiled(m_armGripper, "StowIntMid"));
+    // m_resetSwerveModules.onTrue(new ResetModules(m_swerveDrive, 0));
+    m_resetArmEncoders.onTrue(new InstantCommand(m_armGripper::setEncoderOffsets));
+    m_requestCone.onTrue(new InstantCommand(LED::setCone));
+    m_requestCube.onTrue(new InstantCommand(LED::setCube));
     // TODO: move Gripper into own subsystem so that these don't cancel arm commands
     m_toggleManualControl.toggleOnTrue(new ManualArmControl(m_armGripper));
   }
@@ -148,6 +163,9 @@ public class RobotContainer {
     m_eventMap.put("Autobalance", new Autobalance(m_swerveDrive));
     m_eventMap.put("MoveArmToStow", new MoveArmToStow(m_armGripper));
     m_eventMap.put("ScoreHigh", new ScoreConeHigh(m_swerveDrive, m_armGripper));
+  }
+  public void resetArmEncoders(){
+    m_armGripper.setEncoderOffsets();
   }
 
   /**
@@ -162,6 +180,7 @@ public class RobotContainer {
      */
     m_pathChooser.setDefaultOption("ScoreThenAutobalance", PathPlanner.loadPath("ScoreThenAutobalance", constraints));
     m_pathChooser.addOption("ScoreThenDriveOut", PathPlanner.loadPath("ScoreThenDriveOut", constraints));
+    m_pathChooser.addOption("ScoreThenDriveOutAndRotate", PathPlanner.loadPath("ScoreThenDriveOutAndRotate", constraints));
     SmartDashboard.putData(m_pathChooser);
   }
 
@@ -208,6 +227,10 @@ public class RobotContainer {
   //TODO: Temp til Antoine puts on absolute encoders
   public void setRotToCoast() {
     m_swerveDrive.setRotCoast();
+  }
+
+  public void setArmBrake(boolean isBrake){
+    m_armGripper.setBrake(isBrake);
   }
 
   /**

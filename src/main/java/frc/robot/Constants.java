@@ -25,14 +25,15 @@ public final class Constants {
         public static final class Encoder {
             /** How many metres the extension extends per motor rotation. */
             public static final double EXTENSION_POSITION_CONVERSION = Ratios.EXTENSION_MOTOR * EXTENSION_PULLEY_CIRCUMFERENCE; // metres
-            // TODO: This is integer division. You likely do not want a distance per rotation of 0.
-            public static final double LOWER_DISTANCE_PER_ROTATION = (18/48); // TODO: determine units
-            public static final double UPPER_DISTANCE_PER_ROTATION = (18/48); // TODO: determine units
+            /** How many degrees the arm moves per motor rotation. */
+            public static final double LOWER_POSITION_CONVERSION = Ratios.LOWER_ARM * 360.0;
+            /** How many degrees the arm moves per motor rotation. */
+            public static final double UPPER_POSITION_CONVERSION = Ratios.UPPER_ARM * 360.0;
             /** Pointing straight up (angle = 90.0 degrees). 
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
-            public static final double LOWER_POSITION_OFFSET = 0.520;
+            public static final double LOWER_POSITION_OFFSET = 0.625;
             /** Parallel robot front (angle = 90.0 degrees). 
              * Encoder values increase as the arm moves away from the front of
              * the robot.
@@ -59,10 +60,9 @@ public final class Constants {
             public static final double HIGH_LOWER = 58.5;
             public static final double HIGH_UPPER = 156.0;
             public static final double HIGH_EXTENSION = 0.440;
-            // TODO: Measure pickup values
-            public static final double PICKUP_LOWER = 93.1;
-            public static final double PICKUP_UPPER = 103.0;
-            public static final double PICKUP_EXTENSION = 0.0;
+            public static final double PICKUP_LOWER = 98.9;
+            public static final double PICKUP_UPPER = 91.3;
+            public static final double PICKUP_EXTENSION = 0.07;
             public static final double RETRACT_LOWER = 110.0;
             public static final double RETRACT_UPPER = 94.0;
             public static final double RETRACT_EXTENSION = 0.0;
@@ -75,14 +75,14 @@ public final class Constants {
             public static final double EXTENSION_MOTOR = UltraPlanetaryRatios.FIVE_TO_ONE * UltraPlanetaryRatios.FOUR_TO_ONE;
             /** Ratio between shaft pulley (18t) and arm pulley (48t). */
             public static final double LOWER_ARM_CHAIN = 18.0 / 48.0;
-            /** Arm shaft rotations per motor rotation. (2x 5:1 + 1x 3:1) */
-            public static final double LOWER_ARM_MOTOR = (1.0 / 5.0) * (1.0 / 5.0) * (1.0 / 3.0);
+            /** Arm shaft rotations per motor rotation. (45:1) */
+            public static final double LOWER_ARM_MOTOR = 1.0 / 45.0;
             /** Total ratio between lower arm motor and lower arm rotation. */
             public static final double LOWER_ARM = LOWER_ARM_MOTOR * LOWER_ARM_CHAIN;
             /** Ratio between shaft pulley (18t) and arm pulley (48t). */
             public static final double UPPER_ARM_CHAIN = 18.0 / 48.0;
             /** Arm shaft rotations per motor rotation. (2x 5:1 + 1x 3:1) */
-            public static final double UPPER_ARM_MOTOR = (1.0 / 5.0) * (1.0 / 5.0) * (1.0 / 3.0);
+            public static final double UPPER_ARM_MOTOR = 1.0 / 45.0;
             /** Total ratio between upper arm motor and upper arm rotation. */
             public static final double UPPER_ARM = UPPER_ARM_MOTOR * UPPER_ARM_CHAIN;
         }
@@ -129,11 +129,15 @@ public final class Constants {
             /** P gain for going up the ramp on the charge station. */
             public static final double START_P = 0.05;
             /** P gain for staying on the charge station. */
-            public static final double HOLD_P = 0.03;
+            public static final double HOLD_P = 0.025;
             /** The acceptable amount of tilt error in degrees. */
             public static final double ANGLE_TOLERANCE = 5;
             /** The maximum autobalance speed in metres per second. */
             public static final double MAX_SPEED = 1.5;
+        }
+        /** Deadlines (in seconds) to wait for a command to finish. */
+        public static final class Deadline {
+            public static final double MOVE_TO_HIGH = 5.0;
         }
         /** Which port PathPlannerServer should connect to on the RoboRIO. */
         public static final int PATHPLANNER_SERVER_PORT = 5811;
@@ -169,6 +173,19 @@ public final class Constants {
     public static final class DIO {
         public static final int ARM_LOWER_ENCODER = 0;
         public static final int ARM_UPPER_ENCODER = 1;
+        public static final int GRIPPER_SENSOR = 7;
+    } 
+    public static final class LED {
+        public static final double BLUE = 0.87;
+        public static final double GREEN = 0.77;
+        public static final double LIME = 0.73;
+        public static final double RED = 0.61;
+        public static final double VIOLET = 0.91;
+        public static final double YELLOW = 0.69;
+        public static final double C1_STROBE = 0.15;
+        public static final double C2_STROBE = 0.35;
+        public static final double BREATH_RED = -0.17;
+        public static final double BREATH_BLUE = -0.15;
     }
     /** Smart current limits for Spark Max motor controllers in amps. */
     public static final class Limits {
@@ -178,6 +195,9 @@ public final class Constants {
         public static final int LOWER_ARM_CURRENT = 40;
         public static final int UPPER_ARM_CURRENT = 40;
         public static final int EXTENSION_CURRENT = 40;
+    }
+    public static final class PWMID {
+        public static final int REV_BLINKIN = 0;
     }
     /** Swerve drive related constants. */
     public final static class Swerve {
