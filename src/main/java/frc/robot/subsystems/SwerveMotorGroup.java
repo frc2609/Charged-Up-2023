@@ -225,8 +225,8 @@ public class SwerveMotorGroup {
 
   /** Update data being sent and recieved from NetworkTables. */
   public void updateNetworkTables() {
-    SmartDashboard.putNumber(m_name + " Primary Motor Temp (C°)", m_primaryMotor.getMotorTemperature());
-    SmartDashboard.putNumber(m_name + " Secondary Motor Temp (C°)", m_secondaryMotor.getMotorTemperature());
+    SmartDashboard.putNumber(m_name + " Primary Motor Temp (C)", m_primaryMotor.getMotorTemperature());
+    SmartDashboard.putNumber(m_name + " Secondary Motor Temp (C)", m_secondaryMotor.getMotorTemperature());
     SmartDashboard.putNumber(m_name + " Primary Motor Current (A)", m_primaryMotor.getOutputCurrent());
     SmartDashboard.putNumber(m_name + " Secondary Motor Current (A)", m_secondaryMotor.getOutputCurrent());
   }

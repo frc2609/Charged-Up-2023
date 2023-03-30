@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 //taken from https://github.com/TripleHelixProgramming/HelixUtilities
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.subsystems.ArmGripper;
 
 /** Records values into a .csv file for later viewing. */
 public class BeaverLogger {
@@ -133,6 +134,43 @@ public class BeaverLogger {
 			e.printStackTrace();
 		}
 	}
+
+	public void logArm(double[] setpoint, ArmGripper arm) {
+		try {
+			if (file == null) {
+				createFile();
+			}
+
+			StringBuilder data = new StringBuilder();
+			data.append(Instant.now().toString()).append(",");
+			data.append(Timer.getFPGATimestamp()).append(",");
+			data.append(Double.toString(setpoint[0]) + ',');
+			data.append(Double.toString(setpoint[1]) + ',');
+			data.append(Double.toString(setpoint[2]) + ',');
+
+			data.append(Double.toString(arm.getLowerArmAngleRelative()) + ',');
+			data.append(Double.toString(arm.getLowerJointAngularVelocity()) + ',');
+			
+			data.append(Double.toString(arm.getUpperArmAngleRelative()) + ',');
+			data.append(Double.toString(arm.getUpperJointAngularVelocity()) + ',');
+
+			data.append(Double.toString(arm.getExtensionDistance()) + ',');
+			data.append(Double.toString(arm.getExtensionVelocity()) + ',');
+
+			// data.append(Double.toString(currentStates[0].angle.getDegrees()) + ',');
+			// data.append(Double.toString(targetStates[0].angle.getDegrees()) + ',');
+			// data.append(Double.toString(currentStates[1].angle.getDegrees()) + ',');
+			// data.append(Double.toString(targetStates[1].angle.getDegrees()) + ',');
+			// data.append(Double.toString(currentStates[2].angle.getDegrees()) + ',');
+			// data.append(Double.toString(targetStates[2].angle.getDegrees()) + ',');
+			// data.append(Double.toString(currentStates[3].angle.getDegrees()) + ',');
+			// data.append(Double.toString(targetStates[3].angle.getDegrees()) + ',');
+			Files.write(file, Collections.singletonList(data.toString()), StandardOpenOption.APPEND);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	private void saveTitles() throws IOException {
 		StringBuilder titles = new StringBuilder();
