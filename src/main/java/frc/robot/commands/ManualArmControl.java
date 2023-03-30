@@ -63,25 +63,6 @@ public class ManualArmControl extends CommandBase {
     SmartDashboard.putNumber("Manual/Lower Target Angle", m_lowerSetpoint);
     SmartDashboard.putNumber("Manual/Upper Target Angle", m_upperSetpoint);
     SmartDashboard.putNumber("Manual/Extension Target Distance", m_extensionSetpoint);
-    // if setpoint is close enough, set it to its current value
-    // this prevents the NEO from oscillating around values it can't reach
-    // // test this because it's sketchy
-    // m_lowerSetpoint = Math.round(m_lowerSetpoint);
-    // m_upperSetpoint = Math.round(m_upperSetpoint);
-    // m_extensionSetpoint = Math.round(m_extensionSetpoint);
-    // ^ yeah doesn't work either
-    // final double lowerAngle = m_armGripper.getLowerArmAngleRelative();
-    // final double upperAngle = m_armGripper.getUpperArmAngleRelative();
-    // final double extensionDistance = m_armGripper.getExtensionDistance();
-    // if (Math.abs(lowerAngle - m_lowerSetpoint) < Tolerances.LOWER_ANGLE) {
-    //   m_lowerSetpoint = m_armGripper.getLowerArmAngleRelative();
-    // }
-    // if (Math.abs(upperAngle - m_upperSetpoint) < Tolerances.UPPER_ANGLE) {
-    //   m_upperSetpoint = m_armGripper.getUpperArmAngleRelative();
-    // }
-    // if (Math.abs(extensionDistance) < Tolerances.EXTENSION_LENGTH) {
-    //   m_extensionSetpoint = m_armGripper.getExtensionDistance(); // no works
-    // }
     // apply setpoints
     m_armGripper.setLowerTargetAngle(m_lowerSetpoint);
     m_armGripper.setUpperTargetAngle(m_upperSetpoint);
