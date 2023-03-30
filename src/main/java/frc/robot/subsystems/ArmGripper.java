@@ -246,9 +246,6 @@ public class ArmGripper extends SubsystemBase {
     return m_lowerEncoderRelative.getVelocity();
   }
 
-  public double getLowerJointAngularVelocity() {
-    return m_lowerEncoderRelative.getVelocity();
-  }
 
   /**
    * Returns the length of the lower arm.
@@ -301,10 +298,6 @@ public class ArmGripper extends SubsystemBase {
     return getExtensionDistance() + getUpperArmBaseLength();
   }
   public double getExtensionVelocity(){
-    return m_extensionEncoder.getVelocity();
-  }
-
-  public double getExtensionVelocity() {
     return m_extensionEncoder.getVelocity();
   }
 
