@@ -315,7 +315,7 @@ public class SwerveDrive extends SubsystemBase {
      * joystick is pushed forward or to the left.
      */
     final double xInput = MathUtil.applyDeadband(-m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND);
-    final double xSpeedSquare = xInput >= 0.0 ? xInput * xInput : -(xInput * xInput);
+    final double xSpeedSquare = Math.pow(xInput, 2) * Math.signum(xInput);
     final double xSpeed = xSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
     // final double xSpeed =
     //     -m_xSpeedLimiter.calculate(MathUtil.applyDeadband(
@@ -324,7 +324,7 @@ public class SwerveDrive extends SubsystemBase {
     //             // scale value from 0-1 to 0-MAX_LINEAR_SPEED
 
     final double yInput = MathUtil.applyDeadband(-m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND);
-    final double ySpeedSquare = yInput >= 0.0 ? yInput * yInput : -(yInput * yInput);
+    final double ySpeedSquare = Math.pow(yInput, 2) * Math.signum(yInput);
     final double ySpeed = ySpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
     // final double ySpeed =
     //     -m_ySpeedLimiter.calculate(MathUtil.applyDeadband(
@@ -332,7 +332,7 @@ public class SwerveDrive extends SubsystemBase {
     //             * TeleopLimits.MAX_LINEAR_VELOCITY;
 
     final double rotInput = MathUtil.applyDeadband(-m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND);
-    final double rotSpeedSquare = rotInput >= 0.0 ? rotInput * rotInput : -(rotInput * rotInput);
+    final double rotSpeedSquare = Math.pow(rotInput, 2) * Math.signum(rotInput);
     final double rotSpeed = rotSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
     // final double rotationSpeed =
     //     -m_rotationLimiter.calculate(MathUtil.applyDeadband(
