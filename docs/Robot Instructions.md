@@ -9,7 +9,7 @@
 ## Swerve module alignment
 **THESE ALIGNMENT INSTRUCTIONS ARE FOR THE SWERVE PRACTICE BOT.**
 
-**FOR THE COMPETITION ROBOT, ALIGN THE NOTCH ON EACH MODULE WITH THE NOTCH ON THE ALUMINUM PLATE.**
+**FOR ROAD RUNNER, ALIGN THE NOTCH ON EACH MODULE WITH THE NOTCH ON THE ALUMINUM PLATE.**
 
 Before turning on the robot, you must line up all four swerve modules so that the black gear on each wheel faces to the left of the robot:
 
@@ -52,7 +52,7 @@ If you drive the robot with no field, line the robot up in front of the driver s
 ### Gyro Drift
 The NavX IMU's built in gyroscope is used to keep track of the direction the robot is facing while in field-oriented mode. Like all gyros, the NavX's gyro drifts, although in a regular match it will not drift enough to be noticeable.
 
-If you are using the robot for a demonstration, you may have it on long enough for it to be affected by gyro drift. To calibrate the gyro, align the robot so it faces forward and then press `Zero Yaw` on Smartdashboard or push the `A button` on the driver's Xbox controller.
+If you are using the robot for a demonstration, you may have it on long enough for it to be affected by gyro drift. To calibrate the gyro, align the robot so it faces forward and then press `Zero Yaw` on Smartdashboard or push the appropriate button on the driver's Xbox controller (see `Controls` below).
 
 ### Field Position Inaccuracy
 To determine its position relative to the field, the robot relies on the total amount of rotations made by the drive motor of each swerve module. **If you picked up the robot and moved it to a different location, it *will not* know that its position changed!**
@@ -61,10 +61,9 @@ While the robot is being driven, wheels can slip and the robot can bump against 
 
 Since making contact with other robots during autonomous mode is prohibited (and you are hopefully not colliding with game objects or the field), the reported position of the robot will be accurate. **You can safely use the robot position in autonomous mode.**
 
--> Hello and welcome to 2023 Charged Up, where there is an unpredictable balancing platform right in the middle of the field...
--> Add a note regarding this
+**Going over the charge platform or the cable guard will cause the robot to lose its autonomous position.** In order to track its position correctly, the robot must get its position using the AprilTags on the field (or any other method not involving `SwerveDriveOdometry`'s dead reckoning).
 
-However, in teleop mode, the robot can collide with parts of the field, and other robots, which will cause the reported position to differ from the actual position. **In teleop mode, you should *not* rely on the robot's reported position to be accurate!** This also means that the robot position in the Field2d widget in Shuffleboard may not correspond to its actual position.
+In teleop mode, the robot can collide with parts of the field, and other robots, which will cause the reported position to differ from the actual position. **In teleop mode, you should *not* rely on the robot's reported position to be accurate!** This also means that the robot position in the Field2d widget in Shuffleboard may not correspond to its actual position.
 
 ## Controls
 ### Driver:
@@ -131,6 +130,8 @@ However, in teleop mode, the robot can collide with parts of the field, and othe
 | Down  | Manual Adjust: Decrease upper setpoint
 | Left  | Manual Adjust: Retract extension
 | Right | Manual Adjust: Extend extension
+
+* These controls are only enabled while `ManualArmAdjust` is being used (you must modify the robot code to use it). By default, the DPAD is not mapped to anything.
 
 ## Dashboard
 This repository comes with a premade Shuffleboard layout. To use it, open Shuffleboard, open the File menu and press Load layout, then select `robot-shuffleboard-layout.json` in the root of this repository.
