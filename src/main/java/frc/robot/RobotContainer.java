@@ -92,7 +92,7 @@ public class RobotContainer {
       m_operatorController, XboxController.Button.kB.value);
   private final JoystickButton m_scoreHighButton = new JoystickButton(
       m_operatorController, XboxController.Button.kY.value);
-  private final JoystickButton m_resetArmEncoders = new JoystickButton(
+  public final JoystickButton m_resetArmEncoders = new JoystickButton(
       m_operatorController, XboxController.Button.kBack.value);
   private final JoystickButton m_requestCone = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftStick.value);
