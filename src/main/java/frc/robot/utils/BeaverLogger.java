@@ -176,19 +176,15 @@ public class BeaverLogger {
 		StringBuilder titles = new StringBuilder();
 		titles.append("Timestamp,");
 		titles.append("match_time,");
-		titles.append("current_x,");
-		titles.append("current_y,");
-		titles.append("current_angle,");
-		titles.append("target_x,");
-		titles.append("target_y,");
-		titles.append("target_angle,");
-		titles.append("x_error,");
-		titles.append("y_error,");
-		titles.append("angle_error,");
-		titles.append("leftFrontCurrentAngle,");
-		titles.append("leftFrontDesiredAngle,");
-		titles.append("rightFrontCurrentAngle,");
-		titles.append("rightFrontDesiredAngle,");
+		titles.append("Lower setp,");
+		titles.append("Upper setp,");
+		titles.append("Ext setp,");
+		titles.append("Lower pos,");
+		titles.append("Lower vel,");
+		titles.append("Upper pos,");
+		titles.append("Upper vel,");
+		titles.append("Extension pos,");
+		titles.append("Extension vel,");
 		titles.append(dataSources.stream().map(t -> t.name).collect(Collectors.joining(","))).append(",");
 		Files.write(file, Collections.singletonList(titles.toString()), StandardOpenOption.APPEND);
 	}

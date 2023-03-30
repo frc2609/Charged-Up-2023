@@ -144,8 +144,8 @@ public class RobotContainer {
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
-    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "LongThrowMid")));
-    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "LongThrowHighHD")));
+    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "ShortThrowMid")));
+    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "LongThrowHigh")));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
     // m_resetSwerveModules.onTrue(new ResetModules(m_swerveDrive, 0));
@@ -209,7 +209,7 @@ public class RobotContainer {
      * temporarily during teleop. This may be useful for auto-balancing or
      * moving into position to deliver a game piece. */
     // m_armGripper.setDefaultCommand(new ManualArmControl(m_armGripper));
-    m_swerveDrive.setDefaultCommand(new ManualDrive(m_swerveDrive));
+    // m_swerveDrive.setDefaultCommand(new ManualDrive(m_swerveDrive));
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(9);
