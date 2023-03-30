@@ -97,7 +97,7 @@ public class RobotContainer {
   private final JoystickButton m_requestCone = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftStick.value);
   private final JoystickButton m_requestCube = new JoystickButton(
-      m_operatorController, XboxController.Button.kRightStick.value);
+      m_operatorController, XboxController.Button.kRightStick.value);  
           
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -145,9 +145,13 @@ public class RobotContainer {
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
     m_resetArmEncoders.onTrue(new InstantCommand(m_armGripper::setEncoderOffsets));
-    m_requestCone.onTrue(new InstantCommand(LED::setCone));
-    m_requestCube.onTrue(new InstantCommand(LED::setCube));
-    // TODO: move Gripper into own subsystem so that these don't cancel arm commands
+    // operator LED controls
+    // blink LEDs while held
+    m_requestCone.whileTrue(new InstantCommand(LED::setUrgentCone));
+    // set solid while not held (when button no longer held set solid)
+    m_requestCone.onFalse(new InstantCommand(LED::setCone));
+    m_requestCube.whileTrue(new InstantCommand(LED::setUrgentCube));
+    m_requestCube.onFalse(new InstantCommand(LED::setCube));
   }
 
   /** 

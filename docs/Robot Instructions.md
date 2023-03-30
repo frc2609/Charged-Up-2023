@@ -108,8 +108,8 @@ In teleop mode, the robot can collide with parts of the field, and other robots,
 
 | Button       | Function |
 | ------------ | -------- |
-| Left Stick   | Request cone
-| Right Stick  | Request cube
+| Left Stick   | (Press) Request cone (Hold) Urgent request cone
+| Right Stick  | (Press) Request cube (Hold) Urgent request cube
 | Left Bumper  | Open gripper
 | Right Bumper | Close gripper
 | Start        | NA
