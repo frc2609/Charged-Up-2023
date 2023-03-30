@@ -77,8 +77,17 @@ public class MoveArmToSetpoint extends CommandBase {
     double upperError = m_armGripper.getUpperArmAngleRelative() - m_upperSetpoint;
     double extensionError = m_armGripper.getExtensionDistance() - m_extensionSetpoint;
     boolean isLowerInTolerance = Math.abs(lowerError) < Tolerances.LOWER_ANGLE; 
-    boolean isUpperInTolerance = Math.abs(upperError) < Tolerances.UPPER_ANGLE; 
+    boolean isUpperInTolerance = Math.abs(upperError) < Tolerances.UPPER_ANGLE;
     boolean isExtensionInTolerance = Math.abs(extensionError) < Tolerances.EXTENSION_LENGTH;
+    if(m_holdLower){
+      isLowerInTolerance = true;
+    }
+    if(m_holdUpper){
+      isUpperInTolerance = true;
+    }
+    if(m_holdSlider){
+      isExtensionInTolerance = true;
+    }
     return isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance;
   }
 }
