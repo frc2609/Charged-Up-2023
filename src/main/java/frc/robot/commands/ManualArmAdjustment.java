@@ -66,6 +66,7 @@ public class ManualArmAdjustment extends CommandBase {
     m_upperSetpoint = MathUtil.clamp(m_upperSetpoint, SoftStop.UPPER_REVERSE, SoftStop.UPPER_FORWARD);
     m_extensionSetpoint = MathUtil.clamp(m_extensionSetpoint, SoftStop.EXTENSION_REVERSE, SoftStop.EXTENSION_FORWARD);
     // lower setpoint is not adjustable (determined to be unnecessary)
+    // m_armGripper.setLowerTargetAngle(m_lowerSetpoint);
     m_armGripper.setUpperTargetAngle(m_upperSetpoint);
     m_armGripper.setExtensionTargetLength(m_extensionSetpoint);
     // log to SmartDashboard

@@ -201,6 +201,7 @@ public class RobotContainer {
      * teleopPeriodic() allows a command to take over the drivetrain
      * temporarily during teleop. This may be useful for auto-balancing or
      * moving into position to deliver a game piece. */
+    // Use `ManualArmAdjustment` if adjusting the arm with the DPAD is desired.
     m_armGripper.setDefaultCommand(new ManualArmControl(m_armGripper, m_operatorController));
     m_swerveDrive.setDefaultCommand(new ManualDrive(m_swerveDrive));
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1);
