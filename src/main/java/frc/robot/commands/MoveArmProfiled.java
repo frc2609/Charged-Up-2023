@@ -21,7 +21,7 @@ public class MoveArmProfiled extends CommandBase {
   ArmGripper m_armGripper;
   HashMap<String,double[][]> paths = new HashMap<String,double[][]>();
   int i = 0;
-  double prevLoop;
+  double startTime;
   double jointErrorTolerance = Math.sqrt(50+Math.pow(3*Tolerances.EXTENSION_LENGTH,2)); // 5 Degrees each way
   boolean isReverse = false;
   String currProfile;
@@ -173,7 +173,7 @@ public class MoveArmProfiled extends CommandBase {
     m_armGripper = armGripper;
     currentPath = paths.getOrDefault(path, new double[][]{{0.0,0.0,0.0},{0.0,0.0,0.0}});
     addRequirements(armGripper);
-    prevLoop = Timer.getFPGATimestamp();
+    startTime = Timer.getFPGATimestamp();
     this.currProfile = path;
   }
 
@@ -184,8 +184,7 @@ public class MoveArmProfiled extends CommandBase {
     m_armGripper.setLowerTargetAngle(currentPath[i][0]);
     m_armGripper.setUpperTargetAngle(currentPath[i][1]);
     m_armGripper.setExtensionTargetLength(currentPath[i][2]);
-    prevLoop = Timer.getFPGATimestamp();
-    i++;
+    startTime = Timer.getFPGATimestamp();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -194,11 +193,12 @@ public class MoveArmProfiled extends CommandBase {
     // if (isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance){
     //   i++;
     // }
-    if(currProfile == "ShortThrowMid" || currProfile == "LongThrowHighHD"){
-      i++;
-    }else{
-      getNearestSetpoint(Timer.getFPGATimestamp()-prevLoop);
-    }
+    // if(currProfile == "ShortThrowMid" || currProfile == "LongThrowHighHD"){
+    //   i++;
+    // }else{
+    //   getNearestSetpoint(Timer.getFPGATimestamp()-prevLoop);
+    // }
+    i=(int) Math.ceil(startTime-Timer.getFPGATimestamp()*50); // 50 loops per second = 0.02 seconds per loop
 
     if(i <= currentPath.length-1){
       m_armGripper.setLowerTargetAngle(currentPath[i][0]);
@@ -226,6 +226,6 @@ public class MoveArmProfiled extends CommandBase {
   @Override
   public boolean isFinished() {
     //return i>lowerSetpoint.length-1 // try this if it finishes too early
-    return i==currentPath.length-1;
+    return i>=currentPath.length-1;
   }
 }
