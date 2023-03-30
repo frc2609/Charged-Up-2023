@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,13 +16,12 @@ import frc.robot.utils.BeaverLogger;
 
 public class MoveArmProfiled extends CommandBase {
   double[][] currentPath;
-  
   double UpperError, UpperArm_P;
   double LowerError, LowerArm_P;
   ArmGripper m_armGripper;
   HashMap<String,double[][]> paths = new HashMap<String,double[][]>();
   int i = 0;
-  double prevLoop;
+  double startTime;
   double jointErrorTolerance = Math.sqrt(50+Math.pow(3*Tolerances.EXTENSION_LENGTH,2)); // 5 Degrees each way
   boolean isReverse = false;
   String currProfile;
@@ -114,7 +112,8 @@ public class MoveArmProfiled extends CommandBase {
 
     
   }
-  public double[] getNearestSetpoint(double dt){
+
+  public double[] getNearestSetpoint(double dt) {
     double predicted_lower = (m_armGripper.getLowerArmAngleRelative()+(dt*m_armGripper.getLowerJointAngularVelocity()));
     double predicted_upper = (m_armGripper.getUpperArmAngleRelative()+(dt*m_armGripper.getUpperJointAngularVelocity()));
     double predicted_extension = (m_armGripper.getExtensionDistance()+(dt*m_armGripper.getExtensionVelocity()));
@@ -142,7 +141,7 @@ public class MoveArmProfiled extends CommandBase {
     m_armGripper = armGripper;
     currentPath = paths.getOrDefault(path, new double[][]{{0.0,0.0,0.0},{0.0,0.0,0.0}});
     addRequirements(armGripper);
-    prevLoop = Timer.getFPGATimestamp();
+    startTime = Timer.getFPGATimestamp();
     this.currProfile = path;
   }
 
@@ -153,8 +152,7 @@ public class MoveArmProfiled extends CommandBase {
     m_armGripper.setLowerTargetAngle(currentPath[i][0]);
     m_armGripper.setUpperTargetAngle(currentPath[i][1]);
     m_armGripper.setExtensionTargetLength(currentPath[i][2]);
-    prevLoop = Timer.getFPGATimestamp();
-    i++;
+    startTime = Timer.getFPGATimestamp();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -163,16 +161,12 @@ public class MoveArmProfiled extends CommandBase {
     // if (isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance){
     //   i++;
     // }
-    // i++;
-    // getNearestSetpoint(Timer.getFPGATimestamp()-prevLoop);
-    if(currProfile == "ShortThrowMid"){
-      i++;
-    }else{
-      getNearestSetpoint(Timer.getFPGATimestamp()-prevLoop);
-    }
-    // i++;
-    System.out.println(i);
-    // i++;
+    // if(currProfile == "ShortThrowMid" || currProfile == "LongThrowHighHD"){
+    //   i++;
+    // }else{
+    //   getNearestSetpoint(Timer.getFPGATimestamp()-prevLoop);
+    // }
+    i=(int) Math.ceil(startTime-Timer.getFPGATimestamp()*50); // 50 loops per second = 0.02 seconds per loop
 
     if(i <= currentPath.length-1){
       m_armGripper.setLowerTargetAngle(currentPath[i][0]);
@@ -180,13 +174,11 @@ public class MoveArmProfiled extends CommandBase {
       m_armGripper.setExtensionTargetLength(currentPath[i][2]);
     }
     
-    BeaverLogger.getInstance().logArm(currentPath[i], m_armGripper);
+    // BeaverLogger.getInstance().logArm(currentPath[i], m_armGripper);
 
     SmartDashboard.putNumber("lowerSetp", currentPath[i][0]);
     SmartDashboard.putNumber("upperSetp", currentPath[i][1]);
     SmartDashboard.putNumber("extSetp", currentPath[i][2]);
-    //SmartDashboard.putNumber("Lower Arm P", UpperArm_P);
-    //SmartDashboard.putNumber("Upper Arm P", LowerArm_P);
   }
 
   // Called once the command ends or is interrupted.
@@ -202,6 +194,6 @@ public class MoveArmProfiled extends CommandBase {
   @Override
   public boolean isFinished() {
     //return i>lowerSetpoint.length-1 // try this if it finishes too early
-    return i==currentPath.length-1;
+    return i>=currentPath.length-1;
   }
 }

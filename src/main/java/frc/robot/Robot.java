@@ -53,13 +53,16 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    m_robotContainer.setArmBreak(true);
+    m_robotContainer.setArmBrake(true);
     SmartDashboard.putBoolean("ArmBreak", true);
   }
 
   @Override
   public void disabledPeriodic() {
-    m_robotContainer.setArmBreak(SmartDashboard.getBoolean("ArmBreak", true));
+    m_robotContainer.setArmBrake(SmartDashboard.getBoolean("ArmBreak", true));
+    if(m_robotContainer.m_resetArmEncoders.getAsBoolean()){
+      m_robotContainer.resetArmEncoders();
+    }
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
