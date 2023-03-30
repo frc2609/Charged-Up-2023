@@ -55,13 +55,16 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     m_robotContainer.setArmBrake(true);
+    m_robotContainer.setRotationBreakMode(true);
     SmartDashboard.putBoolean("ArmBreak", true);
+    SmartDashboard.putBoolean("RotBreak", true);
     BeaverLogger.getInstance().saveLogs();
   }
 
   @Override
   public void disabledPeriodic() {
     m_robotContainer.setArmBrake(SmartDashboard.getBoolean("ArmBreak", true));
+    m_robotContainer.setRotationBreakMode(SmartDashboard.getBoolean("RotBreak", true));
     if(m_robotContainer.m_resetArmEncoders.getAsBoolean()){
       m_robotContainer.resetArmEncoders();
     }
@@ -74,6 +77,7 @@ public class Robot extends TimedRobot {
     m_robotContainer.disableTeleopControl();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     m_robotContainer.setArmBreak(true);
+    m_robotContainer.setRotationBreakMode(true);
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -96,6 +100,7 @@ public class Robot extends TimedRobot {
     }
     m_robotContainer.enableTeleopControl();
     m_robotContainer.setArmBreak(true);
+    m_robotContainer.setRotationBreakMode(true);
   }
 
   /** This function is called periodically during operator control. */
