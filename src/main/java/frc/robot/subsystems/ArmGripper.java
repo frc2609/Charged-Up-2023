@@ -8,11 +8,14 @@ import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.Rev2mDistanceSensor;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.Rev2mDistanceSensor.Port;
+import com.revrobotics.Rev2mDistanceSensor.Unit;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
@@ -67,6 +70,7 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
   // private final DigitalInput intakeSensor = new DigitalInput(7);
+  private final Rev2mDistanceSensor intakeSensor;
 
   private final Trigger m_pieceDetected = new Trigger(m_gripperSensor::get);
 
@@ -87,12 +91,20 @@ public class ArmGripper extends SubsystemBase {
     /* Set LEDs only when going from true -> false
      * Prevents this from continously cancelling cone/cube LEDs. */
     m_pieceDetected.onFalse(new InstantCommand(LED::setIdle));
+    intakeSensor = new Rev2mDistanceSensor(Port.kMXP);
+    intakeSensor.setAutomaticMode(true);
+    intakeSensor.setEnabled(true);
+  }
+  public double getIntakeSensorDistance(){
+    return intakeSensor.getRange(Unit.kMillimeters);
   }
 
   @Override
   public void periodic() {
     // configurePIDs();
-    // SmartDashboard.putBoolean("IntakeSensor", intakeSensor.get());
+
+    SmartDashboard.putBoolean("IsintakeRangeValid", intakeSensor.isRangeValid());
+    SmartDashboard.putNumber("IntakeSensor (mm)", intakeSensor.getRange(Unit.kMillimeters));
     // TODO: Modify these as necessary.
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
@@ -189,7 +201,7 @@ public class ArmGripper extends SubsystemBase {
 
   private void configurePIDs() {
     m_lowerPID.setP(0.0);
-    m_lowerPID.setI(0.0001);
+    m_lowerPID.setI(0.00015);
     m_lowerPID.setD(0.0);
     m_lowerPID.setIZone(2);
     m_lowerPID.setFF(0.0001);
