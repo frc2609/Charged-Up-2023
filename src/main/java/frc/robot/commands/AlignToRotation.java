@@ -59,6 +59,7 @@ public class AlignToRotation extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    // move to constants
+    return Math.abs(m_swerveDrive.getYaw().getDegrees() - m_setpoint.getDegrees()) <= 5.0;
   }
 }
