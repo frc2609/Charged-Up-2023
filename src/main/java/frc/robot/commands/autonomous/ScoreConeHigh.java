@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.Autonomous.Deadline;
 import frc.robot.commands.MoveArmToHigh;
+import frc.robot.commands.StowMidToHigh;
 // import frc.robot.commands.VisionAlign;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.SwerveDrive;
@@ -24,11 +25,11 @@ public class ScoreConeHigh extends SequentialCommandGroup {
             // cancel if movement takes too long
             new ParallelRaceGroup(
               Commands.waitSeconds(Deadline.MOVE_TO_HIGH),
-              new MoveArmToHigh(arm)
+              new StowMidToHigh(arm)
             )
         ),
         // wait for the arm to settle
-        Commands.waitSeconds(0.5),
+        Commands.waitSeconds(0.2),
         new InstantCommand(arm::openGripper, arm)
     );
   }

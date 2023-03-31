@@ -79,19 +79,6 @@ public class ArmGripper extends SubsystemBase {
     m_lowerMotor.restoreFactoryDefaults();
     m_upperMotor.restoreFactoryDefaults();
     m_extensionMotor.restoreFactoryDefaults();
-    
-    SmartDashboard.putNumber("Lower Arm P",0);
-    SmartDashboard.putNumber("Lower Arm I",0.0001);
-    SmartDashboard.putNumber("Lower Arm D",0);
-    SmartDashboard.putNumber("Upper Arm P",0);
-    SmartDashboard.putNumber("Upper Arm I",0);
-    SmartDashboard.putNumber("Upper Arm D",0);
-    SmartDashboard.putNumber("Extension Arm P",0);
-    SmartDashboard.putNumber("Extension Arm I",0);
-    SmartDashboard.putNumber("Upper Arm F",0.0002);
-    SmartDashboard.putNumber("Lower Arm F",0.0001);
-
-    
     configureEncoders();
     configureMotors();
     configurePIDs();
@@ -217,7 +204,7 @@ public class ArmGripper extends SubsystemBase {
     m_upperPID.setFF(0.0002);
     m_upperPID.setOutputRange(-0.75, 0.75);
     m_upperPID.setSmartMotionMaxVelocity(3500, 0);
-    m_upperPID.setSmartMotionMaxAccel(8000, 0);
+    m_upperPID.setSmartMotionMaxAccel(6000, 0);
 
     m_extensionPID.setP(0);
     m_extensionPID.setI(0);

@@ -26,6 +26,7 @@ import frc.robot.commands.MoveArmToGroundPickup;
 import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.QueueCommand;
+import frc.robot.commands.StowMidToHigh;
 // import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
 import frc.robot.commands.autonomous.ScoreConeHigh;
@@ -141,7 +142,7 @@ public class RobotContainer {
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
     m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "ShortThrowMid")));
-    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "LongThrowHigh")));
+    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new StowMidToHigh(m_armGripper)));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
     m_resetArmEncoders.onTrue(new InstantCommand(m_armGripper::setEncoderOffsets));
@@ -175,6 +176,7 @@ public class RobotContainer {
     m_pathChooser.setDefaultOption("ScoreThenAutobalance", PathPlanner.loadPath("ScoreThenAutobalance", constraints));
     m_pathChooser.addOption("ScoreThenDriveOut", PathPlanner.loadPath("ScoreThenDriveOut", constraints));
     m_pathChooser.addOption("ScoreThenDriveOutAndRotate", PathPlanner.loadPath("ScoreThenDriveOutAndRotate", constraints));
+    m_pathChooser.addOption("ConeCubeAuto", PathPlanner.loadPath("ConeCubeAuto", constraints));
     SmartDashboard.putData(m_pathChooser);
   }
 
