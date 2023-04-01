@@ -8,9 +8,9 @@ import java.util.HashMap;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.PowerDistribution;
+// import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+// import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -57,8 +57,8 @@ public class RobotContainer {
       NetworkTableInstance.getDefault().getTable("limelight");
   private final SwerveDrive m_swerveDrive;
   private final SwerveAutoBuilder m_autoBuilder;
-  private final PowerDistribution m_powerDistribution =
-      new PowerDistribution(1, ModuleType.kRev);
+  // private final PowerDistribution m_powerDistribution =
+  //     new PowerDistribution(1, ModuleType.kRev);
   private final XboxController m_driverController = new XboxController(
       Constants.Xbox.DRIVER_CONTROLLER_PORT);
   private final XboxController m_operatorController = new XboxController(
@@ -225,16 +225,13 @@ public class RobotContainer {
     return m_autoBuilder.fullAuto(m_pathChooser.getSelected());
   }
 
-  //TODO: Temp til Antoine puts on absolute encoders
-  public void setRotationBreakMode(boolean isBreak) {
-    m_swerveDrive.setRotationBreakMode(isBreak);
-  }
-  public void setArmBreak(boolean isBreak){
-    m_armGripper.setBreak(isBreak);
+  public void setArmBrake(boolean isBrake) {
+    m_armGripper.setBrake(isBrake);
   }
 
-  public void setArmBrake(boolean isBrake){
-    m_armGripper.setBrake(isBrake);
+  //TODO: Temp til Antoine puts on absolute encoders
+  public void setRotationBrake(boolean isBrake) {
+    m_swerveDrive.setRotationBrake(isBrake);
   }
 
   /**

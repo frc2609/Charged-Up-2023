@@ -136,28 +136,6 @@ public class ArmGripper extends SubsystemBase {
     // gripper sensor status
     SmartDashboard.putBoolean("Gripper Sensor", m_gripperSensor.get());
   }
-  public void setBrake(boolean isBrake) {
-    if (isBrake) {
-      m_lowerMotor.setIdleMode(IdleMode.kBrake);
-      m_upperMotor.setIdleMode(IdleMode.kBrake);
-      m_extensionMotor.setIdleMode(IdleMode.kBrake);
-    } else {
-      m_lowerMotor.setIdleMode(IdleMode.kCoast);
-      m_upperMotor.setIdleMode(IdleMode.kCoast);
-      m_extensionMotor.setIdleMode(IdleMode.kCoast);
-    }
-  }
-  public void setBreak(boolean isBreak){
-    if(isBreak){
-      m_lowerMotor.setIdleMode(IdleMode.kBrake);
-      m_upperMotor.setIdleMode(IdleMode.kBrake);
-      m_extensionMotor.setIdleMode(IdleMode.kBrake);
-    }else{
-      m_lowerMotor.setIdleMode(IdleMode.kCoast);
-      m_upperMotor.setIdleMode(IdleMode.kCoast);
-      m_extensionMotor.setIdleMode(IdleMode.kCoast);
-    }
-  }
 
   private void configureEncoders() {
     m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
@@ -346,6 +324,18 @@ public class ArmGripper extends SubsystemBase {
 
   public void closeGripper() {
     m_gripperSolenoid.set(kReverse);
+  }
+    
+  public void setBrake(boolean isBrake) {
+    if (isBrake) {
+      m_lowerMotor.setIdleMode(IdleMode.kBrake);
+      m_upperMotor.setIdleMode(IdleMode.kBrake);
+      m_extensionMotor.setIdleMode(IdleMode.kBrake);
+    } else {
+      m_lowerMotor.setIdleMode(IdleMode.kCoast);
+      m_upperMotor.setIdleMode(IdleMode.kCoast);
+      m_extensionMotor.setIdleMode(IdleMode.kCoast);
+    }
   }
 
   /** Set the lower arm angle relative to the front of the robot in degrees. */
