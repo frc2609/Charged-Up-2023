@@ -98,9 +98,6 @@ public class ArmGripper extends SubsystemBase {
   public double getIntakeSensorDistance(){
     return intakeSensor.getRange(Unit.kMillimeters);
   }
-  public boolean isIntakeReadingValid(){
-    return intakeSensor.isRangeValid();
-  }
 
   @Override
   public void periodic() {
@@ -300,6 +297,15 @@ public class ArmGripper extends SubsystemBase {
     m_lowerPID.setReference(getLowerArmAngleRelative(), ControlType.kSmartMotion);
     m_upperPID.setReference(getUpperArmAngleRelative(), ControlType.kSmartMotion);
     m_extensionPID.setReference(getExtensionDistance(), ControlType.kSmartMotion);
+  }
+
+  /**
+   * Use this to check whether or not a distance value from the intake sensor
+   * is valid.
+   * @return Whether or not the intake sensor reading is valid.
+   */
+  public boolean isIntakeReadingValid() {
+    return intakeSensor.isRangeValid();
   }
 
   /** 
