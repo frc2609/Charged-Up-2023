@@ -55,17 +55,17 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     m_robotContainer.setArmBrake(true);
-    m_robotContainer.setRotationBreakMode(true);
-    SmartDashboard.putBoolean("ArmBreak", true);
-    SmartDashboard.putBoolean("RotBreak", true);
+    m_robotContainer.setRotationBrake(true);
+    SmartDashboard.putBoolean("Arm Brake", true);
+    SmartDashboard.putBoolean("Rotation Brake", true);
     BeaverLogger.getInstance().saveLogs();
   }
 
   @Override
   public void disabledPeriodic() {
-    m_robotContainer.setArmBrake(SmartDashboard.getBoolean("ArmBreak", true));
-    m_robotContainer.setRotationBreakMode(SmartDashboard.getBoolean("RotBreak", true));
-    if(m_robotContainer.m_resetArmEncoders.getAsBoolean()){
+    m_robotContainer.setArmBrake(SmartDashboard.getBoolean("Arm Brake", true));
+    m_robotContainer.setRotationBrake(SmartDashboard.getBoolean("Rotation Brake", true));
+    if (m_robotContainer.m_resetArmEncoders.getAsBoolean()){
       m_robotContainer.resetArmEncoders();
     }
   }
@@ -76,8 +76,8 @@ public class Robot extends TimedRobot {
     // Prevent the robot from being driven by the default command during auto.
     m_robotContainer.disableTeleopControl();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    m_robotContainer.setArmBreak(true);
-    m_robotContainer.setRotationBreakMode(true);
+    m_robotContainer.setArmBrake(true);
+    m_robotContainer.setRotationBrake(true);
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -99,8 +99,8 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     m_robotContainer.enableTeleopControl();
-    m_robotContainer.setArmBreak(true);
-    m_robotContainer.setRotationBreakMode(true);
+    m_robotContainer.setArmBrake(true);
+    m_robotContainer.setRotationBrake(true);
   }
 
   /** This function is called periodically during operator control. */

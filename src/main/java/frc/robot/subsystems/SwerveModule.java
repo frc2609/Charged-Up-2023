@@ -287,13 +287,13 @@ public class SwerveModule { // implements Sendable {
     m_rotationPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
     
   }
-  public void setRotationBreakMode(boolean isBreak){
-    if(isBreak){
-      this.m_rotationMotor.setIdleMode(IdleMode.kBrake);
-    }else{
-      this.m_rotationMotor.setIdleMode(IdleMode.kCoast);
+  
+  public void setRotationBrakeMode(boolean isBrake) {
+    if (isBrake) {
+      m_rotationMotor.setIdleMode(IdleMode.kBrake);
+    } else {
+      m_rotationMotor.setIdleMode(IdleMode.kCoast);
     }
-      
   }
 
   /**
