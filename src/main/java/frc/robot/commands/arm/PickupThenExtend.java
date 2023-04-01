@@ -8,14 +8,12 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.MoveArmProfiled;
 import frc.robot.subsystems.ArmGripper;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class PickupThenExtend extends SequentialCommandGroup {
   /** Creates a new PickupThenExtend. */
   public PickupThenExtend(ArmGripper armGripper, boolean isReverse) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new MoveArmProfiled(armGripper, "LongThrowPickup",isReverse), new MoveArmProfiled(armGripper, "ExtendToPickup",isReverse));
+    addCommands(
+        new MoveArmProfiled(armGripper, "LongThrowPickup",isReverse),
+        new MoveArmProfiled(armGripper, "ExtendToPickup",isReverse)
+    );
   }
 }

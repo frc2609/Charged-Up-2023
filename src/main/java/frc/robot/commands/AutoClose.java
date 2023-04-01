@@ -9,13 +9,13 @@ import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.LED;
 
 public class AutoClose extends CommandBase {
+  private ArmGripper m_gripper;
+  private int i; // name
+
   /** Creates a new AutoClose. */
-  ArmGripper gripper;
-  LED led;
-  int i;
   public AutoClose(ArmGripper gripper) {
-    // Use addRequirements() here to declare subsystem dependencies.
-    this.gripper = gripper;
+    m_gripper = gripper;
+    // should this require ArmGripper? probably not as it only uses gripper
   }
 
   // Called when the command is initially scheduled.
@@ -25,15 +25,16 @@ public class AutoClose extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(gripper.isIntakeReadingValid() && gripper.getIntakeSensorDistance() < 105){
+    if (m_gripper.isIntakeReadingValid() && m_gripper.getIntakeSensorDistance() < 105) {
       i++;
       LED.setGreen();
-    }else{
-      i =0;
+    } else {
+      i = 0;
       LED.setIdle();
     }
-    if(i>=5){
-      gripper.closeGripper();
+    // TODO: move to a constant
+    if (i >= 5) {
+      m_gripper.closeGripper();
     }
   }
 
@@ -44,6 +45,6 @@ public class AutoClose extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return i>=5;
+    return i >= 5;
   }
 }
