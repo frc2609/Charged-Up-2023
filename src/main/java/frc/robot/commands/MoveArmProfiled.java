@@ -286,8 +286,8 @@ public class MoveArmProfiled extends CommandBase {
   }
 
   public double[] getNearestSetpoint(double dt) {
-    double predicted_lower = (m_armGripper.getLowerAngleRelative()+(dt*m_armGripper.getLowerJointAngularVelocity()));
-    double predicted_upper = (m_armGripper.getUpperAngleRelative()+(dt*m_armGripper.getUpperJointAngularVelocity()));
+    double predicted_lower = (m_armGripper.getLowerArmAngleRelative()+(dt*m_armGripper.getLowerJointAngularVelocity()));
+    double predicted_upper = (m_armGripper.getUpperArmAngleRelative()+(dt*m_armGripper.getUpperJointAngularVelocity()));
     double predicted_extension = (m_armGripper.getExtensionDistance()+(dt*m_armGripper.getExtensionVelocity()));
     double curr_lowerError = Math.abs(predicted_lower-currentPath[i][0]);
     double curr_upperError = Math.abs(predicted_upper-currentPath[i][1]);
