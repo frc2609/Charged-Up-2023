@@ -98,6 +98,9 @@ public class ArmGripper extends SubsystemBase {
   public double getIntakeSensorDistance(){
     return intakeSensor.getRange(Unit.kMillimeters);
   }
+  public boolean isIntakeReadingValid(){
+    return intakeSensor.isRangeValid();
+  }
 
   @Override
   public void periodic() {

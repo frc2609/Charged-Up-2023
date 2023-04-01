@@ -96,30 +96,30 @@ public class MoveArmProfiled extends CommandBase {
     {104.4045267489712,23.49775034293552,0.0}});
     paths.put("LongThrowPickup", new double[][]{
       {104.6,21.09000000000001,0.0},
-{104.58885995370369,21.491598668981506,8.101851851851852e-05},
-{104.55671296296296,22.650497685185186,0.0003148148148148148},
-{104.50546874999999,24.49785156250003,0.0006875},
-{104.43703703703703,26.964814814814808,0.001185185185185185},
-{104.3533275462963,29.98254195601852,0.0017939814814814815},
-{104.25625,33.482187500000016,0.0024999999999999996},
-{104.14771412037037,37.39490596064814,0.003289351851851851},
-{104.02962962962961,41.65185185185187,0.004148148148148148},
-{103.90390624999999,46.18417968750001,0.0050625},
-{103.77245370370369,50.9230439814815,0.006018518518518518},
-{103.63718171296297,55.799599247685165,0.007002314814814814},
-{103.5,60.74500000000001,0.008},
-{103.36281828703704,65.69040075231483,0.008997685185185185},
-{103.22754629629628,70.5669560185185,0.009981481481481478},
-{103.09609375,75.3058203125,0.0109375},
-{102.97037037037038,79.83814814814815,0.011851851851851853},
-{102.85228587962963,84.09509403935186,0.012710648148148146},
-{102.74375,88.00781250000001,0.013499999999999998},
-{102.6466724537037,91.50745804398147,0.014206018518518514},
-{102.56296296296297,94.5251851851852,0.014814814814814815},
-{102.49453125,96.9921484375,0.0153125},
-{102.44328703703704,98.83950231481481,0.01568518518518518},
-{102.4111400462963,99.99840133101853,0.015918981481481482},
-{102.4,100.4,0.016},
+      {104.5767071759259,21.500713252314835,0.0},
+      {104.50949074074073,22.685914351851853,0.0},
+      {104.40234375,24.57519531250001,0.0},
+      {104.25925925925925,27.098148148148148,0.0},
+      {104.08423032407407,30.184364872685183,0.0},
+      {103.88125000000001,33.76343750000003,0.0},
+      {103.65431134259258,37.76495804398148,0.0},
+      {103.40740740740739,42.11851851851852,0.0},
+      {103.14453125,46.753710937499996,0.0},
+      {102.86967592592592,51.60012731481483,0.0},
+      {102.58683449074074,56.58735966435185,0.0},
+      {102.3,61.64500000000001,0.0},
+      {102.01316550925925,66.70264033564817,0.0},
+      {101.73032407407406,71.68987268518518,0.0},
+      {101.45546875000001,76.5362890625,0.0},
+      {101.19259259259259,81.17148148148149,0.0},
+      {100.94568865740742,85.52504195601851,0.0},
+      {100.71875,89.52656250000001,0.0},
+      {100.51576967592592,93.10563512731481,0.0},
+      {100.34074074074073,96.19185185185187,0.0},
+      {100.19765625000001,98.7148046875,0.0},
+      {100.09050925925926,100.60408564814814,0.0},
+      {100.02329282407408,101.78928674768521,0.0},
+      {100.0,102.2,0.0},
   });
     paths.put("PickupToHigh", new double[][]{
       {102.4,100.4,0.016},
@@ -173,6 +173,37 @@ public class MoveArmProfiled extends CommandBase {
       {57.45546158488384,164.22124454946493,0.41950207821570945},
       {57.40000000000002,164.29999999999998,0.4199999999999999}
         });
+    paths.put("ExtendToPickup", new double[][]{
+      {100.0,102.2,0.0},
+      {100.0,102.2,0.05}
+    });
+    paths.put("PickupPullback", new double[][]{
+      {100.0,102.2,0.05},
+      {100.12659143518518,102.13822337962964,0.04974681712962963},
+      {100.49189814814815,101.95995370370372,0.04901620370370371},
+      {101.07421875,101.67578125,0.04785156250000001},
+      {101.85185185185185,101.29629629629629,0.0462962962962963},
+      {102.80309606481482,100.83208912037037,0.04439380787037037},
+      {103.90625,100.29375,0.0421875},
+      {105.13961226851852,99.69186921296296,0.039720775462962966},
+      {106.48148148148148,99.03703703703704,0.037037037037037035},
+      {107.91015625,98.33984375,0.0341796875},
+      {109.40393518518519,97.61087962962964,0.03119212962962963},
+      {110.94111689814817,96.8607349537037,0.028117766203703713},
+      {112.5,96.10000000000001,0.025},
+      {114.05888310185186,95.3392650462963,0.021882233796296297},
+      {115.59606481481482,94.58912037037038,0.01880787037037038},
+      {117.08984375000001,93.86015625,0.015820312500000003},
+      {118.51851851851853,93.16296296296296,0.012962962962962959},
+      {119.86038773148148,92.50813078703705,0.010279224537037042},
+      {121.09375000000001,91.90625,0.0078125},
+      {122.19690393518519,91.36791087962963,0.00560619212962964},
+      {123.14814814814815,90.9037037037037,0.003703703703703698},
+      {123.92578125,90.52421875,0.0021484375},
+      {124.50810185185186,90.24004629629628,0.000983796296296302},
+      {124.87340856481484,90.06177662037037,0.0002531828703703609},
+      {125.00000000000001,90.0,0.0}
+    });
     paths.put("LongThrowHigh", new double[][]{
       {104.6,21.09000000000001,0.0},
 {104.60708912037036,21.51489149305558,0.0},
@@ -277,23 +308,35 @@ public class MoveArmProfiled extends CommandBase {
 
   }
   /** Moves arm to given setpoint. Finishes once within tolerance */
-  public MoveArmProfiled(ArmGripper armGripper, String path) {
+  public MoveArmProfiled(ArmGripper armGripper, String path, boolean isReversed) {
     createMap();
     m_armGripper = armGripper;
     currentPath = paths.getOrDefault(path, new double[][]{{0.0,0.0,0.0},{0.0,0.0,0.0}});
     addRequirements(armGripper);
     startTime = Timer.getFPGATimestamp();
     this.currProfile = path;
+    this.isReverse = isReversed;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     i=0;
-    m_armGripper.setLowerTargetAngle(currentPath[i][0]);
-    m_armGripper.setUpperTargetAngle(currentPath[i][1]);
-    m_armGripper.setExtensionTargetLength(currentPath[i][2]);
+    if(isReverse){
+      m_armGripper.setLowerTargetAngle(currentPath[currentPath.length-1][0]);
+      m_armGripper.setUpperTargetAngle(currentPath[currentPath.length-1][1]);
+      m_armGripper.setExtensionTargetLength(currentPath[currentPath.length-1][2]);
+
+    }else{
+      m_armGripper.setLowerTargetAngle(currentPath[i][0]);
+      m_armGripper.setUpperTargetAngle(currentPath[i][1]);
+      m_armGripper.setExtensionTargetLength(currentPath[i][2]);
+
+    }
     startTime = Timer.getFPGATimestamp();
+  }
+  public int getReverseIndex(int i){
+    return (currentPath.length-1)-i;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -312,16 +355,29 @@ public class MoveArmProfiled extends CommandBase {
     System.out.println(i);
 
     if(i <= currentPath.length-1){
-      m_armGripper.setLowerTargetAngle(currentPath[i][0]);
-      m_armGripper.setUpperTargetAngle(currentPath[i][1]);
-      m_armGripper.setExtensionTargetLength(currentPath[i][2]);
+      if(isReverse){
+        m_armGripper.setLowerTargetAngle(currentPath[getReverseIndex(i)][0]);
+        m_armGripper.setUpperTargetAngle(currentPath[getReverseIndex(i)][1]);
+        m_armGripper.setExtensionTargetLength(currentPath[getReverseIndex(i)][2]);
+      }else{
+        m_armGripper.setLowerTargetAngle(currentPath[i][0]);
+        m_armGripper.setUpperTargetAngle(currentPath[i][1]);
+        m_armGripper.setExtensionTargetLength(currentPath[i][2]);
+
+      }
       
       // BeaverLogger.getInstance().logArm(currentPath[i], m_armGripper);
     }else{
       i = currentPath.length-1;
-      m_armGripper.setLowerTargetAngle(currentPath[i][0]);
-      m_armGripper.setUpperTargetAngle(currentPath[i][1]);
-      m_armGripper.setExtensionTargetLength(currentPath[i][2]);
+      if(isReverse){
+        m_armGripper.setLowerTargetAngle(currentPath[0][0]);
+        m_armGripper.setUpperTargetAngle(currentPath[0][1]);
+        m_armGripper.setExtensionTargetLength(currentPath[0][2]);
+      }else{
+        m_armGripper.setLowerTargetAngle(currentPath[i][0]);
+        m_armGripper.setUpperTargetAngle(currentPath[i][1]);
+        m_armGripper.setExtensionTargetLength(currentPath[i][2]);
+      }
       // BeaverLogger.getInstance().logArm(currentPath[i], m_armGripper);
     }
     
@@ -335,9 +391,15 @@ public class MoveArmProfiled extends CommandBase {
   @Override
   public void end(boolean interrupted) {
       System.out.println("PROFILED ARM TO MID FINISHED");
-      m_armGripper.setLowerTargetAngle(currentPath[currentPath.length-1][0]);
-      m_armGripper.setUpperTargetAngle(currentPath[currentPath.length-1][1]);
-      m_armGripper.setExtensionTargetLength(currentPath[currentPath.length-1][2]);
+      if(isReverse){
+        m_armGripper.setLowerTargetAngle(currentPath[0][0]);
+        m_armGripper.setUpperTargetAngle(currentPath[0][1]);
+        m_armGripper.setExtensionTargetLength(currentPath[0][2]);
+      }else{
+        m_armGripper.setLowerTargetAngle(currentPath[currentPath.length-1][0]);
+        m_armGripper.setUpperTargetAngle(currentPath[currentPath.length-1][1]);
+        m_armGripper.setExtensionTargetLength(currentPath[currentPath.length-1][2]);
+      }
       
       // BeaverLogger.getInstance().logArm(currentPath[currentPath.length-1], m_armGripper);
   }
