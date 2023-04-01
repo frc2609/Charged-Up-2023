@@ -25,10 +25,13 @@ import frc.robot.commands.MoveArmProfiled;
 import frc.robot.commands.MoveArmToGroundPickup;
 import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToStow;
+import frc.robot.commands.PickupGrab;
 import frc.robot.commands.QueueCommand;
 import frc.robot.commands.StowMidToHigh;
 // import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
+import frc.robot.commands.arm.PickupPullback;
+import frc.robot.commands.arm.PickupThenExtend;
 import frc.robot.commands.autonomous.ScoreConeHigh;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.LED;
@@ -133,15 +136,15 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // driver controls
     m_zeroYawButton.onTrue(new InstantCommand(m_swerveDrive::zeroYaw));
-    m_driverGroundPickup.onTrue(new MoveArmToGroundPickup(m_armGripper));
-    m_driverPickup.onTrue(new MoveArmProfiled(m_armGripper, "LongThrowPickup"));
+    m_driverGroundPickup.onTrue(new PickupGrab(m_armGripper));
+    m_driverPickup.onTrue(new PickupThenExtend(m_armGripper,false));
     // m_enableBalanceLock.whileTrue(new InstantCommand(m_swerveDrive::setBalanceLock, m_swerveDrive));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
-    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "ShortThrowMid")));
+    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "ShortThrowMid",false)));
     m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new StowMidToHigh(m_armGripper)));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
@@ -149,7 +152,7 @@ public class RobotContainer {
     // operator LED controls
     // blink LEDs while held
     m_requestCone.whileTrue(new InstantCommand(LED::setUrgentCone));
-    // set solid while not held (when button no longer held set solid)
+    // set solid while not held (when button no longer held sets to solid)
     m_requestCone.onFalse(new InstantCommand(LED::setCone));
     m_requestCube.whileTrue(new InstantCommand(LED::setUrgentCube));
     m_requestCube.onFalse(new InstantCommand(LED::setCube));
