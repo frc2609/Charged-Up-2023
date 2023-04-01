@@ -32,7 +32,10 @@ import frc.robot.commands.StowMidToHigh;
 import frc.robot.commands.VisionAlign;
 import frc.robot.commands.arm.PickupPullback;
 import frc.robot.commands.arm.PickupThenExtend;
+import frc.robot.commands.arm.ShortThrowMid;
 import frc.robot.commands.autonomous.ScoreConeHigh;
+import frc.robot.commands.request.RequestCone;
+import frc.robot.commands.request.RequestCube;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.SwerveDrive;
@@ -144,7 +147,7 @@ public class RobotContainer {
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
-    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "ShortThrowMid",false)));
+    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new ShortThrowMid(m_armGripper)));
     m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new StowMidToHigh(m_armGripper)));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
@@ -153,9 +156,9 @@ public class RobotContainer {
     // blink LEDs while held
     m_requestCone.whileTrue(new InstantCommand(LED::setUrgentCone));
     // set solid while not held (when button no longer held sets to solid)
-    m_requestCone.onFalse(new InstantCommand(LED::setCone));
+    m_requestCone.onFalse(new RequestCone(m_armGripper));
     m_requestCube.whileTrue(new InstantCommand(LED::setUrgentCube));
-    m_requestCube.onFalse(new InstantCommand(LED::setCube));
+    m_requestCube.onFalse(new RequestCube(m_armGripper));
   }
 
   /** 

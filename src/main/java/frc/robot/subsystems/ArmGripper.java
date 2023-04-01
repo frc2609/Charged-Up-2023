@@ -72,6 +72,7 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
   // private final DigitalInput intakeSensor = new DigitalInput(7);
   private final Rev2mDistanceSensor intakeSensor;
+  private boolean isCubeRequested = false;
 
   // this is using the wrong sensor
   private final Trigger m_pieceDetected = new Trigger(m_gripperSensor::get);
@@ -102,6 +103,15 @@ public class ArmGripper extends SubsystemBase {
   }
   public boolean isIntakeReadingValid(){
     return intakeSensor.isRangeValid();
+  }
+
+  public void requestCube(){
+    this.isCubeRequested = true;
+    LED.setCube();
+  }
+  public void requestCone(){
+    this.isCubeRequested = false;
+    LED.setCone();
   }
 
   @Override
