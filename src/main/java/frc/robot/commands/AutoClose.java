@@ -25,14 +25,14 @@ public class AutoClose extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(gripper.isIntakeReadingValid() && gripper.getIntakeSensorDistance() < 105){
+    if(gripper.isIntakeReadingValid() && gripper.getIntakeSensorDistance() < 125){
       i++;
       LED.setGreen();
     }else{
       i =0;
       LED.setIdle();
     }
-    if(i>=5){
+    if(i>=2){
       gripper.closeGripper();
     }
   }

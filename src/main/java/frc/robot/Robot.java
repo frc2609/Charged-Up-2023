@@ -32,6 +32,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     PathPlannerServer.startServer(Constants.Autonomous.PATHPLANNER_SERVER_PORT);
+    m_robotContainer.setArmBrake(true);
   }
 
   /**

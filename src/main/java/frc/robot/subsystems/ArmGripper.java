@@ -21,6 +21,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
@@ -72,6 +73,7 @@ public class ArmGripper extends SubsystemBase {
   // private final DigitalInput intakeSensor = new DigitalInput(7);
   private final Rev2mDistanceSensor intakeSensor;
 
+  // this is using the wrong sensor
   private final Trigger m_pieceDetected = new Trigger(m_gripperSensor::get);
 
   /** @deprecated Use commands to control this subsystem instead. */
@@ -322,10 +324,12 @@ public class ArmGripper extends SubsystemBase {
   }
 
   public void openGripper() {
+    System.out.println(("gripper oppened at Lower: "+Double.toHexString(getLowerArmAngleRelative())+" upper: "+ Double.toString(getUpperArmAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
     m_gripperSolenoid.set(kForward);
   }
 
   public void closeGripper() {
+    System.out.println(("gripper close at Lower: "+Double.toHexString(getLowerArmAngleRelative())+" upper: "+ Double.toString(getUpperArmAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
     m_gripperSolenoid.set(kReverse);
   }
     
