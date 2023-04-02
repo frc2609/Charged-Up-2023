@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.Swerve.AutonomousLimits;
+// import frc.robot.commands.AlignToNode;
 import frc.robot.commands.Autobalance;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
@@ -101,7 +102,9 @@ public class RobotContainer {
   private final JoystickButton m_requestCone = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftStick.value);
   private final JoystickButton m_requestCube = new JoystickButton(
-      m_operatorController, XboxController.Button.kRightStick.value);  
+      m_operatorController, XboxController.Button.kRightStick.value);
+  
+  // private final AlignToNode m_align;
           
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -125,6 +128,7 @@ public class RobotContainer {
       true,
       m_swerveDrive
     );
+    // m_align = new AlignToNode(m_swerveDrive);
   }
 
   /**
@@ -214,6 +218,7 @@ public class RobotContainer {
     // Use `ManualArmAdjustment` if adjusting the arm with the DPAD is desired.
     m_armGripper.setDefaultCommand(new ManualArmControl(m_armGripper, m_operatorController));
     m_swerveDrive.setDefaultCommand(new ManualDrive(m_swerveDrive));
+    // m_swerveDrive.setDefaultCommand(m_align);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(9);
