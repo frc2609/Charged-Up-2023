@@ -30,6 +30,7 @@ import frc.robot.commands.QueueCommand;
 import frc.robot.commands.StowMidToHigh;
 // import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
+import frc.robot.commands.arm.GroundPickCube;
 import frc.robot.commands.arm.PickupPullback;
 import frc.robot.commands.arm.PickupThenExtend;
 import frc.robot.commands.arm.ShortThrowMid;
@@ -139,7 +140,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // driver controls
     m_zeroYawButton.onTrue(new InstantCommand(m_swerveDrive::zeroYaw));
-    m_driverGroundPickup.onTrue(new PickupGrab(m_armGripper));
+    m_driverGroundPickup.onTrue(new PickupGrab(m_armGripper, m_operatorController));
     m_driverPickup.onTrue(new PickupThenExtend(m_armGripper,false));
     // m_enableBalanceLock.whileTrue(new InstantCommand(m_swerveDrive::setBalanceLock, m_swerveDrive));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
@@ -168,6 +169,7 @@ public class RobotContainer {
     m_eventMap.put("Autobalance", new Autobalance(m_swerveDrive));
     m_eventMap.put("MoveArmToStow", new MoveArmToStow(m_armGripper));
     m_eventMap.put("ScoreHigh", new ScoreConeHigh(m_swerveDrive, m_armGripper));
+    m_eventMap.put("DeadlinePickUp", new GroundPickCube(m_armGripper));
   }
   public void resetArmEncoders(){
     m_armGripper.setEncoderOffsets();

@@ -50,6 +50,7 @@ public class ManualArmControl extends CommandBase {
     final double lowerArmIn = MathUtil.applyDeadband(-m_operatorController.getRightY(), Xbox.JOYSTICK_DEADBAND);
     final double upperArmIn = MathUtil.applyDeadband(-m_operatorController.getLeftY(), Xbox.JOYSTICK_DEADBAND);
     // right trigger extends (pos), left trigger retracts (neg)
+  //TODO: APPLY DEADBAND
     final double extensionIn = m_operatorController.getRightTriggerAxis() - m_operatorController.getLeftTriggerAxis();
     // calculate acceleration for each part of the arm
     m_lowerSetpoint += lowerArmIn * Arm.MANUAL_LOWER_ACCELERATION * delta;
