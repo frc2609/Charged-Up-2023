@@ -8,16 +8,20 @@ import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.Rev2mDistanceSensor;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.Rev2mDistanceSensor.Port;
+import com.revrobotics.Rev2mDistanceSensor.Unit;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
@@ -67,7 +71,10 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
   // private final DigitalInput intakeSensor = new DigitalInput(7);
+  private final Rev2mDistanceSensor intakeSensor;
+  private boolean isCubeRequested = false;
 
+  // this is using the wrong sensor
   private final Trigger m_pieceDetected = new Trigger(m_gripperSensor::get);
 
   /** @deprecated Use commands to control this subsystem instead. */
@@ -87,12 +94,32 @@ public class ArmGripper extends SubsystemBase {
     /* Set LEDs only when going from true -> false
      * Prevents this from continously cancelling cone/cube LEDs. */
     m_pieceDetected.onFalse(new InstantCommand(LED::setIdle));
+    intakeSensor = new Rev2mDistanceSensor(Port.kMXP);
+    intakeSensor.setAutomaticMode(true);
+    intakeSensor.setEnabled(true);
+  }
+  public double getIntakeSensorDistance(){
+    return intakeSensor.getRange(Unit.kMillimeters);
+  }
+  public boolean isIntakeReadingValid(){
+    return intakeSensor.isRangeValid();
+  }
+
+  public void requestCube(){
+    this.isCubeRequested = true;
+    LED.setCube();
+  }
+  public void requestCone(){
+    this.isCubeRequested = false;
+    LED.setCone();
   }
 
   @Override
   public void periodic() {
     // configurePIDs();
-    // SmartDashboard.putBoolean("IntakeSensor", intakeSensor.get());
+
+    SmartDashboard.putBoolean("IsintakeRangeValid", intakeSensor.isRangeValid());
+    SmartDashboard.putNumber("IntakeSensor (mm)", intakeSensor.getRange(Unit.kMillimeters));
     // TODO: Modify these as necessary.
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
@@ -123,17 +150,6 @@ public class ArmGripper extends SubsystemBase {
     }
     // gripper sensor status
     SmartDashboard.putBoolean("Gripper Sensor", m_gripperSensor.get());
-  }
-  public void setBrake(boolean isBrake) {
-    if (isBrake) {
-      m_lowerMotor.setIdleMode(IdleMode.kBrake);
-      m_upperMotor.setIdleMode(IdleMode.kBrake);
-      m_extensionMotor.setIdleMode(IdleMode.kBrake);
-    } else {
-      m_lowerMotor.setIdleMode(IdleMode.kCoast);
-      m_upperMotor.setIdleMode(IdleMode.kCoast);
-      m_extensionMotor.setIdleMode(IdleMode.kCoast);
-    }
   }
 
   private void configureEncoders() {
@@ -178,7 +194,7 @@ public class ArmGripper extends SubsystemBase {
 
   private void configurePIDs() {
     m_lowerPID.setP(0.0);
-    m_lowerPID.setI(0.0001);
+    m_lowerPID.setI(0.00015);
     m_lowerPID.setD(0.0);
     m_lowerPID.setIZone(2);
     m_lowerPID.setFF(0.0001);
@@ -193,7 +209,7 @@ public class ArmGripper extends SubsystemBase {
     m_upperPID.setFF(0.0002);
     m_upperPID.setOutputRange(-0.75, 0.75);
     m_upperPID.setSmartMotionMaxVelocity(3500, 0);
-    m_upperPID.setSmartMotionMaxAccel(8000, 0);
+    m_upperPID.setSmartMotionMaxAccel(6000, 0);
 
     m_extensionPID.setP(0);
     m_extensionPID.setI(0);
@@ -230,10 +246,10 @@ public class ArmGripper extends SubsystemBase {
   public double getLowerArmAngleRelative() {
     return m_lowerEncoderRelative.getPosition();
   }
-
-  public double getLowerJointAngularVelocity() {
+  public double getLowerJointAngularVelocity(){
     return m_lowerEncoderRelative.getVelocity();
   }
+
 
   /**
    * Returns the length of the lower arm.
@@ -285,8 +301,7 @@ public class ArmGripper extends SubsystemBase {
   public double getUpperArmTotalLength() {
     return getExtensionDistance() + getUpperArmBaseLength();
   }
-
-  public double getExtensionVelocity() {
+  public double getExtensionVelocity(){
     return m_extensionEncoder.getVelocity();
   }
 
@@ -319,11 +334,25 @@ public class ArmGripper extends SubsystemBase {
   }
 
   public void openGripper() {
+    System.out.println(("gripper oppened at Lower: "+Double.toHexString(getLowerArmAngleRelative())+" upper: "+ Double.toString(getUpperArmAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
     m_gripperSolenoid.set(kForward);
   }
 
   public void closeGripper() {
+    System.out.println(("gripper close at Lower: "+Double.toHexString(getLowerArmAngleRelative())+" upper: "+ Double.toString(getUpperArmAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
     m_gripperSolenoid.set(kReverse);
+  }
+    
+  public void setBrake(boolean isBrake) {
+    if (isBrake) {
+      m_lowerMotor.setIdleMode(IdleMode.kBrake);
+      m_upperMotor.setIdleMode(IdleMode.kBrake);
+      m_extensionMotor.setIdleMode(IdleMode.kBrake);
+    } else {
+      m_lowerMotor.setIdleMode(IdleMode.kCoast);
+      m_upperMotor.setIdleMode(IdleMode.kCoast);
+      m_extensionMotor.setIdleMode(IdleMode.kCoast);
+    }
   }
 
   /** Set the lower arm angle relative to the front of the robot in degrees. */

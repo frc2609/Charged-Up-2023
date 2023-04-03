@@ -33,7 +33,7 @@ public final class Constants {
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
-            public static final double LOWER_POSITION_OFFSET = 0.625;
+            public static final double LOWER_POSITION_OFFSET = 0.395;
             /** Parallel robot front (angle = 90.0 degrees). 
              * Encoder values increase as the arm moves away from the front of
              * the robot.
@@ -67,7 +67,7 @@ public final class Constants {
             public static final double RETRACT_UPPER = 94.0;
             public static final double RETRACT_EXTENSION = 0.0;
             public static final double STOW_LOWER = 104.60;
-            public static final double STOW_UPPER = 21.09;
+            public static final double STOW_UPPER = 19;
             public static final double STOW_EXTENSION = 0.0;
         }
         public static final class Ratios {
@@ -320,7 +320,7 @@ public final class Constants {
             /** The maximum linear acceleration the robot should achieve in m/s^2. */
             public static final double MAX_LINEAR_ACCELERATION = 1.5;
             /** The maximum speed the drivetrain should go in autonomous in m/s. */
-            public static final double MAX_LINEAR_VELOCITY = 2.0;
+            public static final double MAX_LINEAR_VELOCITY = 1.5;
         }
         /** Teleop acceleration and velocity limits */
         public final static class TeleopLimits {

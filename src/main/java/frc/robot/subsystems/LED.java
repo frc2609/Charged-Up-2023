@@ -15,6 +15,7 @@ import frc.robot.Constants.PWMID;
 public class LED {
   // REV Blinkin pretends to be a PWM motor controller
   private static final Spark m_controller = new Spark(PWMID.REV_BLINKIN);
+  private double currentColor;
 
   /** Colour values are located in {@link frc.robot.Constants.LED Constants::LED}. */
   public static void setColour(double colour) {

@@ -21,7 +21,7 @@ import frc.robot.subsystems.SwerveDrive;
  */
 public class Autobalance extends CommandBase {
   private final PIDController m_anglePIDController 
-      = new PIDController(START_P, 0, 0);
+      = new PIDController(START_P, 0, 0.0017);
   private final SwerveDrive m_swerveDrive;
 
   /** 

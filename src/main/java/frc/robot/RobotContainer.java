@@ -8,9 +8,9 @@ import java.util.HashMap;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.PowerDistribution;
+// import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+// import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,10 +25,18 @@ import frc.robot.commands.MoveArmProfiled;
 import frc.robot.commands.MoveArmToGroundPickup;
 import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToStow;
+import frc.robot.commands.PickupGrab;
 import frc.robot.commands.QueueCommand;
+import frc.robot.commands.StowMidToHigh;
 // import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
+import frc.robot.commands.arm.GroundPickCube;
+import frc.robot.commands.arm.PickupPullback;
+import frc.robot.commands.arm.PickupThenExtend;
+import frc.robot.commands.arm.ShortThrowMid;
 import frc.robot.commands.autonomous.ScoreConeHigh;
+import frc.robot.commands.request.RequestCone;
+import frc.robot.commands.request.RequestCube;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.SwerveDrive;
@@ -56,8 +64,8 @@ public class RobotContainer {
       NetworkTableInstance.getDefault().getTable("limelight");
   private final SwerveDrive m_swerveDrive;
   private final SwerveAutoBuilder m_autoBuilder;
-  private final PowerDistribution m_powerDistribution =
-      new PowerDistribution(1, ModuleType.kRev);
+  // private final PowerDistribution m_powerDistribution =
+  //     new PowerDistribution(1, ModuleType.kRev);
   private final XboxController m_driverController = new XboxController(
       Constants.Xbox.DRIVER_CONTROLLER_PORT);
   private final XboxController m_operatorController = new XboxController(
@@ -132,26 +140,26 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // driver controls
     m_zeroYawButton.onTrue(new InstantCommand(m_swerveDrive::zeroYaw));
-    m_driverGroundPickup.onTrue(new MoveArmToGroundPickup(m_armGripper));
-    m_driverPickup.onTrue(new MoveArmProfiled(m_armGripper, "LongThrowPickup"));
+    m_driverGroundPickup.onTrue(new PickupGrab(m_armGripper, m_operatorController));
+    m_driverPickup.onTrue(new PickupThenExtend(m_armGripper,false));
     // m_enableBalanceLock.whileTrue(new InstantCommand(m_swerveDrive::setBalanceLock, m_swerveDrive));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
-    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "LongThrowMid")));
-    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "LongThrowHighHD")));
+    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new ShortThrowMid(m_armGripper)));
+    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new StowMidToHigh(m_armGripper)));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
     m_resetArmEncoders.onTrue(new InstantCommand(m_armGripper::setEncoderOffsets));
     // operator LED controls
     // blink LEDs while held
     m_requestCone.whileTrue(new InstantCommand(LED::setUrgentCone));
-    // set solid while not held (when button no longer held set solid)
-    m_requestCone.onFalse(new InstantCommand(LED::setCone));
+    // set solid while not held (when button no longer held sets to solid)
+    m_requestCone.onFalse(new RequestCone(m_armGripper));
     m_requestCube.whileTrue(new InstantCommand(LED::setUrgentCube));
-    m_requestCube.onFalse(new InstantCommand(LED::setCube));
+    m_requestCube.onFalse(new RequestCube(m_armGripper));
   }
 
   /** 
@@ -161,6 +169,7 @@ public class RobotContainer {
     m_eventMap.put("Autobalance", new Autobalance(m_swerveDrive));
     m_eventMap.put("MoveArmToStow", new MoveArmToStow(m_armGripper));
     m_eventMap.put("ScoreHigh", new ScoreConeHigh(m_swerveDrive, m_armGripper));
+    m_eventMap.put("DeadlinePickUp", new GroundPickCube(m_armGripper));
   }
   public void resetArmEncoders(){
     m_armGripper.setEncoderOffsets();
@@ -179,6 +188,7 @@ public class RobotContainer {
     m_pathChooser.setDefaultOption("ScoreThenAutobalance", PathPlanner.loadPath("ScoreThenAutobalance", constraints));
     m_pathChooser.addOption("ScoreThenDriveOut", PathPlanner.loadPath("ScoreThenDriveOut", constraints));
     m_pathChooser.addOption("ScoreThenDriveOutAndRotate", PathPlanner.loadPath("ScoreThenDriveOutAndRotate", constraints));
+    m_pathChooser.addOption("ConeCubeAuto", PathPlanner.loadPath("ConeCubeAuto", constraints));
     SmartDashboard.putData(m_pathChooser);
   }
 
@@ -223,19 +233,19 @@ public class RobotContainer {
     return m_autoBuilder.fullAuto(m_pathChooser.getSelected());
   }
 
-  //TODO: Temp til Antoine puts on absolute encoders
-  public void setRotToCoast() {
-    m_swerveDrive.setRotCoast();
+  public void setArmBrake(boolean isBrake) {
+    m_armGripper.setBrake(isBrake);
   }
 
-  public void setArmBrake(boolean isBrake){
-    m_armGripper.setBrake(isBrake);
+  //TODO: Temp til Antoine puts on absolute encoders
+  public void setRotationBrake(boolean isBrake) {
+    m_swerveDrive.setRotationBrake(isBrake);
   }
 
   /**
    * Update NetworkTables values set by RobotContainer.
    */
   public void updateNetworkTables() {
-    SmartDashboard.putNumber("Robot Current Draw (A)", m_powerDistribution.getTotalCurrent());
+    // SmartDashboard.putNumber("Robot Current Draw (A)", m_powerDistribution.getTotalCurrent());
   }
 }

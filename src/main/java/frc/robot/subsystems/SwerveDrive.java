@@ -448,11 +448,11 @@ public class SwerveDrive extends SubsystemBase {
         && m_rearLeft.rotateTo(angle) && m_rearRight.rotateTo(angle);
   }
 
-  public void setRotCoast(){
-    m_frontLeft.setRotCoast();
-    m_frontRight.setRotCoast();
-    m_rearLeft.setRotCoast();
-    m_rearRight.setRotCoast();
+  public void setRotationBrake(boolean isBreak){
+    m_frontLeft.setRotationBrakeMode(isBreak);
+    m_frontRight.setRotationBrakeMode(isBreak);
+    m_rearLeft.setRotationBrakeMode(isBreak);
+    m_rearRight.setRotationBrakeMode(isBreak);
   } // Map to user button?
 
   /**
