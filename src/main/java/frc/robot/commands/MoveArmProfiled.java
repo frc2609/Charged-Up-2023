@@ -58,33 +58,33 @@ public class MoveArmProfiled extends CommandBase {
       {63.90103108877357,139.2561117683693,0.0},
       {63.599444373251984,139.700555626748,0.0}});
     
-    paths.put("ShortThrowMid", new double[][]{
-      {101.0,101.0,0.0},
-      {100.81264467592592,101.25824652777779,0.0},
-      {100.27199074074075,102.00347222222223,0.0},
-      {99.41015625,103.19140625,0.0},
-      {98.25925925925925,104.77777777777777,0.0},
-      {96.85141782407408,106.71831597222223,0.0},
-      {95.21875,108.96875000000001,0.0},
-      {93.3933738425926,111.48480902777777,0.0},
-      {91.4074074074074,114.22222222222223,0.0},
-      {89.29296875000001,117.13671875,0.0},
-      {87.08217592592592,120.18402777777777,0.0},
-      {84.80714699074075,123.31987847222221,0.0},
-      {82.50000000000001,126.5,0.0},
-      {80.19285300925927,129.68012152777777,0.0},
-      {77.91782407407409,132.8159722222222,0.0},
-      {75.70703125000001,135.86328125,0.0},
-      {73.59259259259258,138.77777777777777,0.0},
-      {71.6066261574074,141.5151909722222,0.0},
-      {69.78125,144.03125,0.0},
-      {68.14858217592594,146.28168402777777,0.0},
-      {66.74074074074073,148.22222222222223,0.0},
-      {65.58984375,149.80859375,0.0},
-      {64.72800925925927,150.99652777777777,0.0},
-      {64.18735532407408,151.74175347222223,0.0},
-      {64.0,152.0,0.0},
-  });
+    paths.put("ShortThrowMidPrep", new double[][]{{104.6,21.09000000000001,0.0},
+      {104.59125364431486,22.094518950437347,0.0},
+      {104.56676384839649,24.907172011661814,0.0},
+      {104.52915451895043,29.226603498542268,0.0},
+      {104.48104956268222,34.751457725947525,0.0},
+      {104.42507288629739,41.18037900874635,0.0},
+      {104.36384839650145,48.21201166180757,0.0},
+      {104.3,55.54500000000001,0.0},
+      {104.23615160349854,62.87798833819244,0.0},
+      {104.17492711370262,69.90962099125365,0.0},
+      {104.11895043731779,76.33854227405249,0.0},
+      {104.07084548104957,81.86339650145771,0.0},
+      {104.0332361516035,86.18282798833819,0.0},
+      {104.00874635568515,88.99548104956267,0.0},
+      {104.0,90.0,0.0},
+    }
+      );
+    paths.put("ReachMid", new double[][]{{104.0,90.0,0.0},
+      {102.62825788751715,92.12620027434842,0.0},
+      {98.9519890260631,97.8244170096022,0.0},
+      {93.62962962962963,106.07407407407408,0.0},
+      {87.31961591220852,115.85459533607681,0.0},
+      {80.6803840877915,126.14540466392317,0.0},
+      {74.37037037037037,135.92592592592592,0.0},
+      {69.04801097393691,144.1755829903978,0.0},
+      {65.37174211248285,149.8737997256516,0.0},
+      {64.0,152.0,0.0}});
     paths.put("PickToStow", new double[][]{{98.9,91.3,0.0},
     {99.0954732510288,88.89224965706447,0.0},
     {99.61934156378601,82.43947873799725,0.0},
@@ -175,7 +175,30 @@ public class MoveArmProfiled extends CommandBase {
         });
     paths.put("ExtendToPickup", new double[][]{
       {100.0,102.2,0.0},
-      {100.0,102.2,0.05}
+      {99.99999999999999,102.18885995370371,0.0002025462962962963},
+      {100.0,102.15671296296297,0.000787037037037037},
+      {100.0,102.10546875,0.00171875},
+      {99.99999999999999,102.03703703703704,0.002962962962962963},
+      {100.00000000000001,101.95332754629631,0.004484953703703704},
+      {100.00000000000001,101.85625,0.00625},
+      {100.0,101.74771412037038,0.008223379629629629},
+      {100.0,101.62962962962963,0.01037037037037037},
+      {100.00000000000001,101.50390625,0.01265625},
+      {100.0,101.37245370370371,0.015046296296296295},
+      {100.00000000000001,101.23718171296296,0.017505787037037035},
+      {100.0,101.1,0.02},
+      {100.0,100.96281828703705,0.022494212962962966},
+      {100.0,100.8275462962963,0.0249537037037037},
+      {100.00000000000001,100.69609375,0.027343750000000003},
+      {99.99999999999999,100.57037037037037,0.029629629629629634},
+      {100.0,100.45228587962964,0.031776620370370365},
+      {100.00000000000001,100.34375,0.03375},
+      {100.0,100.2466724537037,0.03551504629629629},
+      {100.0,100.16296296296296,0.03703703703703704},
+      {100.0,100.09453125,0.03828125},
+      {100.0,100.04328703703703,0.039212962962962956},
+      {100.0,100.01114004629629,0.03979745370370372},
+      {100.0,100.0,0.04}
     });
     paths.put("PickupPullback", new double[][]{
       {100.0,102.2,0.05},
@@ -286,8 +309,8 @@ public class MoveArmProfiled extends CommandBase {
   }
 
   public double[] getNearestSetpoint(double dt) {
-    double predicted_lower = (m_armGripper.getLowerArmAngleRelative()+(dt*m_armGripper.getLowerJointAngularVelocity()));
-    double predicted_upper = (m_armGripper.getUpperArmAngleRelative()+(dt*m_armGripper.getUpperJointAngularVelocity()));
+    double predicted_lower = (m_armGripper.getLowerAngleRelative()+(dt*m_armGripper.getLowerJointAngularVelocity()));
+    double predicted_upper = (m_armGripper.getUpperAngleRelative()+(dt*m_armGripper.getUpperJointAngularVelocity()));
     double predicted_extension = (m_armGripper.getExtensionDistance()+(dt*m_armGripper.getExtensionVelocity()));
     double curr_lowerError = Math.abs(predicted_lower-currentPath[i][0]);
     double curr_upperError = Math.abs(predicted_upper-currentPath[i][1]);
@@ -351,8 +374,8 @@ public class MoveArmProfiled extends CommandBase {
     //   getNearestSetpoint(Timer.getFPGATimestamp()-prevLoop);
     // }
     i=(int) Math.ceil(Timer.getFPGATimestamp()-startTime)*50; // 50 loops per second = 0.02 seconds per loop
-    System.out.println("LOOP");
-    System.out.println(i);
+    // System.out.println("LOOP");
+    // System.out.println(i);
 
     if(i <= currentPath.length-1){
       if(isReverse){
@@ -408,8 +431,8 @@ public class MoveArmProfiled extends CommandBase {
   @Override
   public boolean isFinished() {
     //return i>lowerSetpoint.length-1 // try this if it finishes too early
-    boolean isLowerInTolerance = Math.abs(m_armGripper.getLowerArmAngleRelative()-currentPath[currentPath.length-1][0])<Tolerances.LOWER_ANGLE;
-    boolean isUpperInTolerance = Math.abs(m_armGripper.getUpperArmAngleRelative()-currentPath[currentPath.length-1][1])<Tolerances.UPPER_ANGLE;
+    boolean isLowerInTolerance = Math.abs(m_armGripper.getLowerAngleRelative()-currentPath[currentPath.length-1][0])<Tolerances.LOWER_ANGLE;
+    boolean isUpperInTolerance = Math.abs(m_armGripper.getUpperAngleRelative()-currentPath[currentPath.length-1][1])<Tolerances.UPPER_ANGLE;
     boolean isExtensionInTolerance = Math.abs(m_armGripper.getExtensionDistance()-currentPath[currentPath.length-1][2])<Tolerances.EXTENSION_LENGTH;
     return i>=currentPath.length-1 && (isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance);
   }

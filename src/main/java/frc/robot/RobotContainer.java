@@ -22,7 +22,6 @@ import frc.robot.Constants.Swerve.AutonomousLimits;
 import frc.robot.commands.Autobalance;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
-import frc.robot.commands.MoveArmProfiled;
 // import frc.robot.commands.MoveArmToGroundPickup;
 import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToStow;
@@ -31,8 +30,9 @@ import frc.robot.commands.QueueCommand;
 import frc.robot.commands.StowMidToHigh;
 // import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
-// import frc.robot.commands.arm.PickupPullback;
+import frc.robot.commands.arm.GroundPickCube;
 import frc.robot.commands.arm.PickupThenExtend;
+import frc.robot.commands.arm.ShortThrowMid;
 import frc.robot.commands.autonomous.ScoreConeHigh;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.LED;
@@ -140,7 +140,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // driver controls
     m_zeroYawButton.onTrue(new InstantCommand(m_swerveDrive::zeroYaw));
-    m_driverGroundPickup.onTrue(new PickupGrab(m_armGripper));
+    m_driverGroundPickup.onTrue(new PickupGrab(m_armGripper, m_operatorController));
     m_driverPickup.onTrue(new PickupThenExtend(m_armGripper,false));
     // m_enableBalanceLock.whileTrue(new InstantCommand(m_swerveDrive::setBalanceLock, m_swerveDrive));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
@@ -148,7 +148,7 @@ public class RobotContainer {
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
-    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmProfiled(m_armGripper, "ShortThrowMid",false)));
+    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new ShortThrowMid(m_armGripper)));
     m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new StowMidToHigh(m_armGripper)));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
@@ -157,9 +157,9 @@ public class RobotContainer {
     // blink LEDs while held
     m_requestCone.whileTrue(new InstantCommand(LED::setUrgentCone));
     // set solid while not held (when button no longer held sets to solid)
-    m_requestCone.onFalse(new InstantCommand(LED::setCone));
+    m_requestCone.onFalse(new InstantCommand(m_armGripper::requestCone));
     m_requestCube.whileTrue(new InstantCommand(LED::setUrgentCube));
-    m_requestCube.onFalse(new InstantCommand(LED::setCube));
+    m_requestCube.onFalse(new InstantCommand(m_armGripper::requestCube));
   }
 
   /** 
@@ -169,9 +169,7 @@ public class RobotContainer {
     m_eventMap.put("Autobalance", new Autobalance(m_swerveDrive));
     m_eventMap.put("MoveArmToStow", new MoveArmToStow(m_armGripper));
     m_eventMap.put("ScoreHigh", new ScoreConeHigh(m_swerveDrive, m_armGripper));
-  }
-  public void resetArmEncoders(){
-    m_armGripper.setEncoderOffsets();
+    m_eventMap.put("DeadlinePickUp", new GroundPickCube(m_armGripper));
   }
 
   /**
@@ -231,6 +229,10 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return m_autoBuilder.fullAuto(m_pathChooser.getSelected());
+  }
+
+  public void resetArmEncoders(){
+    m_armGripper.setEncoderOffsets();
   }
 
   public void setArmBrake(boolean isBrake) {

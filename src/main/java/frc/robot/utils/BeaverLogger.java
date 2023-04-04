@@ -148,10 +148,10 @@ public class BeaverLogger {
 			data.append(Double.toString(setpoint[1]) + ',');
 			data.append(Double.toString(setpoint[2]) + ',');
 
-			data.append(Double.toString(arm.getLowerArmAngleRelative()) + ',');
+			data.append(Double.toString(arm.getLowerAngleRelative()) + ',');
 			data.append(Double.toString(arm.getLowerJointAngularVelocity()) + ',');
 			
-			data.append(Double.toString(arm.getUpperArmAngleRelative()) + ',');
+			data.append(Double.toString(arm.getUpperAngleRelative()) + ',');
 			data.append(Double.toString(arm.getUpperJointAngularVelocity()) + ',');
 
 			data.append(Double.toString(arm.getExtensionDistance()) + ',');

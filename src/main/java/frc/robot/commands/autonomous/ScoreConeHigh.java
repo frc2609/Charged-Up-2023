@@ -28,7 +28,7 @@ public class ScoreConeHigh extends SequentialCommandGroup {
             )
         ),
         // wait for the arm to settle
-        Commands.waitSeconds(0.2),
+        Commands.waitSeconds(0.5),
         new InstantCommand(arm::openGripper, arm)
     );
   }
