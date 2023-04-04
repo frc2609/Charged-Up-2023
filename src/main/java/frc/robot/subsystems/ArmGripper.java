@@ -19,15 +19,12 @@ import com.revrobotics.Rev2mDistanceSensor.Unit;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.CANID;
 import frc.robot.Constants.DIO;
@@ -54,25 +51,20 @@ public class ArmGripper extends SubsystemBase {
   private final CANSparkMax m_upperMotor = new CANSparkMax(CANID.UPPER_ARM_MOTOR, MotorType.kBrushless);
   private final CANSparkMax m_extensionMotor = new CANSparkMax(CANID.EXTENSION_MOTOR, MotorType.kBrushless);
 
-  private final DigitalInput m_gripperSensor = new DigitalInput(DIO.GRIPPER_SENSOR);
-
   // Absolute encoder range is 0 to 1
   private final DutyCycleEncoder m_lowerEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_LOWER_ENCODER);
   private final DutyCycleEncoder m_upperEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER);
 
   private final RelativeEncoder m_lowerEncoderRelative = m_lowerMotor.getEncoder();
   private final RelativeEncoder m_upperEncoderRelative = m_upperMotor.getEncoder();
-
-  private final RelativeEncoder m_extensionEncoder = m_extensionMotor.getEncoder();
-  // TODO: add other (relative) encoders here
+  private final RelativeEncoder m_extensionEncoderRelative = m_extensionMotor.getEncoder();
 
   private final SparkMaxPIDController m_lowerPID = m_lowerMotor.getPIDController();
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
-  // private final DigitalInput intakeSensor = new DigitalInput(7);
-  private final Rev2mDistanceSensor intakeSensor;
 
-  private final Trigger m_pieceDetected = new Trigger(m_gripperSensor::get);
+  private final Rev2mDistanceSensor m_intakeSensor;
+  private boolean m_isCubeRequested;
 
   /** @deprecated Use commands to control this subsystem instead. */
   private final XboxController m_operatorController;
@@ -87,28 +79,22 @@ public class ArmGripper extends SubsystemBase {
     configureMotors();
     configurePIDs();
     m_operatorController = operatorController;
-    m_pieceDetected.onTrue(new InstantCommand(LED::setLime));
-    /* Set LEDs only when going from true -> false
-     * Prevents this from continously cancelling cone/cube LEDs. */
-    m_pieceDetected.onFalse(new InstantCommand(LED::setIdle));
-    intakeSensor = new Rev2mDistanceSensor(Port.kMXP);
-    intakeSensor.setAutomaticMode(true);
-    intakeSensor.setEnabled(true);
+    m_intakeSensor = new Rev2mDistanceSensor(Port.kMXP);
+    m_intakeSensor.setAutomaticMode(true);
+    m_intakeSensor.setEnabled(true);
   }
   public double getIntakeSensorDistance(){
-    return intakeSensor.getRange(Unit.kMillimeters);
+    return m_intakeSensor.getRange(Unit.kMillimeters);
   }
 
   @Override
   public void periodic() {
-    // configurePIDs();
-
-    SmartDashboard.putBoolean("IsintakeRangeValid", intakeSensor.isRangeValid());
-    SmartDashboard.putNumber("IntakeSensor (mm)", intakeSensor.getRange(Unit.kMillimeters));
-    // TODO: Modify these as necessary.
+    // intake sensor
+    SmartDashboard.putBoolean("IsIntakeRangeValid", m_intakeSensor.isRangeValid());
+    SmartDashboard.putNumber("Intake Sensor (mm)", m_intakeSensor.getRange(Unit.kMillimeters));
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
-    SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoder.getVelocity());
+    SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoderRelative.getVelocity());
     // angles
     SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerArmAngleRelative());
@@ -116,13 +102,12 @@ public class ArmGripper extends SubsystemBase {
     // SmartDashboard.putNumber("Upper Arm Relative Angle (Deg)", m_upperEncoderAbsolute.getDistance());
     SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperArmAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Upper Arm NEO Encoder Position", getUpperArmAngleRelative());
-    SmartDashboard.putNumber("Lower Arm Raw Absolute Position", m_lowerEncoderAbsolute.getAbsolutePosition());
     // lengths
     SmartDashboard.putNumber("Lower Arm Length (m)", getLowerArmLength());
     SmartDashboard.putNumber("Upper Arm Base Length (m)", getUpperArmBaseLength());
     SmartDashboard.putNumber("Upper Arm Total Length (m)", getUpperArmTotalLength());
     SmartDashboard.putNumber("Arm Extension Distance (m)", getExtensionDistance());
-
+    // temperature
     SmartDashboard.putNumber("Lower Arm Motor Temp (C)", m_lowerMotor.getMotorTemperature());
     SmartDashboard.putNumber("Upper Arm Motor Temp (C)", m_upperMotor.getMotorTemperature());
     SmartDashboard.putNumber("Extension Arm Motor Temp (C)", m_extensionMotor.getMotorTemperature());
@@ -133,22 +118,20 @@ public class ArmGripper extends SubsystemBase {
     if (m_gripperSolenoid.isRevSolenoidDisabled()) {
       System.out.print("CLOSE SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
     }
-    // gripper sensor status
-    SmartDashboard.putBoolean("Gripper Sensor", m_gripperSensor.get());
   }
 
   private void configureEncoders() {
     m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
     m_upperEncoderRelative.setPositionConversionFactor(Encoder.UPPER_POSITION_CONVERSION);
-    m_extensionEncoder.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
+    m_extensionEncoderRelative.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
     m_lowerEncoderRelative.setVelocityConversionFactor(Encoder.LOWER_POSITION_CONVERSION*60.0); // rpm -> rps
     m_upperEncoderRelative.setVelocityConversionFactor(Encoder.LOWER_POSITION_CONVERSION*60.0);
-    m_extensionEncoder.setVelocityConversionFactor(Encoder.LOWER_POSITION_CONVERSION*60.0);
+    m_extensionEncoderRelative.setVelocityConversionFactor(Encoder.LOWER_POSITION_CONVERSION*60.0);
     // Copy absolute position to NEO encoders
     m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
     m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());
     // Reset extension encoder
-    m_extensionEncoder.setPosition(0.0);
+    m_extensionEncoderRelative.setPosition(0.0);
   }
 
   private void configureMotors() {
@@ -211,7 +194,7 @@ public class ArmGripper extends SubsystemBase {
    * @return The amount the arm extension has extended in metres.
    */
   public double getExtensionDistance() {
-    return m_extensionEncoder.getPosition();
+    return m_extensionEncoderRelative.getPosition();
   }
 
   /**
@@ -287,7 +270,7 @@ public class ArmGripper extends SubsystemBase {
     return getExtensionDistance() + getUpperArmBaseLength();
   }
   public double getExtensionVelocity(){
-    return m_extensionEncoder.getVelocity();
+    return m_extensionEncoderRelative.getVelocity();
   }
 
   /**
@@ -305,7 +288,7 @@ public class ArmGripper extends SubsystemBase {
    * @return Whether or not the intake sensor reading is valid.
    */
   public boolean isIntakeReadingValid() {
-    return intakeSensor.isRangeValid();
+    return m_intakeSensor.isRangeValid();
   }
 
   /** 
@@ -328,11 +311,23 @@ public class ArmGripper extends SubsystemBase {
   }
 
   public void openGripper() {
+    System.out.println(("gripper oppened at Lower: "+Double.toHexString(getLowerArmAngleRelative())+" upper: "+ Double.toString(getUpperArmAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
     m_gripperSolenoid.set(kForward);
   }
 
   public void closeGripper() {
+    System.out.println(("gripper close at Lower: "+Double.toHexString(getLowerArmAngleRelative())+" upper: "+ Double.toString(getUpperArmAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
     m_gripperSolenoid.set(kReverse);
+  }
+
+  public void requestCube(){
+    m_isCubeRequested = true;
+    LED.setCube();
+  }
+  
+  public void requestCone(){
+    m_isCubeRequested = false;
+    LED.setCone();
   }
     
   public void setBrake(boolean isBrake) {

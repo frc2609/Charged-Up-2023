@@ -33,7 +33,8 @@ public final class Constants {
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
-            public static final double LOWER_POSITION_OFFSET = 0.625;
+            // TODO: change (lower arm chain replaced)
+            public static final double LOWER_POSITION_OFFSET = 0.395;
             /** Parallel robot front (angle = 90.0 degrees). 
              * Encoder values increase as the arm moves away from the front of
              * the robot.
@@ -181,7 +182,6 @@ public final class Constants {
     public static final class DIO {
         public static final int ARM_LOWER_ENCODER = 0;
         public static final int ARM_UPPER_ENCODER = 1;
-        public static final int GRIPPER_SENSOR = 7;
     } 
     public static final class LED {
         public static final double BLUE = 0.87;
