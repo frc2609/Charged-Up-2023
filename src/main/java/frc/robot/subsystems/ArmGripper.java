@@ -83,31 +83,29 @@ public class ArmGripper extends SubsystemBase {
     m_intakeSensor.setAutomaticMode(true);
     m_intakeSensor.setEnabled(true);
   }
-  public double getIntakeSensorDistance(){
-    return m_intakeSensor.getRange(Unit.kMillimeters);
-  }
 
   @Override
   public void periodic() {
     // intake sensor
     SmartDashboard.putBoolean("IsIntakeRangeValid", m_intakeSensor.isRangeValid());
     SmartDashboard.putNumber("Intake Sensor (mm)", m_intakeSensor.getRange(Unit.kMillimeters));
+    // extension
+    SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoderRelative.getVelocity());
+    // absolute encoder value
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
-    SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoderRelative.getVelocity());
-    // angles
+    // absolute angle
     SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
-    SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerArmAngleRelative());
-    // That does not work
-    // SmartDashboard.putNumber("Upper Arm Relative Angle (Deg)", m_upperEncoderAbsolute.getDistance());
-    SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperArmAngleAbsolute()); // positive away from robot
-    SmartDashboard.putNumber("Upper Arm NEO Encoder Position", getUpperArmAngleRelative());
+    SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperAngleAbsolute()); // positive away from robot
+    // relative angle
+    SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerAngleRelative());
+    SmartDashboard.putNumber("Upper Arm NEO Encoder Position", getUpperAngleRelative());
     // lengths
     SmartDashboard.putNumber("Lower Arm Length (m)", getLowerArmLength());
     SmartDashboard.putNumber("Upper Arm Base Length (m)", getUpperArmBaseLength());
     SmartDashboard.putNumber("Upper Arm Total Length (m)", getUpperArmTotalLength());
     SmartDashboard.putNumber("Arm Extension Distance (m)", getExtensionDistance());
-    // temperature
+    // temperatures
     SmartDashboard.putNumber("Lower Arm Motor Temp (C)", m_lowerMotor.getMotorTemperature());
     SmartDashboard.putNumber("Upper Arm Motor Temp (C)", m_upperMotor.getMotorTemperature());
     SmartDashboard.putNumber("Extension Arm Motor Temp (C)", m_extensionMotor.getMotorTemperature());
@@ -121,15 +119,17 @@ public class ArmGripper extends SubsystemBase {
   }
 
   private void configureEncoders() {
+    // position
     m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
     m_upperEncoderRelative.setPositionConversionFactor(Encoder.UPPER_POSITION_CONVERSION);
     m_extensionEncoderRelative.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
-    m_lowerEncoderRelative.setVelocityConversionFactor(Encoder.LOWER_POSITION_CONVERSION*60.0); // rpm -> rps
-    m_upperEncoderRelative.setVelocityConversionFactor(Encoder.LOWER_POSITION_CONVERSION*60.0);
-    m_extensionEncoderRelative.setVelocityConversionFactor(Encoder.LOWER_POSITION_CONVERSION*60.0);
+    // velocity
+    m_lowerEncoderRelative.setVelocityConversionFactor(Encoder.LOWER_VELOCITY_CONVERSION);
+    m_upperEncoderRelative.setVelocityConversionFactor(Encoder.UPPER_VELOCITY_CONVERSION);
+    m_extensionEncoderRelative.setVelocityConversionFactor(Encoder.EXTENSION_VELOCITY_CONVERSION);
     // Copy absolute position to NEO encoders
     m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
-    m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());
+    m_upperEncoderRelative.setPosition(getUpperAngleAbsolute());
     // Reset extension encoder
     m_extensionEncoderRelative.setPosition(0.0);
   }
@@ -198,26 +198,51 @@ public class ArmGripper extends SubsystemBase {
   }
 
   /**
-   * Returns the angle of the lower arm relative to the front of the robot using the absolute encoder.
-   * WARNING: THIS MAY NOT ALWAYS BE ACCURATE! THIS FUNCTION SHOULD ONLY BE USED FOR OFFSET SETTING PURPOSES ONLY
+   * Returns the velocity of the upper arm extension.
+   * @return The velocity of the upper arm extension in m/s.
+   */
+  public double getExtensionVelocity() {
+    return m_extensionEncoderRelative.getVelocity();
+  }
+
+  /**
+   * Returns the distance from the intake sensor to an object in front of the
+   * intake.
+   * @return The distance from the intake sensor to another object in millimetres.
+   */
+  public double getIntakeSensorDistance() {
+    return m_intakeSensor.getRange(Unit.kMillimeters);
+  }
+
+  /**
+   * Returns the angle of the lower arm relative to the front of the robot
+   * using the absolute encoder.
+   * <p>WARNING: This value is only accurate for certain arm positions (mostly
+   * when the arm is facing upwards). Only use this reading to offset the NEO
+   * encoders at the start of the match!
    * @return The robot-relative angle of the lower arm in degrees.
    */
   private double getLowerAngleAbsolute() {
-    // plus 90 because the offset was measured at 90.0 degrees
-    return (((m_lowerEncoderAbsolute.getAbsolutePosition() - Encoder.LOWER_POSITION_OFFSET) * Ratios.LOWER_ARM_CHAIN) * 360.0) + 90.0;
+    // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
+    return ((m_lowerEncoderAbsolute.getAbsolutePosition() - Encoder.LOWER_POSITION_OFFSET) * Encoder.LOWER_ABSOLUTE_POSITION_CONVERSION) + 90.0;
   }
 
-   /**
-   * Returns the angle of the lower arm relative to the front of the robot using the absolute encoder.
+  /**
+   * Returns the angle of the lower arm relative to the front of the robot
+   * using the absolute encoder.
    * @return The robot-relative angle of the lower arm in degrees.
    */
-  public double getLowerArmAngleRelative() {
+  public double getLowerAngleRelative() {
     return m_lowerEncoderRelative.getPosition();
   }
-  public double getLowerJointAngularVelocity(){
+
+  /**
+   * Returns the angular velocity of the lower arm joint.
+   * @return The angular velocity of the lower arm joint in degrees per second.
+   */
+  public double getLowerJointAngularVelocity() {
     return m_lowerEncoderRelative.getVelocity();
   }
-
 
   /**
    * Returns the length of the lower arm.
@@ -228,28 +253,29 @@ public class ArmGripper extends SubsystemBase {
   }
 
   /**
-   * Returns the angle of the upper arm relative to the front of the robot using the absolute encoder.
-   * WARNING: THIS MAY NOT ALWAYS BE ACCURATE! THIS FUNCTION SHOULD ONLY BE USED FOR OFFSET SETTING PURPOSES ONLY
+   * Returns the angle of the upper arm relative to the lower arm in degrees.
+   * <p>WARNING: This value is only accurate for certain arm positions (mostly
+   * when the arm is facing upwards). Only use this reading to offset the NEO
+   * encoders at the start of the match!
    * @return The robot-relative angle of the upper arm in degrees.
    */
-  private double getUpperArmAngleAbsolute() {
-    /* The upper arm angle is relative to the lower arm. To calculate the
-     * robot-relative angle of the upper arm, subtract the upper arm relative
-     * angle from the lower arm angle.
-     * TODO: show this in a markdown file
-     * TODO: clean up encoder calculations and encoder calculation functions
-     */
-    return ((m_upperEncoderAbsolute.getAbsolutePosition()-Encoder.UPPER_POSITION_OFFSET)*Ratios.UPPER_ARM_CHAIN*360)+90;
+  private double getUpperAngleAbsolute() {
+    // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
+    return ((m_upperEncoderAbsolute.getAbsolutePosition() - Encoder.UPPER_POSITION_OFFSET) * Encoder.LOWER_ABSOLUTE_POSITION_CONVERSION) + 90.0;
   }
 
-   /**
+  /**
    * Returns the angle of the upper arm relative to the front of the robot using the absolute encoder.
    * @return The robot-relative angle of the upper arm in degrees.
    */
-  public double getUpperArmAngleRelative(){
+  public double getUpperAngleRelative() {
     return m_upperEncoderRelative.getPosition();
   }
   
+  /**
+   * Returns the angular velocity of the upper arm joint.
+   * @return The angular velocity of the upper arm joint in degrees per second.
+   */
   public double getUpperJointAngularVelocity() {
     return m_upperEncoderRelative.getVelocity();
   }
@@ -269,16 +295,13 @@ public class ArmGripper extends SubsystemBase {
   public double getUpperArmTotalLength() {
     return getExtensionDistance() + getUpperArmBaseLength();
   }
-  public double getExtensionVelocity(){
-    return m_extensionEncoderRelative.getVelocity();
-  }
 
   /**
    * Instruct all motor PID controllers to hold their current position.
    */
   public void holdPosition() {
-    m_lowerPID.setReference(getLowerArmAngleRelative(), ControlType.kSmartMotion);
-    m_upperPID.setReference(getUpperArmAngleRelative(), ControlType.kSmartMotion);
+    m_lowerPID.setReference(getLowerAngleRelative(), ControlType.kSmartMotion);
+    m_upperPID.setReference(getUpperAngleRelative(), ControlType.kSmartMotion);
     m_extensionPID.setReference(getExtensionDistance(), ControlType.kSmartMotion);
   }
 
@@ -311,12 +334,12 @@ public class ArmGripper extends SubsystemBase {
   }
 
   public void openGripper() {
-    System.out.println(("gripper oppened at Lower: "+Double.toHexString(getLowerArmAngleRelative())+" upper: "+ Double.toString(getUpperArmAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
+    System.out.println(("gripper oppened at Lower: "+Double.toHexString(getLowerAngleRelative())+" upper: "+ Double.toString(getUpperAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
     m_gripperSolenoid.set(kForward);
   }
 
   public void closeGripper() {
-    System.out.println(("gripper close at Lower: "+Double.toHexString(getLowerArmAngleRelative())+" upper: "+ Double.toString(getUpperArmAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
+    System.out.println(("gripper close at Lower: "+Double.toHexString(getLowerAngleRelative())+" upper: "+ Double.toString(getUpperAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
     m_gripperSolenoid.set(kReverse);
   }
 
@@ -357,11 +380,16 @@ public class ArmGripper extends SubsystemBase {
     m_extensionPID.setReference(length, ControlType.kSmartMotion);
   }
 
-  public void setEncoderOffsets(){
+  /**
+   * Set the lower and upper arm relative encoders to the position reported by
+   * the absolute encoders.
+   */
+  public void setEncoderOffsets() {
     System.out.println("Old Lower Value: " + getLowerAngleAbsolute());
     m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
-    System.out.println("Old Upper Value: " + getUpperArmAngleAbsolute());
-    m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());
+    System.out.println("Old Upper Value: " + getUpperAngleAbsolute());
+    m_upperEncoderRelative.setPosition(getUpperAngleAbsolute());
+    // TODO: should this reset the extension encoder (probably)
   }
 
   public void stopAllMotors() {

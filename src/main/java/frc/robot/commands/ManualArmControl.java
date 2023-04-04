@@ -37,8 +37,8 @@ public class ManualArmControl extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_lowerSetpoint = m_armGripper.getLowerArmAngleRelative();
-    m_upperSetpoint = m_armGripper.getUpperArmAngleRelative();
+    m_lowerSetpoint = m_armGripper.getLowerAngleRelative();
+    m_upperSetpoint = m_armGripper.getUpperAngleRelative();
     m_extensionSetpoint = m_armGripper.getExtensionDistance();
     m_timer.restart();
   }
