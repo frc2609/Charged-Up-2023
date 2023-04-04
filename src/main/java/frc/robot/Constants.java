@@ -24,22 +24,46 @@ public final class Constants {
         }
         public static final class Encoder {
             /** How many metres the extension extends per motor rotation. */
-            public static final double EXTENSION_POSITION_CONVERSION = Ratios.EXTENSION_MOTOR * EXTENSION_PULLEY_CIRCUMFERENCE; // metres
+            public static final double EXTENSION_POSITION_CONVERSION = Ratios.EXTENSION_MOTOR * EXTENSION_PULLEY_CIRCUMFERENCE;
+            /** 
+             * How many degrees the arm moves per absolute encoder rotation.
+             * <p>Make sure to subtract the encoder offset before multiplying
+             * by this value.
+             */
+            public static final double LOWER_ABSOLUTE_POSITION_CONVERSION = Ratios.LOWER_ARM_CHAIN * 360.0;
+            /** 
+             * How many degrees the arm moves per absolute encoder rotation.
+             * <p>Make sure to subtract the encoder offset before multiplying
+             * by this value.
+             */
+            public static final double UPPER_ABSOLUTE_POSITION_CONVERSION = Ratios.UPPER_ARM_CHAIN * 360.0;
             /** How many degrees the arm moves per motor rotation. */
             public static final double LOWER_POSITION_CONVERSION = Ratios.LOWER_ARM * 360.0;
             /** How many degrees the arm moves per motor rotation. */
             public static final double UPPER_POSITION_CONVERSION = Ratios.UPPER_ARM * 360.0;
-            /** Pointing straight up (angle = 90.0 degrees). 
+            /**
+             * Pointing straight up (angle = 90.0 degrees). 
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
             // TODO: change (lower arm chain replaced)
             public static final double LOWER_POSITION_OFFSET = 0.395;
-            /** Parallel robot front (angle = 90.0 degrees). 
+            /**
+             * Parallel robot front (angle = 90.0 degrees).
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
             public static final double UPPER_POSITION_OFFSET = 0.814;
+            /**
+             * How many degrees the arm moves per second.
+             * <p>Default is RPM -> * by LOWER_POSITION_CONVERSION to get
+             * degrees per minute, * by 60 to get degrees per second.
+             */
+            public static final double LOWER_VELOCITY_CONVERSION = LOWER_POSITION_CONVERSION * 60.0;
+            /** How many degrees the arm moves per second. */
+            public static final double UPPER_VELOCITY_CONVERSION = UPPER_POSITION_CONVERSION * 60.0;
+            /** How many metres the extension moves in metres per second. */
+            public static final double EXTENSION_VELOCITY_CONVERSION = EXTENSION_POSITION_CONVERSION * 60.0;
         }
         public static final class Pneumatics {
             public static final int OPEN_SOLENOID_ID = 14;

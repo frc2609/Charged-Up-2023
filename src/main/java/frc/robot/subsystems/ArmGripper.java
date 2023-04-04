@@ -2,6 +2,8 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+     // TODO: clean up encoder calculations and encoder calculation functions
+
 package frc.robot.subsystems;
 
 import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
@@ -33,7 +35,6 @@ import frc.robot.Constants.Xbox;
 import frc.robot.Constants.Arm.Encoder;
 import frc.robot.Constants.Arm.IsInverted;
 import frc.robot.Constants.Arm.Pneumatics;
-import frc.robot.Constants.Arm.Ratios;
 import frc.robot.Constants.Arm.SoftStop;
 
 public class ArmGripper extends SubsystemBase {
