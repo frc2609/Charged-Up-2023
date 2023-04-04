@@ -309,8 +309,8 @@ public class MoveArmProfiled extends CommandBase {
   }
 
   public double[] getNearestSetpoint(double dt) {
-    double predicted_lower = (m_armGripper.getLowerArmAngleRelative()+(dt*m_armGripper.getLowerJointAngularVelocity()));
-    double predicted_upper = (m_armGripper.getUpperArmAngleRelative()+(dt*m_armGripper.getUpperJointAngularVelocity()));
+    double predicted_lower = (m_armGripper.getLowerAngleRelative()+(dt*m_armGripper.getLowerJointAngularVelocity()));
+    double predicted_upper = (m_armGripper.getUpperAngleRelative()+(dt*m_armGripper.getUpperJointAngularVelocity()));
     double predicted_extension = (m_armGripper.getExtensionDistance()+(dt*m_armGripper.getExtensionVelocity()));
     double curr_lowerError = Math.abs(predicted_lower-currentPath[i][0]);
     double curr_upperError = Math.abs(predicted_upper-currentPath[i][1]);
@@ -431,8 +431,8 @@ public class MoveArmProfiled extends CommandBase {
   @Override
   public boolean isFinished() {
     //return i>lowerSetpoint.length-1 // try this if it finishes too early
-    boolean isLowerInTolerance = Math.abs(m_armGripper.getLowerArmAngleRelative()-currentPath[currentPath.length-1][0])<Tolerances.LOWER_ANGLE;
-    boolean isUpperInTolerance = Math.abs(m_armGripper.getUpperArmAngleRelative()-currentPath[currentPath.length-1][1])<Tolerances.UPPER_ANGLE;
+    boolean isLowerInTolerance = Math.abs(m_armGripper.getLowerAngleRelative()-currentPath[currentPath.length-1][0])<Tolerances.LOWER_ANGLE;
+    boolean isUpperInTolerance = Math.abs(m_armGripper.getUpperAngleRelative()-currentPath[currentPath.length-1][1])<Tolerances.UPPER_ANGLE;
     boolean isExtensionInTolerance = Math.abs(m_armGripper.getExtensionDistance()-currentPath[currentPath.length-1][2])<Tolerances.EXTENSION_LENGTH;
     return i>=currentPath.length-1 && (isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance);
   }
