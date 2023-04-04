@@ -8,23 +8,23 @@ import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.Rev2mDistanceSensor;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.Rev2mDistanceSensor.Port;
+import com.revrobotics.Rev2mDistanceSensor.Unit;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.CANID;
 import frc.robot.Constants.DIO;
@@ -33,7 +33,6 @@ import frc.robot.Constants.Xbox;
 import frc.robot.Constants.Arm.Encoder;
 import frc.robot.Constants.Arm.IsInverted;
 import frc.robot.Constants.Arm.Pneumatics;
-import frc.robot.Constants.Arm.Ratios;
 import frc.robot.Constants.Arm.SoftStop;
 
 public class ArmGripper extends SubsystemBase {
@@ -51,24 +50,22 @@ public class ArmGripper extends SubsystemBase {
   private final CANSparkMax m_upperMotor = new CANSparkMax(CANID.UPPER_ARM_MOTOR, MotorType.kBrushless);
   private final CANSparkMax m_extensionMotor = new CANSparkMax(CANID.EXTENSION_MOTOR, MotorType.kBrushless);
 
-  private final DigitalInput m_gripperSensor = new DigitalInput(DIO.GRIPPER_SENSOR);
-
   // Absolute encoder range is 0 to 1
   private final DutyCycleEncoder m_lowerEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_LOWER_ENCODER);
   private final DutyCycleEncoder m_upperEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER);
 
   private final RelativeEncoder m_lowerEncoderRelative = m_lowerMotor.getEncoder();
   private final RelativeEncoder m_upperEncoderRelative = m_upperMotor.getEncoder();
-
-  private final RelativeEncoder m_extensionEncoder = m_extensionMotor.getEncoder();
-  // TODO: add other (relative) encoders here
+  private final RelativeEncoder m_extensionEncoderRelative = m_extensionMotor.getEncoder();
 
   private final SparkMaxPIDController m_lowerPID = m_lowerMotor.getPIDController();
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
 
-  private final Trigger m_pieceDetected = new Trigger(m_gripperSensor::get);
+  private final Rev2mDistanceSensor m_intakeSensor;
+  private boolean m_isCubeRequested;
 
+  /** @deprecated Use commands to control this subsystem instead. */
   private final XboxController m_operatorController;
 
   /** Creates a new ArmGripper. */
@@ -81,30 +78,36 @@ public class ArmGripper extends SubsystemBase {
     configureMotors();
     configurePIDs();
     m_operatorController = operatorController;
-    m_pieceDetected.onTrue(new InstantCommand(LED::setLime));
-    /* Set LEDs only when going from true -> false
-     * Prevents this from continously cancelling cone/cube LEDs. */
-    m_pieceDetected.onFalse(new InstantCommand(LED::setIdle));
+    m_intakeSensor = new Rev2mDistanceSensor(Port.kMXP);
+    m_intakeSensor.setAutomaticMode(true);
+    m_intakeSensor.setEnabled(true);
   }
 
   @Override
   public void periodic() {
-    // TODO: Modify these as necessary.
+    // intake sensor
+    SmartDashboard.putBoolean("IsIntakeRangeValid", m_intakeSensor.isRangeValid());
+    SmartDashboard.putNumber("Intake Sensor (mm)", m_intakeSensor.getRange(Unit.kMillimeters));
+    // extension
+    SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoderRelative.getVelocity());
+    // absolute encoder value
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
-    SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoder.getVelocity());
-    // angles
+    // absolute angle
     SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
-    SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerArmAngleRelative());
-    // That does not work
-    // SmartDashboard.putNumber("Upper Arm Relative Angle (Deg)", m_upperEncoderAbsolute.getDistance());
-    SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperArmAngleAbsolute()); // positive away from robot
-    SmartDashboard.putNumber("Upper Arm NEO Encoder Position", getUpperArmAngleRelative());
+    SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperAngleAbsolute()); // positive away from robot
+    // relative angle
+    SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerAngleRelative());
+    SmartDashboard.putNumber("Upper Arm NEO Encoder Position", getUpperAngleRelative());
     // lengths
     SmartDashboard.putNumber("Lower Arm Length (m)", getLowerArmLength());
     SmartDashboard.putNumber("Upper Arm Base Length (m)", getUpperArmBaseLength());
     SmartDashboard.putNumber("Upper Arm Total Length (m)", getUpperArmTotalLength());
     SmartDashboard.putNumber("Arm Extension Distance (m)", getExtensionDistance());
+    // temperatures
+    SmartDashboard.putNumber("Lower Arm Motor Temp (C)", m_lowerMotor.getMotorTemperature());
+    SmartDashboard.putNumber("Upper Arm Motor Temp (C)", m_upperMotor.getMotorTemperature());
+    SmartDashboard.putNumber("Extension Arm Motor Temp (C)", m_extensionMotor.getMotorTemperature());
     // check solenoid status
     if (m_gripperSolenoid.isFwdSolenoidDisabled()) {
       System.out.print("OPEN SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
@@ -112,19 +115,22 @@ public class ArmGripper extends SubsystemBase {
     if (m_gripperSolenoid.isRevSolenoidDisabled()) {
       System.out.print("CLOSE SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
     }
-    // gripper sensor status
-    SmartDashboard.putBoolean("Gripper Sensor", m_gripperSensor.get());
   }
 
   private void configureEncoders() {
+    // position
     m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
     m_upperEncoderRelative.setPositionConversionFactor(Encoder.UPPER_POSITION_CONVERSION);
-    m_extensionEncoder.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
+    m_extensionEncoderRelative.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
+    // velocity
+    m_lowerEncoderRelative.setVelocityConversionFactor(Encoder.LOWER_VELOCITY_CONVERSION);
+    m_upperEncoderRelative.setVelocityConversionFactor(Encoder.UPPER_VELOCITY_CONVERSION);
+    m_extensionEncoderRelative.setVelocityConversionFactor(Encoder.EXTENSION_VELOCITY_CONVERSION);
     // Copy absolute position to NEO encoders
     m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
-    m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());
+    m_upperEncoderRelative.setPosition(getUpperAngleAbsolute());
     // Reset extension encoder
-    m_extensionEncoder.setPosition(0.0);
+    m_extensionEncoderRelative.setPosition(0.0);
   }
 
   private void configureMotors() {
@@ -154,29 +160,29 @@ public class ArmGripper extends SubsystemBase {
   }
 
   private void configurePIDs() {
-    m_lowerPID.setP(SmartDashboard.getNumber("Lower Arm P", 0.00007));
-    m_lowerPID.setI(SmartDashboard.getNumber("Lower Arm I", 0.00000000005));
-    m_lowerPID.setD(SmartDashboard.getNumber("Lower Arm D", 0.00000003));
-    m_lowerPID.setIZone(0.5);
-    m_lowerPID.setFF(0.00015);
-    m_lowerPID.setOutputRange(-1.0, 1.0);
-    m_lowerPID.setSmartMotionMaxVelocity(3000, 0);
-    m_lowerPID.setSmartMotionMaxAccel(15000, 0);
+    m_lowerPID.setP(0.0);
+    m_lowerPID.setI(0.00015);
+    m_lowerPID.setD(0.0);
+    m_lowerPID.setIZone(2);
+    m_lowerPID.setFF(0.0001);
+    m_lowerPID.setOutputRange(-1,1);
+    m_lowerPID.setSmartMotionMaxVelocity(3500, 0);
+    m_lowerPID.setSmartMotionMaxAccel(4000, 0);
 
-    m_upperPID.setP(SmartDashboard.getNumber("Upper Arm P", 0.00007));
-    m_upperPID.setI(SmartDashboard.getNumber("Upper Arm I", 0.00000000005));
-    m_upperPID.setD(SmartDashboard.getNumber("Upper Arm D", 0.00000003));
+    m_upperPID.setP(0.0);
+    m_upperPID.setI(0.0);
+    m_upperPID.setD(0.0);
     m_upperPID.setIZone(0.5);
-    m_upperPID.setFF(0.00015);
-    m_upperPID.setOutputRange(-1.0, 1.0);
-    m_upperPID.setSmartMotionMaxVelocity(3000, 0);
-    m_upperPID.setSmartMotionMaxAccel(15000, 0);
+    m_upperPID.setFF(0.0002);
+    m_upperPID.setOutputRange(-0.75, 0.75);
+    m_upperPID.setSmartMotionMaxVelocity(3500, 0);
+    m_upperPID.setSmartMotionMaxAccel(6000, 0);
 
-    m_extensionPID.setP(SmartDashboard.getNumber("Extension P", 0.00005));
-    m_extensionPID.setI(SmartDashboard.getNumber("Extension I", 0.000000001));
-    m_extensionPID.setD(SmartDashboard.getNumber("Extension D", 0.0000003));
+    m_extensionPID.setP(0);
+    m_extensionPID.setI(0);
+    m_extensionPID.setD(0);
     m_extensionPID.setIZone(0.5);
-    m_extensionPID.setFF(0.001); // TODO: tune (0.003 gittery)
+    m_extensionPID.setFF(0.001);
     m_extensionPID.setOutputRange(-1.0, 1.0);
     m_extensionPID.setSmartMotionMaxVelocity(11000, 0); // NEO 550 free rpm
     m_extensionPID.setSmartMotionMaxAccel(15000, 0);
@@ -187,25 +193,54 @@ public class ArmGripper extends SubsystemBase {
    * @return The amount the arm extension has extended in metres.
    */
   public double getExtensionDistance() {
-    return m_extensionEncoder.getPosition();
+    return m_extensionEncoderRelative.getPosition();
   }
 
   /**
-   * Returns the angle of the lower arm relative to the front of the robot using the absolute encoder.
-   * WARNING: THIS MAY NOT ALWAYS BE ACCURATE! THIS FUNCTION SHOULD ONLY BE USED FOR OFFSET SETTING PURPOSES ONLY
+   * Returns the velocity of the upper arm extension.
+   * @return The velocity of the upper arm extension in m/s.
+   */
+  public double getExtensionVelocity() {
+    return m_extensionEncoderRelative.getVelocity();
+  }
+
+  /**
+   * Returns the distance from the intake sensor to an object in front of the
+   * intake.
+   * @return The distance from the intake sensor to another object in millimetres.
+   */
+  public double getIntakeSensorDistance() {
+    return m_intakeSensor.getRange(Unit.kMillimeters);
+  }
+
+  /**
+   * Returns the angle of the lower arm relative to the front of the robot
+   * using the absolute encoder.
+   * <p>WARNING: This value is only accurate for certain arm positions (mostly
+   * when the arm is facing upwards). Only use this reading to offset the NEO
+   * encoders at the start of the match!
    * @return The robot-relative angle of the lower arm in degrees.
    */
   private double getLowerAngleAbsolute() {
-    // plus 90 because the offset was measured at 90.0 degrees
-    return (((m_lowerEncoderAbsolute.getAbsolutePosition() - Encoder.LOWER_POSITION_OFFSET) * Ratios.LOWER_ARM_CHAIN) * 360.0) + 90.0;
+    // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
+    return ((m_lowerEncoderAbsolute.getAbsolutePosition() - Encoder.LOWER_POSITION_OFFSET) * Encoder.LOWER_ABSOLUTE_POSITION_CONVERSION) + 90.0;
   }
 
-   /**
-   * Returns the angle of the lower arm relative to the front of the robot using the absolute encoder.
+  /**
+   * Returns the angle of the lower arm relative to the front of the robot
+   * using the absolute encoder.
    * @return The robot-relative angle of the lower arm in degrees.
    */
-  public double getLowerArmAngleRelative(){
+  public double getLowerAngleRelative() {
     return m_lowerEncoderRelative.getPosition();
+  }
+
+  /**
+   * Returns the angular velocity of the lower arm joint.
+   * @return The angular velocity of the lower arm joint in degrees per second.
+   */
+  public double getLowerJointAngularVelocity() {
+    return m_lowerEncoderRelative.getVelocity();
   }
 
   /**
@@ -217,26 +252,31 @@ public class ArmGripper extends SubsystemBase {
   }
 
   /**
-   * Returns the angle of the upper arm relative to the front of the robot using the absolute encoder.
-   * WARNING: THIS MAY NOT ALWAYS BE ACCURATE! THIS FUNCTION SHOULD ONLY BE USED FOR OFFSET SETTING PURPOSES ONLY
+   * Returns the angle of the upper arm relative to the lower arm in degrees.
+   * <p>WARNING: This value is only accurate for certain arm positions (mostly
+   * when the arm is facing upwards). Only use this reading to offset the NEO
+   * encoders at the start of the match!
    * @return The robot-relative angle of the upper arm in degrees.
    */
-  private double getUpperArmAngleAbsolute() {
-    /* The upper arm angle is relative to the lower arm. To calculate the
-     * robot-relative angle of the upper arm, subtract the upper arm relative
-     * angle from the lower arm angle.
-     * TODO: show this in a markdown file
-     * TODO: clean up encoder calculations and encoder calculation functions
-     */
-    return ((m_upperEncoderAbsolute.getAbsolutePosition()-Encoder.UPPER_POSITION_OFFSET)*Ratios.UPPER_ARM_CHAIN*360)+90;
+  private double getUpperAngleAbsolute() {
+    // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
+    return ((m_upperEncoderAbsolute.getAbsolutePosition() - Encoder.UPPER_POSITION_OFFSET) * Encoder.LOWER_ABSOLUTE_POSITION_CONVERSION) + 90.0;
   }
 
-   /**
+  /**
    * Returns the angle of the upper arm relative to the front of the robot using the absolute encoder.
    * @return The robot-relative angle of the upper arm in degrees.
    */
-  public double getUpperArmAngleRelative(){
+  public double getUpperAngleRelative() {
     return m_upperEncoderRelative.getPosition();
+  }
+  
+  /**
+   * Returns the angular velocity of the upper arm joint.
+   * @return The angular velocity of the upper arm joint in degrees per second.
+   */
+  public double getUpperJointAngularVelocity() {
+    return m_upperEncoderRelative.getVelocity();
   }
 
   /**
@@ -259,14 +299,24 @@ public class ArmGripper extends SubsystemBase {
    * Instruct all motor PID controllers to hold their current position.
    */
   public void holdPosition() {
-    m_lowerPID.setReference(getLowerArmAngleRelative(), ControlType.kSmartMotion);
-    m_upperPID.setReference(getUpperArmAngleRelative(), ControlType.kSmartMotion);
+    m_lowerPID.setReference(getLowerAngleRelative(), ControlType.kSmartMotion);
+    m_upperPID.setReference(getUpperAngleRelative(), ControlType.kSmartMotion);
     m_extensionPID.setReference(getExtensionDistance(), ControlType.kSmartMotion);
+  }
+
+  /**
+   * Use this to check whether or not a distance value from the intake sensor
+   * is valid.
+   * @return Whether or not the intake sensor reading is valid.
+   */
+  public boolean isIntakeReadingValid() {
+    return m_intakeSensor.isRangeValid();
   }
 
   /** 
    * Control the arm position using the operator controller.
    * Does not control the gripper solenoids.
+   * @deprecated Use either {@link ManualArmControl} command instead.
    */
   public void manualControl() {
     // set speeds of arm motors
@@ -283,11 +333,35 @@ public class ArmGripper extends SubsystemBase {
   }
 
   public void openGripper() {
+    System.out.println(("gripper oppened at Lower: "+Double.toHexString(getLowerAngleRelative())+" upper: "+ Double.toString(getUpperAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
     m_gripperSolenoid.set(kForward);
   }
 
   public void closeGripper() {
+    System.out.println(("gripper close at Lower: "+Double.toHexString(getLowerAngleRelative())+" upper: "+ Double.toString(getUpperAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
     m_gripperSolenoid.set(kReverse);
+  }
+
+  public void requestCube(){
+    m_isCubeRequested = true;
+    LED.setCube();
+  }
+  
+  public void requestCone(){
+    m_isCubeRequested = false;
+    LED.setCone();
+  }
+    
+  public void setBrake(boolean isBrake) {
+    if (isBrake) {
+      m_lowerMotor.setIdleMode(IdleMode.kBrake);
+      m_upperMotor.setIdleMode(IdleMode.kBrake);
+      m_extensionMotor.setIdleMode(IdleMode.kBrake);
+    } else {
+      m_lowerMotor.setIdleMode(IdleMode.kCoast);
+      m_upperMotor.setIdleMode(IdleMode.kCoast);
+      m_extensionMotor.setIdleMode(IdleMode.kCoast);
+    }
   }
 
   /** Set the lower arm angle relative to the front of the robot in degrees. */
@@ -305,11 +379,16 @@ public class ArmGripper extends SubsystemBase {
     m_extensionPID.setReference(length, ControlType.kSmartMotion);
   }
 
-  public void setEncoderOffsets(){
+  /**
+   * Set the lower and upper arm relative encoders to the position reported by
+   * the absolute encoders.
+   */
+  public void setEncoderOffsets() {
     System.out.println("Old Lower Value: " + getLowerAngleAbsolute());
     m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
-    System.out.println("Old Upper Value: " + getUpperArmAngleAbsolute());
-    m_upperEncoderRelative.setPosition(getUpperArmAngleAbsolute());
+    System.out.println("Old Upper Value: " + getUpperAngleAbsolute());
+    m_upperEncoderRelative.setPosition(getUpperAngleAbsolute());
+    // TODO: should this reset the extension encoder (probably)
   }
 
   public void stopAllMotors() {

@@ -9,7 +9,7 @@
 ## Swerve module alignment
 **THESE ALIGNMENT INSTRUCTIONS ARE FOR THE SWERVE PRACTICE BOT.**
 
-**FOR THE COMPETITION ROBOT, ALIGN THE NOTCH ON EACH MODULE WITH THE NOTCH ON THE ALUMINUM PLATE.**
+**FOR ROAD RUNNER, ALIGN THE NOTCH ON EACH MODULE WITH THE NOTCH ON THE ALUMINUM PLATE.**
 
 Before turning on the robot, you must line up all four swerve modules so that the black gear on each wheel faces to the left of the robot:
 
@@ -52,7 +52,7 @@ If you drive the robot with no field, line the robot up in front of the driver s
 ### Gyro Drift
 The NavX IMU's built in gyroscope is used to keep track of the direction the robot is facing while in field-oriented mode. Like all gyros, the NavX's gyro drifts, although in a regular match it will not drift enough to be noticeable.
 
-If you are using the robot for a demonstration, you may have it on long enough for it to be affected by gyro drift. To calibrate the gyro, align the robot so it faces forward and then press `Zero Yaw` on Smartdashboard or push the `A button` on the driver's Xbox controller.
+If you are using the robot for a demonstration, you may have it on long enough for it to be affected by gyro drift. To calibrate the gyro, align the robot so it faces forward and then press `Zero Yaw` on Smartdashboard or push the appropriate button on the driver's Xbox controller (see `Controls` below).
 
 ### Field Position Inaccuracy
 To determine its position relative to the field, the robot relies on the total amount of rotations made by the drive motor of each swerve module. **If you picked up the robot and moved it to a different location, it *will not* know that its position changed!**
@@ -61,49 +61,77 @@ While the robot is being driven, wheels can slip and the robot can bump against 
 
 Since making contact with other robots during autonomous mode is prohibited (and you are hopefully not colliding with game objects or the field), the reported position of the robot will be accurate. **You can safely use the robot position in autonomous mode.**
 
--> Hello and welcome to 2023 Charged Up, where there is an unpredictable balancing platform right in the middle of the field...
--> Add a note regarding this
+**Going over the charge platform or the cable guard will cause the robot to lose its autonomous position.** In order to track its position correctly, the robot must get its position using the AprilTags on the field (or any other method not involving `SwerveDriveOdometry`'s dead reckoning).
 
-However, in teleop mode, the robot can collide with parts of the field, and other robots, which will cause the reported position to differ from the actual position. **In teleop mode, you should *not* rely on the robot's reported position to be accurate!** This also means that the robot position in the Field2d widget in Shuffleboard may not correspond to its actual position.
+In teleop mode, the robot can collide with parts of the field, and other robots, which will cause the reported position to differ from the actual position. **In teleop mode, you should *not* rely on the robot's reported position to be accurate!** This also means that the robot position in the Field2d widget in Shuffleboard may not correspond to its actual position.
 
 ## Controls
 ### Driver:
-| Control               | Function                    |
-| --------------------- | --------------------------- |
-| Left Joystick X Axis  | Move robot left and right   |
-| Left Joystick Y Axis  | Move robot forward and back |
-| Right Joystick X Axis | Rotate robot left and right |
-| Right Trigger Axis    | Boost throttle              |
-| Left Bumper           | Move to ground pickup       |
-| Right Bumper          | Move to station pickup      |
-| Start Button          | Reset odometry yaw          |
-| Select Button         | (Hold) Lock charge position |
-| A Button              | Enable Boost                |
-| B Button              | Autoalign to cone node      |
-| X Button              | Move to stow position       |
-| Y Button              | Confirm queued command      |
+| Axis             | Function |
+| ---------------- | -------- |
+| Left Joystick X  | Drive left/right
+| Left Joystick Y  | Drive forward/back
+| Right Joystick X | Rotate left/right
+| Right Joystick Y | NA
+| Left Trigger     | NA
+| Right Trigger    | Boost throttle
+
+| Button       | Function |
+| ------------ | -------- |
+| Left Stick   | Request cone
+| Right Stick  | Request cube
+| Left Bumper  | Move to ground pickup
+| Right Bumper | Move to station pickup
+| Start        | Reset odometry yaw
+| Select       | **DISABLED** (Hold) Lock charge position
+| A            | Enable Boost
+| B            | Autoalign to cone node
+| X            | Move to stow position
+| Y            | Confirm queued command
+
+| DPAD  | Function |
+| ----- | -------- |
+| Up    | NA
+| Down  | NA
+| Left  | NA
+| Right | NA
 
 ### Operator:
-| Control               | Function                    |
-| --------------------- | --------------------------- |
-| Left Joystick Y Axis  | Manual: Move lower arm      |
-| Right Joystick Y Axis | Manual: Move upper arm      |
-| Left Stick Button     | Request cone                |
-| Right Stick Button    | Request cube                |
-| Left Bumper           | Open Gripper                |
-| Right Bumper          | Close Gripper               |
-| Start Button          | Toggle Manual Control       |
-| Select Button         | Reset arm encoders to abs   |
-| A Button              | Queue low node              |
-| B Button              | Queue mid node              |
-| Y Button              | Queue high node             |
-| X Button              | Move to stow position       |
-| DPAD Up               | Manual: Extend extension    |
-| DPAD Down             | Manual: Retract extension   |
+| Axis             | Function                  |
+| ---------------- | ------------------------- |
+| Left Joystick X  | NA                        |
+| Left Joystick Y  | Manual: Move upper arm    |
+| Right Joystick X | NA                        |
+| Right Joystick Y | Manual: Move lower arm    |
+| Left Trigger     | Manual: Retract extension |
+| Right Trigger    | Manual: Extend extension  |
+
+| Button       | Function |
+| ------------ | -------- |
+| Left Stick   | (Press) Request cone (Hold) Urgent request cone
+| Right Stick  | (Press) Request cube (Hold) Urgent request cube
+| Left Bumper  | Open gripper
+| Right Bumper | Close gripper
+| Start        | NA
+| Select       | Reset arm encoders to absolute
+| A            | Queue move to low
+| B            | Queue move to mid
+| X            | Move to stow position
+| Y            | Queue move to high
+
 * How to remember queue buttons:
     * Y is highest = high node
     * A is lowest = low node
     * B is in between = middle node
+
+| DPAD  | Function |
+| ----- | -------- |
+| Up    | Manual Adjust: Increase upper setpoint
+| Down  | Manual Adjust: Decrease upper setpoint
+| Left  | Manual Adjust: Retract extension
+| Right | Manual Adjust: Extend extension
+
+* These controls are only enabled while `ManualArmAdjust` is being used (you must modify the robot code to use it). By default, the DPAD is not mapped to anything.
 
 ## Dashboard
 This repository comes with a premade Shuffleboard layout. To use it, open Shuffleboard, open the File menu and press Load layout, then select `robot-shuffleboard-layout.json` in the root of this repository.

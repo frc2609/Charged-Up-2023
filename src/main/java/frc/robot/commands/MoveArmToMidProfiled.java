@@ -4,24 +4,21 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Timer;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.Arm.Tolerances;
 import frc.robot.subsystems.ArmGripper;
 
+// TODO: is this still being used or should it be deleted?
 public class MoveArmToMidProfiled extends CommandBase {
-  double[] lowerSetpoint = {104.6, 104.49332083232315, 104.2179444237321, 103.85880324236501, 103.48501908320381, 103.14845159945216, 102.90559322795109, 102.87062588732513, 103.44839220707667, 106.88732347099906, 99.5, 94.37942569325546, 88.32562880795152, 82.6616559001331, 77.54726928055831, 72.69620544784222, 69.12476597379043, 66.21748822073553, 64.29560649151173, 63.59710855800823};
-  double[] upperSetpoint = {21.09000000000001, 23.52212498386341, 30.029696179834346, 39.41156712800532, 50.48240204162481, 62.07412727571932, 73.01403640167867, 82.07173350910834, 87.72616197673682, 86.61267652900095, 93.99999999999999, 99.4566511243028, 106.41113388066266, 113.37908484060767, 120.0394248209506, 126.51710045064885, 131.63449328546884, 135.84574909064997, 138.66831669093, 139.70289144199177};
-  double[] extensionSetpoint = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  double UpperError, UpperArm_P;
-  double LowerError, LowerArm_P;
-  ArmGripper m_armGripper;
-  boolean holdLower, holdUpper, holdSlider;
-  double prevLoop;
-  
-  int i = 0;
-  /** Moves arm to given setpoint. Finishes once within tolerance */
+  private double[] lowerSetpoint = {104.6, 104.55465357828778, 104.42968490717931, 104.24655879877662, 104.0269242740065, 103.78978299250845, 103.55113998390166, 103.32522138670555, 103.127014988728, 102.9769462107873, 102.91134083371442, 103.01240351436242, 103.5147767947738, 105.16870314197386, 107.64298677151268, 99.5, 95.5915565543023, 91.29231334981147, 86.98496903812922, 82.78338047361127, 78.71900090496733, 74.81267869566291, 71.08998129516213, 67.58978242301497, 64.36691515571066, 61.49337939483311, 59.058389249721486, 57.16721491694182, 55.93848378943022, 55.49992079122633};
+  private double[] upperSetpoint = {21.09000000000001, 22.123830386726777, 25.016554159876087, 29.45016131784148, 35.1064576501918, 41.66989630778309, 48.82792707149196, 56.2697786132945, 63.683917955878435, 70.75337448892111, 77.1452772420874, 82.4808763690195, 86.22898413817083, 87.34281289301157, 85.85701322848735, 93.99999999999999, 98.05421604044987, 102.76162251024677, 107.6957889793635, 112.6991268150185, 117.69645099007641, 122.62318136264618, 127.41001870483787, 131.97435751867602, 136.21763294924557, 140.02411331653718, 143.26085273278582, 145.77884922299987, 147.4157436158176, 148.00007920877368};
+  private double[] extensionSetpoint = {0.0, 0.0006009844616149289, 0.0022626095230138623, 0.004723708263959901, 0.007731197122829574, 0.011078111236603901, 0.014615964319668218, 0.01825659973612316, 0.021977623845941534, 0.025851804523267297, 0.030149257295463798, 0.03567892580214135, 0.04505340025326373, 0.06703167550621568, 0.09740550057528638, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02669886484962961, 0.07913467122677215, 0.13953029048816704, 0.20423416108264447, 0.26955115609085845, 0.33171138941853595, 0.38685381895057425, 0.4310453287745308, 0.46035226694592823, 0.4709768933305409};
+  private double UpperError, UpperArm_P;
+  private double LowerError, LowerArm_P;
+  private ArmGripper m_armGripper;
+  private int i = 0;
+
   public MoveArmToMidProfiled(ArmGripper armGripper) {
     m_armGripper = armGripper;
     addRequirements(armGripper);
@@ -30,7 +27,7 @@ public class MoveArmToMidProfiled extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    prevLoop = Timer.getFPGATimestamp();
+    i=0;
     m_armGripper.setLowerTargetAngle(lowerSetpoint[0]);
     m_armGripper.setUpperTargetAngle(upperSetpoint[0]);
     m_armGripper.setExtensionTargetLength(extensionSetpoint[0]);
@@ -40,22 +37,24 @@ public class MoveArmToMidProfiled extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double dt = Timer.getFPGATimestamp()-prevLoop;
-    if(dt > 0.05){
-      i += Math.floor(dt/0.05);
-    }
+    boolean isLowerInTolerance = Math.abs(m_armGripper.getLowerAngleRelative()-lowerSetpoint[i]) < 8; 
+    boolean isUpperInTolerance = Math.abs(m_armGripper.getUpperAngleRelative()-upperSetpoint[i]) < 8; 
+    boolean isExtensionInTolerance = Math.abs(m_armGripper.getExtensionDistance()-extensionSetpoint[i]) < Tolerances.EXTENSION_LENGTH;
+    // if (isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance){
+    //   i++;
+    // }
+    i++;
     System.out.println(i);
     // i++;
-    if(i <= lowerSetpoint.length){
+    if(i <= lowerSetpoint.length-1){
       m_armGripper.setLowerTargetAngle(lowerSetpoint[i]);
       m_armGripper.setUpperTargetAngle(upperSetpoint[i]);
       m_armGripper.setExtensionTargetLength(extensionSetpoint[i]);
     }
 
-    // SmartDashboard.putNumber("lowerError", Math.abs(m_armGripper.getLowerArmAngleRelative()-LOWER_SET));
-    // SmartDashboard.putNumber("upperError", Math.abs(m_armGripper.getUpperArmAngleRelative()-UPPER_SET));
-    // SmartDashboard.putNumber("extensionError", Math.abs(m_armGripper.getExtensionDistance()-EXTENSION_SET));
-    prevLoop = Timer.getFPGATimestamp();
+    SmartDashboard.putNumber("lowerSetp", lowerSetpoint[i]);
+    SmartDashboard.putNumber("upperSetp", upperSetpoint[i]);
+    SmartDashboard.putNumber("extSetp", extensionSetpoint[i]);
     //SmartDashboard.putNumber("Lower Arm P", UpperArm_P);
     //SmartDashboard.putNumber("Upper Arm P", LowerArm_P);
   }
@@ -63,19 +62,16 @@ public class MoveArmToMidProfiled extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-      System.out.println("PROFILED ARM TO MID FINISHED");
-      m_armGripper.setLowerTargetAngle(lowerSetpoint[lowerSetpoint.length-1]);
-      m_armGripper.setUpperTargetAngle(upperSetpoint[upperSetpoint.length-1]);
-      m_armGripper.setExtensionTargetLength(upperSetpoint[upperSetpoint.length-1]);
+    System.out.println("PROFILED ARM TO MID FINISHED");
+    m_armGripper.setLowerTargetAngle(lowerSetpoint[lowerSetpoint.length-1]);
+    m_armGripper.setUpperTargetAngle(upperSetpoint[upperSetpoint.length-1]);
+    m_armGripper.setExtensionTargetLength(extensionSetpoint[extensionSetpoint.length-1]);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    boolean isLowerInTolerance = Math.abs(m_armGripper.getLowerArmAngleRelative()-lowerSetpoint[lowerSetpoint.length-1]) < Tolerances.LOWER_ANGLE; 
-    boolean isUpperInTolerance = Math.abs(m_armGripper.getUpperArmAngleRelative()-upperSetpoint[upperSetpoint.length-1]) < Tolerances.UPPER_ANGLE; 
-    boolean isExtensionInTolerance = Math.abs(m_armGripper.getExtensionDistance()-upperSetpoint[upperSetpoint.length-1]) < Tolerances.EXTENSION_LENGTH;
     //return i>lowerSetpoint.length-1 // try this if it finishes too early
-    return isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance;
+    return i==lowerSetpoint.length-1;
   }
 }

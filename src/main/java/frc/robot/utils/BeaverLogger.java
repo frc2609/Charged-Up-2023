@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 //taken from https://github.com/TripleHelixProgramming/HelixUtilities
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.subsystems.ArmGripper;
 
 /** Records values into a .csv file for later viewing. */
 public class BeaverLogger {
@@ -134,23 +135,56 @@ public class BeaverLogger {
 		}
 	}
 
+	public void logArm(double[] setpoint, ArmGripper arm) {
+		try {
+			if (file == null) {
+				createFile();
+			}
+
+			StringBuilder data = new StringBuilder();
+			data.append(Instant.now().toString()).append(",");
+			data.append(Timer.getFPGATimestamp()).append(",");
+			data.append(Double.toString(setpoint[0]) + ',');
+			data.append(Double.toString(setpoint[1]) + ',');
+			data.append(Double.toString(setpoint[2]) + ',');
+
+			data.append(Double.toString(arm.getLowerAngleRelative()) + ',');
+			data.append(Double.toString(arm.getLowerJointAngularVelocity()) + ',');
+			
+			data.append(Double.toString(arm.getUpperAngleRelative()) + ',');
+			data.append(Double.toString(arm.getUpperJointAngularVelocity()) + ',');
+
+			data.append(Double.toString(arm.getExtensionDistance()) + ',');
+			data.append(Double.toString(arm.getExtensionVelocity()) + ',');
+
+			// data.append(Double.toString(currentStates[0].angle.getDegrees()) + ',');
+			// data.append(Double.toString(targetStates[0].angle.getDegrees()) + ',');
+			// data.append(Double.toString(currentStates[1].angle.getDegrees()) + ',');
+			// data.append(Double.toString(targetStates[1].angle.getDegrees()) + ',');
+			// data.append(Double.toString(currentStates[2].angle.getDegrees()) + ',');
+			// data.append(Double.toString(targetStates[2].angle.getDegrees()) + ',');
+			// data.append(Double.toString(currentStates[3].angle.getDegrees()) + ',');
+			// data.append(Double.toString(targetStates[3].angle.getDegrees()) + ',');
+			Files.write(file, Collections.singletonList(data.toString()), StandardOpenOption.APPEND);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
 	private void saveTitles() throws IOException {
 		StringBuilder titles = new StringBuilder();
 		titles.append("Timestamp,");
 		titles.append("match_time,");
-		titles.append("current_x,");
-		titles.append("current_y,");
-		titles.append("current_angle,");
-		titles.append("target_x,");
-		titles.append("target_y,");
-		titles.append("target_angle,");
-		titles.append("x_error,");
-		titles.append("y_error,");
-		titles.append("angle_error,");
-		titles.append("leftFrontCurrentAngle,");
-		titles.append("leftFrontDesiredAngle,");
-		titles.append("rightFrontCurrentAngle,");
-		titles.append("rightFrontDesiredAngle,");
+		titles.append("Lower setp,");
+		titles.append("Upper setp,");
+		titles.append("Ext setp,");
+		titles.append("Lower pos,");
+		titles.append("Lower vel,");
+		titles.append("Upper pos,");
+		titles.append("Upper vel,");
+		titles.append("Extension pos,");
+		titles.append("Extension vel,");
 		titles.append(dataSources.stream().map(t -> t.name).collect(Collectors.joining(","))).append(",");
 		Files.write(file, Collections.singletonList(titles.toString()), StandardOpenOption.APPEND);
 	}

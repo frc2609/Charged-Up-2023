@@ -7,8 +7,10 @@ package frc.robot;
 import com.pathplanner.lib.server.PathPlannerServer;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.utils.BeaverLogger;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -30,6 +32,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     PathPlannerServer.startServer(Constants.Autonomous.PATHPLANNER_SERVER_PORT);
+    m_robotContainer.setArmBrake(true);
   }
 
   /**
@@ -51,10 +54,23 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_robotContainer.setArmBrake(true);
+    m_robotContainer.setRotationBrake(true);
+    SmartDashboard.putBoolean("Arm Brake", true);
+    SmartDashboard.putBoolean("Rotation Brake", true);
+    BeaverLogger.getInstance().saveLogs();
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    m_robotContainer.setArmBrake(SmartDashboard.getBoolean("Arm Brake", true));
+    m_robotContainer.setRotationBrake(SmartDashboard.getBoolean("Rotation Brake", true));
+    // A JoystickButton will not trigger during disabled, this forces it to
+    if (m_robotContainer.m_resetArmEncoders.getAsBoolean()) {
+      m_robotContainer.resetArmEncoders();
+    }
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -62,6 +78,8 @@ public class Robot extends TimedRobot {
     // Prevent the robot from being driven by the default command during auto.
     m_robotContainer.disableTeleopControl();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_robotContainer.setArmBrake(true);
+    m_robotContainer.setRotationBrake(true);
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -83,6 +101,8 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     m_robotContainer.enableTeleopControl();
+    m_robotContainer.setArmBrake(true);
+    m_robotContainer.setRotationBrake(true);
   }
 
   /** This function is called periodically during operator control. */

@@ -40,10 +40,10 @@ public class MoveArmToSetpoint extends CommandBase {
   public void initialize() {
     loopsAtSetpoint = 0;
     if (m_holdLower) {
-      m_lowerSetpoint = m_armGripper.getLowerArmAngleRelative();
+      m_lowerSetpoint = m_armGripper.getLowerAngleRelative();
     }
     if (m_holdUpper) {
-      m_upperSetpoint = m_armGripper.getUpperArmAngleRelative();
+      m_upperSetpoint = m_armGripper.getUpperAngleRelative();
     }
     if (m_holdSlider) {
       m_extensionSetpoint = m_armGripper.getExtensionDistance();
@@ -73,12 +73,21 @@ public class MoveArmToSetpoint extends CommandBase {
   }
 
   private boolean isWithinTolerance() {
-    double lowerError = m_armGripper.getLowerArmAngleRelative() - m_lowerSetpoint;
-    double upperError = m_armGripper.getUpperArmAngleRelative() - m_upperSetpoint;
+    double lowerError = m_armGripper.getLowerAngleRelative() - m_lowerSetpoint;
+    double upperError = m_armGripper.getUpperAngleRelative() - m_upperSetpoint;
     double extensionError = m_armGripper.getExtensionDistance() - m_extensionSetpoint;
     boolean isLowerInTolerance = Math.abs(lowerError) < Tolerances.LOWER_ANGLE; 
-    boolean isUpperInTolerance = Math.abs(upperError) < Tolerances.UPPER_ANGLE; 
+    boolean isUpperInTolerance = Math.abs(upperError) < Tolerances.UPPER_ANGLE;
     boolean isExtensionInTolerance = Math.abs(extensionError) < Tolerances.EXTENSION_LENGTH;
+    if(m_holdLower){
+      isLowerInTolerance = true;
+    }
+    if(m_holdUpper){
+      isUpperInTolerance = true;
+    }
+    if(m_holdSlider){
+      isExtensionInTolerance = true;
+    }
     return isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance;
   }
 }

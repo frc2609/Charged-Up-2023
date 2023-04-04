@@ -97,7 +97,7 @@ public class SwerveModule { // implements Sendable {
     SmartDashboard.putNumber(m_name + " Angular Velocity (rad/s)", m_rotationEncoder.getVelocity());
     SmartDashboard.putNumber(m_name + " Distance Travelled (m)", m_driveMotors.getPosition());
     SmartDashboard.putNumber(m_name + " Velocity (m/s)", m_driveMotors.getVelocity());
-    SmartDashboard.putNumber(m_name + " Rotation Motor Temp (C°)", m_rotationMotor.getMotorTemperature());
+    SmartDashboard.putNumber(m_name + " Rotation Motor Temp (C)", m_rotationMotor.getMotorTemperature());
     SmartDashboard.putNumber(m_name + " Rotation Motor Current (A)", m_rotationMotor.getOutputCurrent());
     m_driveMotors.updateNetworkTables();
   }
@@ -287,8 +287,13 @@ public class SwerveModule { // implements Sendable {
     m_rotationPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
     
   }
-  public void setRotCoast(){
-    this.m_rotationMotor.setIdleMode(IdleMode.kCoast);
+  
+  public void setRotationBrakeMode(boolean isBrake) {
+    if (isBrake) {
+      m_rotationMotor.setIdleMode(IdleMode.kBrake);
+    } else {
+      m_rotationMotor.setIdleMode(IdleMode.kCoast);
+    }
   }
 
   /**

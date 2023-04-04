@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import frc.robot.commands.autonomous.DriveForwardWhileSpinning;
 import frc.robot.subsystems.SwerveDrive;
 
 public class TimedDriveForward extends ParallelDeadlineGroup {
