@@ -46,14 +46,13 @@ public final class Constants {
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
-            // TODO: change (lower arm chain replaced)
-            public static final double LOWER_POSITION_OFFSET = 0.395;
+            public static final double LOWER_POSITION_OFFSET = 0.488;
             /**
              * Parallel robot front (angle = 90.0 degrees).
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
-            public static final double UPPER_POSITION_OFFSET = 0.814;
+            public static final double UPPER_POSITION_OFFSET = 0.834;
             /**
              * How many degrees the arm moves per second.
              * <p>Default is RPM -> * by LOWER_POSITION_CONVERSION to get
