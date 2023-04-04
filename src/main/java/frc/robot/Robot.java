@@ -66,7 +66,8 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     m_robotContainer.setArmBrake(SmartDashboard.getBoolean("Arm Brake", true));
     m_robotContainer.setRotationBrake(SmartDashboard.getBoolean("Rotation Brake", true));
-    if (m_robotContainer.m_resetArmEncoders.getAsBoolean()){
+    // A JoystickButton will not trigger during disabled, this forces it to
+    if (m_robotContainer.m_resetArmEncoders.getAsBoolean()) {
       m_robotContainer.resetArmEncoders();
     }
   }

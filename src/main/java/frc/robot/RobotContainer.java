@@ -21,8 +21,7 @@ import frc.robot.Constants.Swerve.AutonomousLimits;
 import frc.robot.commands.Autobalance;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
-import frc.robot.commands.MoveArmProfiled;
-import frc.robot.commands.MoveArmToGroundPickup;
+// import frc.robot.commands.MoveArmToGroundPickup;
 import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.PickupGrab;
@@ -31,12 +30,9 @@ import frc.robot.commands.StowMidToHigh;
 // import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
 import frc.robot.commands.arm.GroundPickCube;
-import frc.robot.commands.arm.PickupPullback;
 import frc.robot.commands.arm.PickupThenExtend;
 import frc.robot.commands.arm.ShortThrowMid;
 import frc.robot.commands.autonomous.ScoreConeHigh;
-import frc.robot.commands.request.RequestCone;
-import frc.robot.commands.request.RequestCube;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.SwerveDrive;
@@ -157,9 +153,9 @@ public class RobotContainer {
     // blink LEDs while held
     m_requestCone.whileTrue(new InstantCommand(LED::setUrgentCone));
     // set solid while not held (when button no longer held sets to solid)
-    m_requestCone.onFalse(new RequestCone(m_armGripper));
+    m_requestCone.onFalse(new InstantCommand(m_armGripper::requestCone));
     m_requestCube.whileTrue(new InstantCommand(LED::setUrgentCube));
-    m_requestCube.onFalse(new RequestCube(m_armGripper));
+    m_requestCube.onFalse(new InstantCommand(m_armGripper::requestCube));
   }
 
   /** 
@@ -170,9 +166,6 @@ public class RobotContainer {
     m_eventMap.put("MoveArmToStow", new MoveArmToStow(m_armGripper));
     m_eventMap.put("ScoreHigh", new ScoreConeHigh(m_swerveDrive, m_armGripper));
     m_eventMap.put("DeadlinePickUp", new GroundPickCube(m_armGripper));
-  }
-  public void resetArmEncoders(){
-    m_armGripper.setEncoderOffsets();
   }
 
   /**
@@ -231,6 +224,10 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return m_autoBuilder.fullAuto(m_pathChooser.getSelected());
+  }
+
+  public void resetArmEncoders(){
+    m_armGripper.setEncoderOffsets();
   }
 
   public void setArmBrake(boolean isBrake) {

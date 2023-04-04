@@ -5,18 +5,12 @@
 package frc.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+// what does this file do?
 public class DeadlinePickUp extends ParallelDeadlineGroup {
   /** Creates a new DeadlinePickUp. */
   public DeadlinePickUp() {
-    // Add the deadline command in the super() call. Add other commands using
-    // addCommands().
     super(Commands.waitSeconds(2));
-    // addCommands(new FooCommand(), new BarCommand());
   }
 }

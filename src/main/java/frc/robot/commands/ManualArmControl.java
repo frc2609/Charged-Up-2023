@@ -37,8 +37,8 @@ public class ManualArmControl extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_lowerSetpoint = m_armGripper.getLowerArmAngleRelative();
-    m_upperSetpoint = m_armGripper.getUpperArmAngleRelative();
+    m_lowerSetpoint = m_armGripper.getLowerAngleRelative();
+    m_upperSetpoint = m_armGripper.getUpperAngleRelative();
     m_extensionSetpoint = m_armGripper.getExtensionDistance();
     m_timer.restart();
   }
@@ -50,7 +50,7 @@ public class ManualArmControl extends CommandBase {
     final double lowerArmIn = MathUtil.applyDeadband(-m_operatorController.getRightY(), Xbox.JOYSTICK_DEADBAND);
     final double upperArmIn = MathUtil.applyDeadband(-m_operatorController.getLeftY(), Xbox.JOYSTICK_DEADBAND);
     // right trigger extends (pos), left trigger retracts (neg)
-  //TODO: APPLY DEADBAND
+    // TODO: APPLY DEADBAND
     final double extensionIn = m_operatorController.getRightTriggerAxis() - m_operatorController.getLeftTriggerAxis();
     // calculate acceleration for each part of the arm
     m_lowerSetpoint += lowerArmIn * Arm.MANUAL_LOWER_ACCELERATION * delta;

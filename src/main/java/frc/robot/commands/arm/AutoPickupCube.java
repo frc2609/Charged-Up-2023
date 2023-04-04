@@ -10,14 +10,13 @@ import frc.robot.commands.AutoClose;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.subsystems.ArmGripper;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class AutoPickupCube extends SequentialCommandGroup {
   /** Creates a new AutoPickupCube. */
   public AutoPickupCube(ArmGripper gripper) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new MoveArmToStow(gripper),new InstantCommand(gripper::closeGripper),new AutoClose(gripper, 196));
+    addCommands(
+        new MoveArmToStow(gripper),
+        new InstantCommand(gripper::closeGripper),
+        new AutoClose(gripper, 196)
+    );
   }
 }
