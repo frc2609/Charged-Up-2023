@@ -161,10 +161,10 @@ public class ArmGripper extends SubsystemBase {
 
   private void configurePIDs() {
     m_lowerPID.setP(0.0);
-    m_lowerPID.setI(0.00015);
+    m_lowerPID.setI(0.00015);//0.00015
     m_lowerPID.setD(0.0);
     m_lowerPID.setIZone(2);
-    m_lowerPID.setFF(0.0001);
+    m_lowerPID.setFF(0.0002);
     m_lowerPID.setOutputRange(-1,1);
     m_lowerPID.setSmartMotionMaxVelocity(3500, 0);
     m_lowerPID.setSmartMotionMaxAccel(4000, 0);
@@ -173,7 +173,7 @@ public class ArmGripper extends SubsystemBase {
     m_upperPID.setI(0.0);
     m_upperPID.setD(0.0);
     m_upperPID.setIZone(0.5);
-    m_upperPID.setFF(0.0002);
+    m_upperPID.setFF(0.0001);
     m_upperPID.setOutputRange(-0.75, 0.75);
     m_upperPID.setSmartMotionMaxVelocity(3500, 0);
     m_upperPID.setSmartMotionMaxAccel(6000, 0);
@@ -366,11 +366,13 @@ public class ArmGripper extends SubsystemBase {
 
   /** Set the lower arm angle relative to the front of the robot in degrees. */
   public void setLowerTargetAngle(double angle) {
+    m_lowerPID.setFF(0.0001+Math.abs(Math.cos(Math.toRadians(getLowerAngleRelative()))*0.0001));
     m_lowerPID.setReference(angle, ControlType.kSmartMotion);
   }
 
   /** Set the upper arm angle relative to the front of the robot in degrees. */
   public void setUpperTargetAngle(double angle) {
+    m_upperPID.setFF(0.0001+Math.abs(Math.cos(Math.toRadians(getUpperAngleRelative()))*0.0002));
     m_upperPID.setReference(angle, ControlType.kSmartMotion);
   }
 
