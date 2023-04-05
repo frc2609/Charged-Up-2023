@@ -90,6 +90,9 @@ public class SwerveModule { // implements Sendable {
   public void simulateECVT(){
     m_driveMotors.simulateECVT();
   }
+  public double getSecondaryVelocity(){
+    return m_driveMotors.getSecondaryVelocity();
+  }
 
   /** Update data being sent and recieved from NetworkTables. */
   public void updateNetworkTables() {

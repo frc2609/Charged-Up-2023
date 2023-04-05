@@ -43,9 +43,7 @@
       "isLocked": false,
       "isStopPoint": true,
       "stopEvent": {
-        "names": [
-          "Autobalance"
-        ],
+        "names": [],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
@@ -53,12 +51,12 @@
     },
     {
       "anchorPoint": {
-        "x": 4.319387495917849,
-        "y": 3.406908813817628
+        "x": 4.247813781341849,
+        "y": 3.4
       },
       "prevControl": {
-        "x": 4.339631599490409,
-        "y": 3.406908813817628
+        "x": 4.268057884914409,
+        "y": 3.4
       },
       "nextControl": null,
       "holonomicAngle": 180.0,

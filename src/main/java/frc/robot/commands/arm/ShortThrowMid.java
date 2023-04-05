@@ -4,6 +4,8 @@
 
 package frc.robot.commands.arm;
 
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.MoveArmProfiled;
 import frc.robot.subsystems.ArmGripper;
@@ -13,7 +15,8 @@ public class ShortThrowMid extends SequentialCommandGroup {
   public ShortThrowMid(ArmGripper gripper) {
     addCommands(
         new MoveArmProfiled(gripper, "ShortThrowMidPrep", false),
-        new MoveArmProfiled(gripper, "ReachMid", false)
+        
+        new ParallelRaceGroup(new MoveArmProfiled(gripper, "ReachMid", false), Commands.waitSeconds(2))
     );
   }
 }

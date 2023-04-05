@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //taken from https://github.com/TripleHelixProgramming/HelixUtilities
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.ArmGripper;
+import frc.robot.subsystems.SwerveModule;
 
 /** Records values into a .csv file for later viewing. */
 public class BeaverLogger {
@@ -93,7 +94,7 @@ public class BeaverLogger {
 		}
 	}
 
-	public void logMP(PathLogger path, SwerveModuleState[] targetStates, SwerveModuleState[] currentStates) {
+	public void logMP(PathLogger path, SwerveModuleState[] targetStates, SwerveModuleState[] currentStates, SwerveModule module) {
 		try {
 			if (file == null) {
 				createFile();
@@ -108,9 +109,6 @@ public class BeaverLogger {
 			data.append(Double.toString(path.getTargetX()) + ',');
 			data.append(Double.toString(path.getTargetY()) + ',');
 			data.append(Double.toString(path.getTargetAngle()) + ',');
-			data.append(Double.toString(path.getXError()) + ',');
-			data.append(Double.toString(path.getYError()) + ',');
-			data.append(Double.toString(path.getRotationError()) + ',');
 			
 			data.append(Double.toString(currentStates[0].speedMetersPerSecond) + ',');
 			data.append(Double.toString(targetStates[0].speedMetersPerSecond) + ',');
@@ -121,14 +119,16 @@ public class BeaverLogger {
 			data.append(Double.toString(currentStates[3].speedMetersPerSecond) + ',');
 			data.append(Double.toString(targetStates[3].speedMetersPerSecond) + ',');
 
-			// data.append(Double.toString(currentStates[0].angle.getDegrees()) + ',');
-			// data.append(Double.toString(targetStates[0].angle.getDegrees()) + ',');
-			// data.append(Double.toString(currentStates[1].angle.getDegrees()) + ',');
-			// data.append(Double.toString(targetStates[1].angle.getDegrees()) + ',');
-			// data.append(Double.toString(currentStates[2].angle.getDegrees()) + ',');
-			// data.append(Double.toString(targetStates[2].angle.getDegrees()) + ',');
-			// data.append(Double.toString(currentStates[3].angle.getDegrees()) + ',');
-			// data.append(Double.toString(targetStates[3].angle.getDegrees()) + ',');
+			data.append(Double.toString(currentStates[0].angle.getDegrees()) + ',');
+			data.append(Double.toString(targetStates[0].angle.getDegrees()) + ',');
+			data.append(Double.toString(currentStates[1].angle.getDegrees()) + ',');
+			data.append(Double.toString(targetStates[1].angle.getDegrees()) + ',');
+			data.append(Double.toString(currentStates[2].angle.getDegrees()) + ',');
+			data.append(Double.toString(targetStates[2].angle.getDegrees()) + ',');
+			data.append(Double.toString(currentStates[3].angle.getDegrees()) + ',');
+			data.append(Double.toString(targetStates[3].angle.getDegrees()) + ',');
+			data.append(Double.toString(module.getSecondaryVelocity()));
+			
 			Files.write(file, Collections.singletonList(data.toString()), StandardOpenOption.APPEND);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -172,7 +172,7 @@ public class BeaverLogger {
 	}
 
 
-	private void saveTitles() throws IOException {
+	private void saveTitlesArm() throws IOException {
 		StringBuilder titles = new StringBuilder();
 		titles.append("Timestamp,");
 		titles.append("match_time,");
@@ -185,6 +185,37 @@ public class BeaverLogger {
 		titles.append("Upper vel,");
 		titles.append("Extension pos,");
 		titles.append("Extension vel,");
+		titles.append(dataSources.stream().map(t -> t.name).collect(Collectors.joining(","))).append(",");
+		Files.write(file, Collections.singletonList(titles.toString()), StandardOpenOption.APPEND);
+	}
+
+	private void saveTitles() throws IOException {
+		StringBuilder titles = new StringBuilder();
+		titles.append("Timestamp,");
+		titles.append("match_time,");
+		titles.append("Current X,");
+		titles.append("Current Y,");
+		titles.append("Current Angle,");
+		titles.append("Target X,");
+		titles.append("Target Y,");
+		titles.append("Target Angle,");
+		titles.append("Curr FL,");
+		titles.append("Target FL,");
+		titles.append("Curr FR,");
+		titles.append("Target FR,");
+		titles.append("Curr RL,");
+		titles.append("Target RL,");
+		titles.append("Curr RR,");
+		titles.append("Target RR,");
+		titles.append("Curr FLR,");
+		titles.append("Target FLR,");
+		titles.append("Curr FRR,");
+		titles.append("Target FRR,");
+		titles.append("Curr RLR,");
+		titles.append("Target RLR,");
+		titles.append("Curr RRR,");
+		titles.append("Target RRR,");
+
 		titles.append(dataSources.stream().map(t -> t.name).collect(Collectors.joining(","))).append(",");
 		Files.write(file, Collections.singletonList(titles.toString()), StandardOpenOption.APPEND);
 	}

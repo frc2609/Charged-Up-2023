@@ -159,11 +159,11 @@ public final class Constants {
         /** Autobalance-related constants. */
         public static final class Balance {
             /** P gain for going up the ramp on the charge station. */
-            public static final double START_P = 0.05;
+            public static final double START_P = 0.015;
             /** P gain for staying on the charge station. */
-            public static final double HOLD_P = 0.025;
+            public static final double HOLD_P = 0.001;
             /** The acceptable amount of tilt error in degrees. */
-            public static final double ANGLE_TOLERANCE = 5;
+            public static final double ANGLE_TOLERANCE = 8;
             /** The maximum autobalance speed in metres per second. */
             public static final double MAX_SPEED = 1.5;
         }
@@ -245,10 +245,10 @@ public final class Constants {
             public static final double drivePID_kD = 0;
 
             
-            public static final double drivePID_kP_auto = 0.001;
+            public static final double drivePID_kP_auto = 0.002;
             public static final double drivePID_kI_auto = 0;
             public static final double drivePID_kD_auto = 0;
-            public static final double drivePID_kF_auto = 0.3;
+            public static final double drivePID_kF_auto = 0.0;
 
             
             public static final double rotationPID_kP_auto = 1;
@@ -261,10 +261,9 @@ public final class Constants {
             public static final double rotationPID_kD = 1.0;
             public static final double rotationPID_IZone = 0.001;
 
-            public static final double driveFF_kS = 0;
-            public static final double driveFF_kV = 3.333;
-            public static final double driveFF_kA = 0;
-
+            public static final double driveFF_kS = 1;
+            public static final double driveFF_kV = 3.333; // 3.333
+            public static final double driveFF_kA = 0.5;
             
             public static final double driveFF_kS_auto = 0;
             public static final double driveFF_kV_auto = 2.609;

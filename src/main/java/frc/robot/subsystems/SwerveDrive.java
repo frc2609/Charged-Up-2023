@@ -178,6 +178,18 @@ public class SwerveDrive extends SubsystemBase {
     setDesiredStates(states);
   }
 
+  public void driveAuto(double xSpeed, double ySpeed, double rotationSpeed, boolean isFieldRelative) {
+    // Find states using field relative position or robot relative position.
+    SwerveModuleState[] states = 
+        m_kinematics.toSwerveModuleStates(
+            isFieldRelative
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, getYaw())
+                : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
+    // Prevent robot from going faster than it should.
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
+    setDesiredStatesAuto(states);
+  }
+
   /**
    * Set the velocity and angle of all swerve drive modules using input from
    * the driver's Xbox controller (specified in class constructor).
@@ -434,7 +446,7 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.setDesiredStateAuto(states[1], m_secondaryThrottle, m_maxSpeedEnabled);
     m_rearLeft.setDesiredStateAuto(states[2], m_secondaryThrottle, m_maxSpeedEnabled);
     m_rearRight.setDesiredStateAuto(states[3], m_secondaryThrottle, m_maxSpeedEnabled);
-    BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates());
+    BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
   }
 
   /**

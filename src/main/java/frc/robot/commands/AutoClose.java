@@ -12,11 +12,17 @@ public class AutoClose extends CommandBase {
   private final ArmGripper gripper;
   private final double threshold;
   private int i; // name
+  private int count = 2;
 
   /** Creates a new AutoClose. */
   public AutoClose(ArmGripper gripper, double threshold) {
     this.gripper = gripper;
     this.threshold = threshold;
+  }
+  public AutoClose(ArmGripper gripper, double threshold, int count) {
+    this.gripper = gripper;
+    this.threshold = threshold;
+    this.count = count;
   }
 
   // Called when the command is initially scheduled.
@@ -34,7 +40,7 @@ public class AutoClose extends CommandBase {
       LED.setIdle();
     }
     // TODO: move to a constant
-    if (i >= 2) {
+    if (i >= count) {
       gripper.closeGripper();
     }
   }

@@ -21,7 +21,7 @@ import frc.robot.subsystems.SwerveDrive;
  */
 public class Autobalance extends CommandBase {
   private final PIDController m_anglePIDController 
-      = new PIDController(START_P, 0, 0.0017);
+      = new PIDController(START_P, 0, 0.0015);
   private final SwerveDrive m_swerveDrive;
 
   /** 
@@ -50,15 +50,16 @@ public class Autobalance extends CommandBase {
      * setpoint, the robot switches to a weaker PID to counteract its motion
      * and stay on the charge platform.
      */
-    if (m_anglePIDController.atSetpoint()) {
-      m_anglePIDController.setP(HOLD_P);
-    }
     double roll = -m_swerveDrive.getGyro().getRoll();
     double output = m_anglePIDController.calculate(roll, 0);
     SmartDashboard.putNumber("Autobalance Output", output);
     double xSpeed = MathUtil.clamp(output, -MAX_SPEED, MAX_SPEED);
     SmartDashboard.putNumber("Autobalance Limited Output", xSpeed);
-    m_swerveDrive.drive(xSpeed, 0, 0, false);
+    if (m_anglePIDController.atSetpoint()) {
+      m_swerveDrive.driveAuto(0, 0, 0, false);
+    }else{
+    m_swerveDrive.driveAuto(xSpeed, 0, 0, false);
+    }
   }
 
   // Called once the command ends or is interrupted.

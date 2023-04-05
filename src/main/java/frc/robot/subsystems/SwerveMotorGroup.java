@@ -25,6 +25,7 @@ import frc.robot.Constants.Limits;
 
 /** Add your docs here. */
 public class SwerveMotorGroup {
+  private double prevVel = 0;
   public class ECVT{
     private RelativeEncoder ringEncoder, sunEncoder;
     private final double sunTeeth = 36.0;
@@ -167,9 +168,9 @@ public class SwerveMotorGroup {
     // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
     // if(m_primaryEncoder.getVelocity() > )
     SmartDashboard.putNumber("drive voltage", driveVoltage);
-    SmartDashboard.putNumber("Primary velocity", m_secondaryEncoder.getVelocity());
-    SmartDashboard.putNumber("Secondary velocity", m_primaryEncoder.getVelocity());
-    SmartDashboard.putNumber("ecvt velocity", m_ecvt.getOutputSpeed());
+    SmartDashboard.putNumber(m_name + " Primary velocity", m_secondaryEncoder.getVelocity());
+    SmartDashboard.putNumber(m_name + " Secondary velocity", m_primaryEncoder.getVelocity());
+    SmartDashboard.putNumber(m_name + " ecvt velocity", m_ecvt.getOutputSpeed());
     // if(Math.abs(m_secondaryEncoder.getVelocity()) > 3000){
     //   primarySpeedCounter++;
     //   if(primarySpeedCounter > 5){
@@ -191,6 +192,9 @@ public class SwerveMotorGroup {
     // }
     m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
   }
+  public double getSecondaryVelocity(){
+    return m_secondaryEncoder.getVelocity();
+  }
 
   /**
    * TODO: describe
@@ -205,21 +209,21 @@ public class SwerveMotorGroup {
     m_primaryPID.setP(Constants.Swerve.Gains.drivePID_kP_auto);
     m_primaryPID.setI(Constants.Swerve.Gains.drivePID_kI_auto);
     m_primaryPID.setD(Constants.Swerve.Gains.drivePID_kD_auto);
-    final double driveOutput =
-    m_primaryPID.calculate(m_secondaryEncoder.getVelocity(), m_ecvt.getRingSetpoint(speedMetersPerSecond));//m_primaryEncoder.getVelocity(), speedMetersPerSecond); // why isn't this swapped for secondary motor?
+    final double driveOutput = m_primaryPID.calculate(m_primaryEncoder.getVelocity(), m_ecvt.getSunSetpoint(speedMetersPerSecond));//m_primaryEncoder.getVelocity(), speedMetersPerSecond); // why isn't this swapped for secondary motor?
         // this also doesn't use metres per second
     final double driveFeedforward = m_primaryFF.calculate(speedMetersPerSecond);
     // swerve has not a clue as to what speed it is going
 
     final double driveVoltage = driveOutput + driveFeedforward;
-    m_secondaryMotor.setVoltage(driveVoltage);
+    m_primaryMotor.setVoltage(driveVoltage);
     // m_primaryMotor.setVoltage(driveVoltage);
     // copy sign
     // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
     // if(m_primaryEncoder.getVelocity() > )
-    SmartDashboard.putNumber("Primary velocity", m_secondaryEncoder.getVelocity());
-    SmartDashboard.putNumber("Secondary velocity", m_primaryEncoder.getVelocity());
-    SmartDashboard.putNumber("ecvt velocity", m_ecvt.getOutputSpeed());
+    SmartDashboard.putNumber(m_name + " Primary velocity", m_primaryEncoder.getVelocity());
+    SmartDashboard.putNumber(m_name+" Secondary velocity", m_secondaryEncoder.getVelocity());
+    SmartDashboard.putNumber(m_name+" ecvt velocity", m_ecvt.getOutputSpeed());
+    // m_secondaryMotor.setVoltage(-driveVoltage*0.15);
     // m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
   }
 
