@@ -138,8 +138,8 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // driver controls
     m_zeroYawButton.onTrue(new InstantCommand(m_swerveDrive::zeroYaw));
-    m_driverGroundPickup.onTrue(new PickupGrab(m_armGripper, m_operatorController));
-    m_driverPickup.onTrue(new PickupThenExtend(m_armGripper,false));
+    m_driverGroundPickup.onTrue(new GroundPickCube(m_armGripper));
+    m_driverPickup.onTrue(new PickupGrab(m_armGripper,m_operatorController));
     // m_enableBalanceLock.whileTrue(new InstantCommand(m_swerveDrive::setBalanceLock, m_swerveDrive));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
@@ -159,7 +159,7 @@ public class RobotContainer {
     // set solid while not held (when button no longer held sets to solid)
     m_requestCone.onFalse(new InstantCommand(m_armGripper::requestCone));
     m_requestCube.whileTrue(new InstantCommand(LED::setUrgentCube));
-    m_requestCube.onFalse(new AutoPickupCube(m_armGripper));
+    m_requestCube.onFalse( new InstantCommand(m_armGripper::requestCube));
   }
 
   /** 
