@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.HashMap;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 // import edu.wpi.first.wpilibj.PowerDistribution;
@@ -107,6 +108,7 @@ public class RobotContainer {
           
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    CameraServer.startAutomaticCapture();
     m_armGripper = new ArmGripper(m_operatorController);
     m_swerveDrive = new SwerveDrive(m_driverController);
     m_swerveDrive.resetModuleEncoders();
