@@ -215,8 +215,13 @@ public class SwerveMotorGroup {
         // this also doesn't use metres per second
     final double driveFeedforward = m_primaryFF.calculate(speedMetersPerSecond);
     // swerve has not a clue as to what speed it is going
+    double ff = 0;
+    if(prevTime != -1){
+      ff = Math.abs(prevVel - speedMetersPerSecond)/Math.abs(Timer.getFPGATimestamp()-prevTime)*1;
+      // ff = Math.min(Math.abs(ff), Math.abs(driveVoltage*0.15));
 
-    final double driveVoltage = driveOutput + driveFeedforward;
+    }
+    final double driveVoltage = driveOutput + driveFeedforward+ff;
     m_secondaryMotor.setVoltage(driveVoltage);
     // m_primaryMotor.setVoltage(driveVoltage);
     // copy sign
@@ -225,18 +230,15 @@ public class SwerveMotorGroup {
     SmartDashboard.putNumber(m_name + " Primary velocity", m_primaryEncoder.getVelocity());
     SmartDashboard.putNumber(m_name+" Secondary velocity", m_secondaryEncoder.getVelocity());
     SmartDashboard.putNumber(m_name+" ecvt velocity", m_ecvt.getOutputSpeed());
-    double prevAccel = 0;
-    // if(prevTime != -1){
-    //   prevAccel = prevVel - m_secondaryEncoder.getVelocity();
-    // }
+    
     if(isLowTorqueModeEnabled){
-    m_primaryMotor.setVoltage(-driveVoltage*0.15);
+    // m_primaryMotor.setVoltage(-ff);
     }
     else{
       m_primaryMotor.set(0);
     }
     
-    prevVel = m_secondaryEncoder.getVelocity();
+    prevVel = speedMetersPerSecond;
     prevTime = Timer.getFPGATimestamp();
     // m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
   }
