@@ -62,7 +62,7 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
 
-  private final Rev2mDistanceSensor m_intakeSensor = new Rev2mDistanceSensor(Port.kMXP);
+  private Rev2mDistanceSensor m_intakeSensor = new Rev2mDistanceSensor(Port.kMXP);
   private boolean m_isCubeRequested;
 
   /** @deprecated Use commands to control this subsystem instead. */
@@ -350,7 +350,14 @@ public class ArmGripper extends SubsystemBase {
     m_isCubeRequested = false;
     LED.setCone();
   }
-    
+
+  public void restartSensor() {
+    // m_intakeSensor.setEnabled(false);
+    // m_intakeSensor = new Rev2mDistanceSensor(Port.kMXP);
+    m_intakeSensor.setAutomaticMode(true);
+    m_intakeSensor.setEnabled(true);
+  }
+
   public void setBrake(boolean isBrake) {
     if (isBrake) {
       m_lowerMotor.setIdleMode(IdleMode.kBrake);

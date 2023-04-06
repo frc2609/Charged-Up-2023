@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.Swerve.AutonomousLimits;
@@ -27,13 +26,10 @@ import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.PickupGrab;
 import frc.robot.commands.QueueCommand;
-import frc.robot.commands.ResetModules;
 import frc.robot.commands.StowMidToHigh;
 // import frc.robot.commands.ResetModules;
 import frc.robot.commands.VisionAlign;
-import frc.robot.commands.arm.AutoPickupCube;
 import frc.robot.commands.arm.GroundPickCube;
-import frc.robot.commands.arm.PickupThenExtend;
 import frc.robot.commands.arm.ShortThrowMid;
 import frc.robot.commands.autonomous.ScoreConeHigh;
 import frc.robot.subsystems.ArmGripper;
@@ -104,7 +100,10 @@ public class RobotContainer {
   private final JoystickButton m_requestCone = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftStick.value);
   private final JoystickButton m_requestCube = new JoystickButton(
-      m_operatorController, XboxController.Button.kRightStick.value);  
+      m_operatorController, XboxController.Button.kRightStick.value); 
+  // does not work
+  private final JoystickButton m_restartSensor = new JoystickButton(
+    m_operatorController, XboxController.Button.kStart.value);  
           
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -161,6 +160,7 @@ public class RobotContainer {
     m_requestCone.onFalse(new InstantCommand(m_armGripper::requestCone));
     m_requestCube.whileTrue(new InstantCommand(LED::setUrgentCube));
     m_requestCube.onFalse( new InstantCommand(m_armGripper::requestCube));
+    m_restartSensor.onFalse(new InstantCommand(m_armGripper::restartSensor));
   }
 
   /** 
