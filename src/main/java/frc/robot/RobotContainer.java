@@ -84,6 +84,8 @@ public class RobotContainer {
       m_driverController, XboxController.Button.kB.value);
 
   // operator controls
+  private final JoystickButton m_cancelArmCommand = new JoystickButton(
+      m_operatorController, XboxController.Button.kStart.value);
   private final JoystickButton m_openGripper = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftBumper.value);
   private final JoystickButton m_closeGripper = new JoystickButton(
@@ -101,10 +103,7 @@ public class RobotContainer {
   private final JoystickButton m_requestCone = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftStick.value);
   private final JoystickButton m_requestCube = new JoystickButton(
-      m_operatorController, XboxController.Button.kRightStick.value); 
-  // does not work
-  private final JoystickButton m_restartSensor = new JoystickButton(
-    m_operatorController, XboxController.Button.kStart.value);  
+      m_operatorController, XboxController.Button.kRightStick.value);
           
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -146,6 +145,11 @@ public class RobotContainer {
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
     // operator controls
+    /*
+     * Call a function that does nothing and require ArmGripper to cancel any
+     * commands that require it.
+     */
+    m_cancelArmCommand.onTrue(new InstantCommand(() -> {}, m_armGripper));
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
     m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new ShortThrowMid(m_armGripper)));
@@ -153,8 +157,8 @@ public class RobotContainer {
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
     m_resetArmEncoders.onTrue(new InstantCommand(m_armGripper::setEncoderOffsets));
+    // m_restartSensor.onFalse(new InstantCommand(m_armGripper::restartSensor));
     // m_resetArmEncoders.onTrue(new ResetModules(m_swerveDrive,0));
-    
     // operator LED controls
     // blink LEDs while held
     m_requestCone.whileTrue(new InstantCommand(LED::setUrgentCone));
@@ -162,7 +166,6 @@ public class RobotContainer {
     m_requestCone.onFalse(new InstantCommand(m_armGripper::requestCone));
     m_requestCube.whileTrue(new InstantCommand(LED::setUrgentCube));
     m_requestCube.onFalse( new InstantCommand(m_armGripper::requestCube));
-    m_restartSensor.onFalse(new InstantCommand(m_armGripper::restartSensor));
   }
 
   /** 
