@@ -112,22 +112,28 @@ public class BeaverLogger {
 			
 			data.append(Double.toString(currentStates[0].speedMetersPerSecond) + ',');
 			data.append(Double.toString(targetStates[0].speedMetersPerSecond) + ',');
-			data.append(Double.toString(currentStates[1].speedMetersPerSecond) + ',');
-			data.append(Double.toString(targetStates[1].speedMetersPerSecond) + ',');
-			data.append(Double.toString(currentStates[2].speedMetersPerSecond) + ',');
-			data.append(Double.toString(targetStates[2].speedMetersPerSecond) + ',');
-			data.append(Double.toString(currentStates[3].speedMetersPerSecond) + ',');
-			data.append(Double.toString(targetStates[3].speedMetersPerSecond) + ',');
+			// data.append(Double.toString(currentStates[1].speedMetersPerSecond) + ',');
+			// data.append(Double.toString(targetStates[1].speedMetersPerSecond) + ',');
+			// data.append(Double.toString(currentStates[2].speedMetersPerSecond) + ',');
+			// data.append(Double.toString(targetStates[2].speedMetersPerSecond) + ',');
+			// data.append(Double.toString(currentStates[3].speedMetersPerSecond) + ',');
+			// data.append(Double.toString(targetStates[3].speedMetersPerSecond) + ',');
 
 			data.append(Double.toString(currentStates[0].angle.getDegrees()) + ',');
 			data.append(Double.toString(targetStates[0].angle.getDegrees()) + ',');
-			data.append(Double.toString(currentStates[1].angle.getDegrees()) + ',');
-			data.append(Double.toString(targetStates[1].angle.getDegrees()) + ',');
-			data.append(Double.toString(currentStates[2].angle.getDegrees()) + ',');
-			data.append(Double.toString(targetStates[2].angle.getDegrees()) + ',');
-			data.append(Double.toString(currentStates[3].angle.getDegrees()) + ',');
-			data.append(Double.toString(targetStates[3].angle.getDegrees()) + ',');
-			data.append(Double.toString(module.getSecondaryVelocity()));
+			// data.append(Double.toString(currentStates[1].angle.getDegrees()) + ',');
+			// data.append(Double.toString(targetStates[1].angle.getDegrees()) + ',');
+			// data.append(Double.toString(currentStates[2].angle.getDegrees()) + ',');
+			// data.append(Double.toString(targetStates[2].angle.getDegrees()) + ',');
+			// data.append(Double.toString(currentStates[3].angle.getDegrees()) + ',');
+			// data.append(Double.toString(targetStates[3].angle.getDegrees()) + ',');
+			data.append(Double.toString(module.getDriveMotors().m_secondaryEncoder.getVelocity())+ ',');
+			data.append(Double.toString(module.getDriveMotors().m_primaryEncoder.getVelocity())+ ',');
+			data.append(Double.toString(module.getDriveMotors().m_primaryMotor.getAppliedOutput())+ ',');
+			data.append(Double.toString(module.getDriveMotors().m_primaryMotor.getOutputCurrent())+ ',');
+			data.append(Double.toString(module.getDriveMotors().m_secondaryMotor.getAppliedOutput())+ ',');
+			data.append(Double.toString(module.getDriveMotors().m_secondaryMotor.getOutputCurrent()));
+
 			
 			Files.write(file, Collections.singletonList(data.toString()), StandardOpenOption.APPEND);
 		} catch (Exception e) {
@@ -201,20 +207,26 @@ public class BeaverLogger {
 		titles.append("Target Angle,");
 		titles.append("Curr FL,");
 		titles.append("Target FL,");
-		titles.append("Curr FR,");
-		titles.append("Target FR,");
-		titles.append("Curr RL,");
-		titles.append("Target RL,");
-		titles.append("Curr RR,");
-		titles.append("Target RR,");
+		// titles.append("Curr FR,");
+		// titles.append("Target FR,");
+		// titles.append("Curr RL,");
+		// titles.append("Target RL,");
+		// titles.append("Curr RR,");
+		// titles.append("Target RR,");
 		titles.append("Curr FLR,");
 		titles.append("Target FLR,");
-		titles.append("Curr FRR,");
-		titles.append("Target FRR,");
-		titles.append("Curr RLR,");
-		titles.append("Target RLR,");
-		titles.append("Curr RRR,");
-		titles.append("Target RRR,");
+		// titles.append("Curr FRR,");
+		// titles.append("Target FRR,");
+		// titles.append("Curr RLR,");
+		// titles.append("Target RLR,");
+		// titles.append("Curr RRR,");
+		// titles.append("Target RRR,");
+		titles.append("FLB RPM,");
+		titles.append("FLA RPM,");
+		titles.append("FLA Voltage,");
+		titles.append("FLA Current,");
+		titles.append("FLB Voltage,");
+		titles.append("FLB Current");
 
 		titles.append(dataSources.stream().map(t -> t.name).collect(Collectors.joining(","))).append(",");
 		Files.write(file, Collections.singletonList(titles.toString()), StandardOpenOption.APPEND);

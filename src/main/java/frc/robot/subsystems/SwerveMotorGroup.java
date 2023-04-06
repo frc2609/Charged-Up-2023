@@ -16,6 +16,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.Limits;
@@ -61,13 +62,14 @@ public class SwerveMotorGroup {
     }
   }
 
-  private final CANSparkMax m_primaryMotor;
-  private final CANSparkMax m_secondaryMotor;
+  public final CANSparkMax m_primaryMotor;
+  public final CANSparkMax m_secondaryMotor;
   private boolean isPrimaryOverThreshold;
   private int primarySpeedCounter = 0;
-  private final RelativeEncoder m_primaryEncoder;
-  private final RelativeEncoder m_secondaryEncoder;
+  public final RelativeEncoder m_primaryEncoder;
+  public final RelativeEncoder m_secondaryEncoder;
   private final ECVT m_ecvt;
+  private double prevTime = -1;
 
   private final PIDController m_primaryPID =
       new PIDController(drivePID_kP, drivePID_kI, drivePID_kD);
@@ -203,19 +205,19 @@ public class SwerveMotorGroup {
    * @param secondaryThrottle
    * @param maxSpeedEnabled
    */
-  public void setAuto(double speedMetersPerSecond, double secondaryThrottle, boolean maxSpeedEnabled) {
+  public void setAuto(double speedMetersPerSecond, double secondaryThrottle, boolean maxSpeedEnabled, boolean isLowTorqueModeEnabled) {
     // TODO: a bit of cleanup
     // Calculate the drive output from the drive PID controller.
     m_primaryPID.setP(Constants.Swerve.Gains.drivePID_kP_auto);
     m_primaryPID.setI(Constants.Swerve.Gains.drivePID_kI_auto);
     m_primaryPID.setD(Constants.Swerve.Gains.drivePID_kD_auto);
-    final double driveOutput = m_primaryPID.calculate(m_primaryEncoder.getVelocity(), m_ecvt.getSunSetpoint(speedMetersPerSecond));//m_primaryEncoder.getVelocity(), speedMetersPerSecond); // why isn't this swapped for secondary motor?
+    final double driveOutput = m_primaryPID.calculate(m_secondaryEncoder.getVelocity(), m_ecvt.getRingSetpoint(speedMetersPerSecond));//m_primaryEncoder.getVelocity(), speedMetersPerSecond); // why isn't this swapped for secondary motor?
         // this also doesn't use metres per second
     final double driveFeedforward = m_primaryFF.calculate(speedMetersPerSecond);
     // swerve has not a clue as to what speed it is going
 
     final double driveVoltage = driveOutput + driveFeedforward;
-    m_primaryMotor.setVoltage(driveVoltage);
+    m_secondaryMotor.setVoltage(driveVoltage);
     // m_primaryMotor.setVoltage(driveVoltage);
     // copy sign
     // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
@@ -223,7 +225,19 @@ public class SwerveMotorGroup {
     SmartDashboard.putNumber(m_name + " Primary velocity", m_primaryEncoder.getVelocity());
     SmartDashboard.putNumber(m_name+" Secondary velocity", m_secondaryEncoder.getVelocity());
     SmartDashboard.putNumber(m_name+" ecvt velocity", m_ecvt.getOutputSpeed());
-    // m_secondaryMotor.setVoltage(-driveVoltage*0.15);
+    double prevAccel = 0;
+    // if(prevTime != -1){
+    //   prevAccel = prevVel - m_secondaryEncoder.getVelocity();
+    // }
+    if(isLowTorqueModeEnabled){
+    m_primaryMotor.setVoltage(-driveVoltage*0.15);
+    }
+    else{
+      m_primaryMotor.set(0);
+    }
+    
+    prevVel = m_secondaryEncoder.getVelocity();
+    prevTime = Timer.getFPGATimestamp();
     // m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
   }
 

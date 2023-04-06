@@ -86,6 +86,9 @@ public class SwerveModule { // implements Sendable {
     SmartDashboard.putNumber(m_name + " Angle Setpoint (rad)", 0);
     SmartDashboard.putNumber(m_name + " Drive Voltage", 0); // TODO: 99% sure not used.
   }
+  public SwerveMotorGroup getDriveMotors(){
+    return this.m_driveMotors;
+  }
 
   public void simulateECVT(){
     m_driveMotors.simulateECVT();
@@ -285,7 +288,29 @@ public class SwerveModule { // implements Sendable {
         SwerveModuleState.optimize(desiredState, new Rotation2d(m_rotationEncoder.getPosition()));
 
     SmartDashboard.putNumber(m_name + "Set M/S", optimizedState.angle.getRadians());
-    m_driveMotors.setAuto(optimizedState.speedMetersPerSecond, secondaryThrottle, maxSpeedEnabled);
+    m_driveMotors.setAuto(optimizedState.speedMetersPerSecond, secondaryThrottle, maxSpeedEnabled,false);
+    SmartDashboard.putNumber(m_name + "Set Angle", optimizedState.angle.getRadians());
+    m_rotationPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+    
+  }
+  public void setDesiredStateAuto(SwerveModuleState desiredState, double secondaryThrottle, boolean maxSpeedEnabled, boolean isLowTorqueModeEnabled) {
+    /* If the robot is not being instructed to move, do not move any motors. 
+     * This prevents the swerve module from returning to its original position
+     * when the robot is not moving, which is the default behaviour of
+     * ChassisSpeeds and SwerveModuleState.
+     */
+    m_rotationMotor.setIdleMode(IdleMode.kBrake);
+    m_rotationPIDController.setP(rotationPID_kP_auto);
+    m_rotationPIDController.setI(rotationPID_kI_auto);
+    m_rotationPIDController.setD(rotationPID_kD_auto);
+    m_rotationPIDController.setFF(rotationFF_auto);
+    
+    // Optimize the desired state to avoid spinning further than 90 degrees
+    SwerveModuleState optimizedState =
+        SwerveModuleState.optimize(desiredState, new Rotation2d(m_rotationEncoder.getPosition()));
+
+    SmartDashboard.putNumber(m_name + "Set M/S", optimizedState.angle.getRadians());
+    m_driveMotors.setAuto(optimizedState.speedMetersPerSecond, secondaryThrottle, maxSpeedEnabled,isLowTorqueModeEnabled);
     SmartDashboard.putNumber(m_name + "Set Angle", optimizedState.angle.getRadians());
     m_rotationPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
     

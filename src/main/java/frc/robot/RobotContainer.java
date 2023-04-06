@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.Swerve.AutonomousLimits;
@@ -147,11 +148,11 @@ public class RobotContainer {
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
     m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new ShortThrowMid(m_armGripper)));
-    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new StowMidToHigh(m_armGripper)));
+    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new StowMidToHigh(m_armGripper,m_executeQueuedCommand)));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
-    // m_resetArmEncoders.onTrue(new InstantCommand(m_armGripper::setEncoderOffsets));
-    m_resetArmEncoders.onTrue(new ResetModules(m_swerveDrive,0));
+    m_resetArmEncoders.onTrue(new InstantCommand(m_armGripper::setEncoderOffsets));
+    // m_resetArmEncoders.onTrue(new ResetModules(m_swerveDrive,0));
     
     // operator LED controls
     // blink LEDs while held
@@ -228,7 +229,10 @@ public class RobotContainer {
    * @return The selected autonomous command.
    */
   public Command getAutonomousCommand() {
-    return m_autoBuilder.fullAuto(m_pathChooser.getSelected());
+    return m_autoBuilder.fullAuto(m_pathChooser.getSelected()).andThen(new InstantCommand(m_swerveDrive::stop));
+    // PathConstraints constraints = new PathConstraints(AutonomousLimits.MAX_LINEAR_VELOCITY, 1);
+
+    // return m_autoBuilder.fullAuto(PathPlanner.loadPath("DriveStraight", constraints));
   }
 
   public void resetArmEncoders(){

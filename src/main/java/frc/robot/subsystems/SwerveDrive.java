@@ -189,6 +189,17 @@ public class SwerveDrive extends SubsystemBase {
     SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
     setDesiredStatesAuto(states);
   }
+  public void driveAuto(double xSpeed, double ySpeed, double rotationSpeed, boolean isFieldRelative, boolean isLowTorqueModeEnabled) {
+    // Find states using field relative position or robot relative position.
+    SwerveModuleState[] states = 
+        m_kinematics.toSwerveModuleStates(
+            isFieldRelative
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, getYaw())
+                : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
+    // Prevent robot from going faster than it should.
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
+    setDesiredStatesAuto(states);
+  }
 
   /**
    * Set the velocity and angle of all swerve drive modules using input from
@@ -441,6 +452,14 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public void setDesiredStatesAuto(SwerveModuleState[] states) {
+    // Array index order must match the order that m_kinematics was initialized with.
+    m_frontLeft.setDesiredStateAuto(states[0], m_secondaryThrottle, m_maxSpeedEnabled,false);
+    m_frontRight.setDesiredStateAuto(states[1], m_secondaryThrottle, m_maxSpeedEnabled, false);
+    m_rearLeft.setDesiredStateAuto(states[2], m_secondaryThrottle, m_maxSpeedEnabled, false);
+    m_rearRight.setDesiredStateAuto(states[3], m_secondaryThrottle, m_maxSpeedEnabled,false);
+    BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
+  }
+  public void setDesiredStatesAuto(SwerveModuleState[] states, boolean isLowTorqueModeEnabled) {
     // Array index order must match the order that m_kinematics was initialized with.
     m_frontLeft.setDesiredStateAuto(states[0], m_secondaryThrottle, m_maxSpeedEnabled);
     m_frontRight.setDesiredStateAuto(states[1], m_secondaryThrottle, m_maxSpeedEnabled);

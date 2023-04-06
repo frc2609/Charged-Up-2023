@@ -405,9 +405,9 @@ public class MoveArmProfiled extends CommandBase {
     }
     
 
-    SmartDashboard.putNumber("lowerSetp", currentPath[i][0]);
-    SmartDashboard.putNumber("upperSetp", currentPath[i][1]);
-    SmartDashboard.putNumber("extSetp", currentPath[i][2]);
+    // SmartDashboard.putNumber("lowerSetp", currentPath[i][0]);
+    // SmartDashboard.putNumber("upperSetp", currentPath[i][1]);
+    // SmartDashboard.putNumber("extSetp", currentPath[i][2]);
   }
 
   // Called once the command ends or is interrupted.
@@ -431,9 +431,15 @@ public class MoveArmProfiled extends CommandBase {
   @Override
   public boolean isFinished() {
     //return i>lowerSetpoint.length-1 // try this if it finishes too early
+    
     boolean isLowerInTolerance = Math.abs(m_armGripper.getLowerAngleRelative()-currentPath[currentPath.length-1][0])<Tolerances.LOWER_ANGLE;
     boolean isUpperInTolerance = Math.abs(m_armGripper.getUpperAngleRelative()-currentPath[currentPath.length-1][1])<Tolerances.UPPER_ANGLE;
     boolean isExtensionInTolerance = Math.abs(m_armGripper.getExtensionDistance()-currentPath[currentPath.length-1][2])<Tolerances.EXTENSION_LENGTH;
+    if(isReverse){
+      isLowerInTolerance = Math.abs(m_armGripper.getLowerAngleRelative()-currentPath[0][0])<Tolerances.LOWER_ANGLE;
+      isUpperInTolerance = Math.abs(m_armGripper.getUpperAngleRelative()-currentPath[0][1])<Tolerances.UPPER_ANGLE;
+      isExtensionInTolerance = Math.abs(m_armGripper.getExtensionDistance()-currentPath[0][2])<Tolerances.EXTENSION_LENGTH;
+    }
     return i>=currentPath.length-1 && (isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance);
   }
 }
