@@ -255,7 +255,7 @@ public class SwerveModule { // implements Sendable {
      m_rotationPIDController.setFF(rotationFF_auto);
      
     // Temp
-    m_rotationMotor.setIdleMode(IdleMode.kBrake);
+    // m_rotationMotor.setIdleMode(IdleMode.kBrake);
     if (Math.abs(desiredState.speedMetersPerSecond) < MODULE_SPEED_DEADBAND) {
       stop();
       return;
