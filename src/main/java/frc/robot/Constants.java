@@ -205,6 +205,7 @@ public final class Constants {
     public static final class DIO {
         public static final int ARM_LOWER_ENCODER = 0;
         public static final int ARM_UPPER_ENCODER = 1;
+        public static final int INTAKE_SENSOR = 7;
     } 
     public static final class LED {
         public static final double BLUE = 0.87;

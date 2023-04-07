@@ -8,17 +8,15 @@ import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.Rev2mDistanceSensor;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.Rev2mDistanceSensor.Port;
-import com.revrobotics.Rev2mDistanceSensor.Unit;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -62,7 +60,7 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
 
-  private Rev2mDistanceSensor m_intakeSensor = new Rev2mDistanceSensor(Port.kMXP);
+  private DigitalInput intakeSensor = new DigitalInput(DIO.INTAKE_SENSOR); 
   private boolean m_isCubeRequested;
 
   /** @deprecated Use commands to control this subsystem instead. */
@@ -78,15 +76,12 @@ public class ArmGripper extends SubsystemBase {
     configureMotors();
     configurePIDs();
     m_operatorController = operatorController;
-    m_intakeSensor.setAutomaticMode(true);
-    m_intakeSensor.setEnabled(true);
   }
 
   @Override
   public void periodic() {
     // intake sensor
-    SmartDashboard.putBoolean("IsIntakeRangeValid", m_intakeSensor.isRangeValid());
-    SmartDashboard.putNumber("Intake Sensor (mm)", m_intakeSensor.getRange(Unit.kMillimeters));
+    SmartDashboard.putBoolean("intakeSensor", intakeSensor.get());
     // extension
     SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoderRelative.getVelocity());
     // absolute encoder value
@@ -204,12 +199,11 @@ public class ArmGripper extends SubsystemBase {
   }
 
   /**
-   * Returns the distance from the intake sensor to an object in front of the
-   * intake.
-   * @return The distance from the intake sensor to another object in millimetres.
+   * Returns the output of the intake sensor.
+   * @return Boolean true if there is a game piece in the gripper false otherwise.
    */
-  public double getIntakeSensorDistance() {
-    return m_intakeSensor.getRange(Unit.kMillimeters);
+  public boolean getIntakeSensor() {
+    return intakeSensor.get();
   }
 
   /**
@@ -303,15 +297,6 @@ public class ArmGripper extends SubsystemBase {
     m_extensionPID.setReference(getExtensionDistance(), ControlType.kSmartMotion);
   }
 
-  /**
-   * Use this to check whether or not a distance value from the intake sensor
-   * is valid.
-   * @return Whether or not the intake sensor reading is valid.
-   */
-  public boolean isIntakeReadingValid() {
-    return m_intakeSensor.isRangeValid();
-  }
-
   /** 
    * Control the arm position using the operator controller.
    * Does not control the gripper solenoids.
@@ -349,13 +334,6 @@ public class ArmGripper extends SubsystemBase {
   public void requestCone(){
     m_isCubeRequested = false;
     LED.setCone();
-  }
-
-  public void restartSensor() {
-    // m_intakeSensor.setEnabled(false);
-    // m_intakeSensor = new Rev2mDistanceSensor(Port.kMXP);
-    m_intakeSensor.setAutomaticMode(true);
-    m_intakeSensor.setEnabled(true);
   }
 
   public void setBrake(boolean isBrake) {

@@ -10,7 +10,7 @@ import frc.robot.subsystems.LED;
 
 public class AutoClose extends CommandBase {
   private final ArmGripper gripper;
-  private final double threshold;
+  private final double threshold; // TODO: can remove, no longer necessary
   private int i; // name
   private int count = 2;
 
@@ -32,7 +32,7 @@ public class AutoClose extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(gripper.isIntakeReadingValid() && gripper.getIntakeSensorDistance() < threshold) {
+    if(gripper.getIntakeSensor()) {
       i++;
       LED.setGreen();
     } else {
