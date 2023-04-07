@@ -14,11 +14,14 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Limits;
 
 // velocity conversion factors with/without motors
@@ -70,6 +73,7 @@ public class SwerveMotorGroup {
   public final RelativeEncoder m_secondaryEncoder;
   private final ECVT m_ecvt;
   private double prevTime = -1;
+  SlewRateLimiter torqueRateLimiter = new SlewRateLimiter(2);
 
   private final PIDController m_primaryPID =
       new PIDController(drivePID_kP, drivePID_kI, drivePID_kD);
@@ -192,7 +196,15 @@ public class SwerveMotorGroup {
     // if(maxSpeedEnabled){
     //   RobotContainer.LED.set(0.07);
     // }
-    m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+    double torqueMultiplier = MathUtil.applyDeadband(RobotContainer.m_driverController.getLeftTriggerAxis(), 0.1)*0.3;
+    double backdrive = torqueRateLimiter.calculate(driveVoltage*torqueMultiplier);
+    if(Math.abs(driveVoltage) < 3){
+      backdrive = 0;
+    }
+    if(backdrive > 5){
+      backdrive = 5;
+    }
+    m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : -backdrive);
   }
   public double getSecondaryVelocity(){
     return m_secondaryEncoder.getVelocity();
@@ -221,7 +233,7 @@ public class SwerveMotorGroup {
       // ff = Math.min(Math.abs(ff), Math.abs(driveVoltage*0.15));
 
     }
-    final double driveVoltage = driveOutput + driveFeedforward+ff;
+    final double driveVoltage = driveOutput + driveFeedforward;
     m_secondaryMotor.setVoltage(driveVoltage);
     // m_primaryMotor.setVoltage(driveVoltage);
     // copy sign

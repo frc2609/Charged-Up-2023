@@ -62,9 +62,9 @@ public class RobotContainer {
   private final SwerveAutoBuilder m_autoBuilder;
   // private final PowerDistribution m_powerDistribution =
   //     new PowerDistribution(1, ModuleType.kRev);
-  private final XboxController m_driverController = new XboxController(
+  public static XboxController m_driverController = new XboxController(
       Constants.Xbox.DRIVER_CONTROLLER_PORT);
-  private final XboxController m_operatorController = new XboxController(
+      public static XboxController m_operatorController = new XboxController(
       Constants.Xbox.OPERATOR_CONTROLLER_PORT);
   
   // driver controls
@@ -152,8 +152,8 @@ public class RobotContainer {
     m_cancelArmCommand.onTrue(new InstantCommand(() -> {}, m_armGripper));
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
-    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new ShortThrowMid(m_armGripper)));
-    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new StowMidToHigh(m_armGripper,m_executeQueuedCommand)));
+    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new ShortThrowMid(m_armGripper, m_executeQueuedCommand, m_operatorController)));
+    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new StowMidToHigh(m_armGripper,m_executeQueuedCommand, m_operatorController)));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
     m_resetArmEncoders.onTrue(new InstantCommand(m_armGripper::setEncoderOffsets));
