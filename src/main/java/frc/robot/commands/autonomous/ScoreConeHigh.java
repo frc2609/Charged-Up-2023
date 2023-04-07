@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.Autonomous.Deadline;
-import frc.robot.commands.StowMidToHigh;
+import frc.robot.commands.arm.StowMidToHigh;
 // import frc.robot.commands.VisionAlign;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.SwerveDrive;
