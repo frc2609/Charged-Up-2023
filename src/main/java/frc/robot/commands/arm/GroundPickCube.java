@@ -14,7 +14,7 @@ public class GroundPickCube extends SequentialCommandGroup {
   /** Creates a new GroundPickCube. */
   public GroundPickCube(ArmGripper gripper) {
     addCommands(
-        new MoveArmToSetpoint(104.6, 19.0, 0.04, false, false, false, gripper),
+        new MoveArmToSetpoint(104.6, 19.0, 0.093, false, false, false, gripper),
         new AutoClose(gripper, 150), new MoveArmToStow(gripper)
     );
   }
