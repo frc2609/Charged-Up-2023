@@ -75,9 +75,9 @@ public final class Constants {
             public static final double GROUND_PICKUP_LOWER = 72.0;
             public static final double GROUND_PICKUP_UPPER = 32.4;
             public static final double GROUND_PICKUP_EXTENSION = 0.0;
-            public static final double LOW_LOWER = 77.6;
-            public static final double LOW_UPPER = 49.6;
-            public static final double LOW_EXTENSION = 0.0;
+            public static final double LOW_LOWER = 104.6;
+            public static final double LOW_UPPER = 41.5;
+            public static final double LOW_EXTENSION = 0.22;
             public static final double MID_LOWER = 62.0;
             public static final double MID_UPPER = 139.7;
             public static final double MID_EXTENSION = 0.0;
