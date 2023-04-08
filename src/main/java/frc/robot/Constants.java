@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.PIDConstants;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -354,6 +356,8 @@ public final class Constants {
             public static final double MAX_LINEAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED;
         }
         // Miscellaneous:
+        /** The default angle tolerance for AlignToRotation. */
+        public static final Rotation2d DEFAULT_ROTATION_TOLERANCE = Rotation2d.fromDegrees(3.0);
         /** 
          * The allowed rotation error in radians when rotating a module to a
          * specific angle (not used when setting a SwerveModuleState).

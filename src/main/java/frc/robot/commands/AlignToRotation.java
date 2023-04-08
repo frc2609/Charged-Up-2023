@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.Swerve;
 import frc.robot.subsystems.SwerveDrive;
 
 public class AlignToRotation extends CommandBase {
@@ -15,11 +16,13 @@ public class AlignToRotation extends CommandBase {
   private final XboxController m_driverController;
   private final Rotation2d m_setpoint;
   private final SwerveDrive m_swerveDrive;
+  private final Rotation2d m_tolerance;
 
   /**
-   * Creates a new AlignToRotation.
+   * Creates a new AlignToRotation with the default tolerance.
    * @param angle A Rotation2d of the desired angle.
    * @param swerveDrive The swerve drive subsystem.
+   * @param driverController The driver's controller for translation control.
    */
   public AlignToRotation(
     Rotation2d angle,
@@ -29,6 +32,27 @@ public class AlignToRotation extends CommandBase {
     m_driverController = driverController;
     m_setpoint = angle;
     m_swerveDrive = swerveDrive;
+    m_tolerance = Swerve.DEFAULT_ROTATION_TOLERANCE;
+    addRequirements(swerveDrive);
+  }
+
+  /**
+   * Creates a new AlignToRotation.
+   * @param angle A Rotation2d of the desired angle.
+   * @param swerveDrive The swerve drive subsystem.
+   * @param driverController The driver's controller for translation control.
+   * @param tolerance How much error is acceptable for the desired angle.
+   */
+  public AlignToRotation(
+    Rotation2d angle,
+    SwerveDrive swerveDrive,
+    XboxController driverController,
+    Rotation2d tolerance
+  ) {
+    m_driverController = driverController;
+    m_setpoint = angle;
+    m_swerveDrive = swerveDrive;
+    m_tolerance = tolerance;
     addRequirements(swerveDrive);
   }
 
@@ -59,7 +83,6 @@ public class AlignToRotation extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // move to constants
-    return Math.abs(m_swerveDrive.getYaw().getDegrees() - m_setpoint.getDegrees()) <= 5.0;
+    return Math.abs(m_swerveDrive.getYaw().getDegrees() - m_setpoint.getDegrees()) <= m_tolerance.getDegrees();
   }
 }
