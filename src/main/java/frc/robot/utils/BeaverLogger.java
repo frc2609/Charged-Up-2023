@@ -112,21 +112,21 @@ public class BeaverLogger {
 			
 			data.append(Double.toString(currentStates[0].speedMetersPerSecond) + ',');
 			data.append(Double.toString(targetStates[0].speedMetersPerSecond) + ',');
-			// data.append(Double.toString(currentStates[1].speedMetersPerSecond) + ',');
-			// data.append(Double.toString(targetStates[1].speedMetersPerSecond) + ',');
-			// data.append(Double.toString(currentStates[2].speedMetersPerSecond) + ',');
-			// data.append(Double.toString(targetStates[2].speedMetersPerSecond) + ',');
-			// data.append(Double.toString(currentStates[3].speedMetersPerSecond) + ',');
-			// data.append(Double.toString(targetStates[3].speedMetersPerSecond) + ',');
+			data.append(Double.toString(currentStates[1].speedMetersPerSecond) + ',');
+			data.append(Double.toString(targetStates[1].speedMetersPerSecond) + ',');
+			data.append(Double.toString(currentStates[2].speedMetersPerSecond) + ',');
+			data.append(Double.toString(targetStates[2].speedMetersPerSecond) + ',');
+			data.append(Double.toString(currentStates[3].speedMetersPerSecond) + ',');
+			data.append(Double.toString(targetStates[3].speedMetersPerSecond) + ',');
 
 			data.append(Double.toString(currentStates[0].angle.getDegrees()) + ',');
 			data.append(Double.toString(targetStates[0].angle.getDegrees()) + ',');
-			// data.append(Double.toString(currentStates[1].angle.getDegrees()) + ',');
-			// data.append(Double.toString(targetStates[1].angle.getDegrees()) + ',');
-			// data.append(Double.toString(currentStates[2].angle.getDegrees()) + ',');
-			// data.append(Double.toString(targetStates[2].angle.getDegrees()) + ',');
-			// data.append(Double.toString(currentStates[3].angle.getDegrees()) + ',');
-			// data.append(Double.toString(targetStates[3].angle.getDegrees()) + ',');
+			data.append(Double.toString(currentStates[1].angle.getDegrees()) + ',');
+			data.append(Double.toString(targetStates[1].angle.getDegrees()) + ',');
+			data.append(Double.toString(currentStates[2].angle.getDegrees()) + ',');
+			data.append(Double.toString(targetStates[2].angle.getDegrees()) + ',');
+			data.append(Double.toString(currentStates[3].angle.getDegrees()) + ',');
+			data.append(Double.toString(targetStates[3].angle.getDegrees()) + ',');
 			data.append(Double.toString(module.getDriveMotors().m_secondaryEncoder.getVelocity())+ ',');
 			data.append(Double.toString(module.getDriveMotors().m_primaryEncoder.getVelocity())+ ',');
 			data.append(Double.toString(module.getDriveMotors().m_primaryMotor.getAppliedOutput())+ ',');
