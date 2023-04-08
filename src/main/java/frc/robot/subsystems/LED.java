@@ -61,4 +61,8 @@ public class LED {
   public static void setUrgentCube() {
     setColour(C1_STROBE); // colour 1 = purple
   }
+
+  public static void setWhite() {
+    setColour(WHITE);
+  }
 }

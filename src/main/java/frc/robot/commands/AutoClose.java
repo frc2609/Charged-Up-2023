@@ -34,7 +34,7 @@ public class AutoClose extends CommandBase {
   public void execute() {
     if(gripper.getIntakeSensor()) {
       i++;
-      LED.setGreen();
+      LED.setWhite();
     } else {
       i = 0;
       LED.setIdle();
@@ -42,6 +42,7 @@ public class AutoClose extends CommandBase {
     // TODO: move to a constant
     if (i >= count) {
       gripper.closeGripper();
+      LED.setGreen();
     }
   }
 
@@ -52,6 +53,6 @@ public class AutoClose extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return i >= 5;
+    return i >= count;
   }
 }
