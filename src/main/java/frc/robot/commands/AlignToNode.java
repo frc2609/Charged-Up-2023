@@ -47,6 +47,7 @@ public class AlignToNode extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    // TODO: set correct pipeline and setup pipeline settings
     m_xPID.reset();
     m_yPID.reset();
     m_rotPID.reset();
