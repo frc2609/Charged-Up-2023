@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.HashMap;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 // import edu.wpi.first.wpilibj.PowerDistribution;
@@ -16,9 +17,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.Swerve.AutonomousLimits;
 import frc.robot.commands.AlignToNode;
+import frc.robot.commands.AlignToRotation;
 import frc.robot.commands.Autobalance;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
@@ -82,6 +85,11 @@ public class RobotContainer {
       m_driverController, XboxController.Button.kY.value);
   private final JoystickButton m_alignToNode = new JoystickButton(
       m_driverController, XboxController.Button.kB.value);
+  private final Trigger m_rotateToPickup = new Trigger(
+      () -> { return m_driverController.getPOV() == 0; });
+  private final Trigger m_rotateToScore = new Trigger(
+      () -> { return m_driverController.getPOV() == 180; });
+  // CommandXboxController is very useful...
 
   // operator controls
   private final JoystickButton m_openGripper = new JoystickButton(
@@ -144,6 +152,8 @@ public class RobotContainer {
     // m_enableBalanceLock.whileTrue(new InstantCommand(m_swerveDrive::setBalanceLock, m_swerveDrive));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
     m_alignToNode.whileTrue(new AlignToNode(m_swerveDrive));
+    m_rotateToPickup.onTrue(new AlignToRotation(new Rotation2d(0.0), m_swerveDrive, m_driverController));
+    m_rotateToScore.onTrue(new AlignToRotation(new Rotation2d(180.0), m_swerveDrive, m_driverController));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
