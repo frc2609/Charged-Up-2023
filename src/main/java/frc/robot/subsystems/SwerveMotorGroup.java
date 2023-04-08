@@ -73,7 +73,7 @@ public class SwerveMotorGroup {
   public final RelativeEncoder m_secondaryEncoder;
   private final ECVT m_ecvt;
   private double prevTime = -1;
-  SlewRateLimiter torqueRateLimiter = new SlewRateLimiter(2);
+  private final SlewRateLimiter m_torqueRateLimiter = new SlewRateLimiter(4, -2, 0);
 
   private final PIDController m_primaryPID =
       new PIDController(drivePID_kP, drivePID_kI, drivePID_kD);
@@ -150,10 +150,10 @@ public class SwerveMotorGroup {
    * TODO: describe
    * 
    * @param speedMetersPerSecond The target speed in metres per second.
-   * @param secondaryThrottle Boost throttle (0 to 1).
+   * @param boostThrottle Boost throttle (0 to 1).
    * @param maxSpeedEnabled Whether or not to use boost.
    */
-  public void set(double speedMetersPerSecond, double secondaryThrottle, boolean maxSpeedEnabled) {
+  public void set(double speedMetersPerSecond, double boostThrottle, double torqueThrottle, boolean maxSpeedEnabled) {
     // TODO: rewrite this function
     // Calculate the drive output from the drive PID controller.
     
@@ -171,7 +171,7 @@ public class SwerveMotorGroup {
     m_secondaryMotor.setVoltage(driveVoltage);
     // m_primaryMotor.setVoltage(driveVoltage);
     // copy sign
-    // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+    // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (boostThrottle * (driveVoltage/driveVoltage)) : 0);
     // if(m_primaryEncoder.getVelocity() > )
     SmartDashboard.putNumber("drive voltage", driveVoltage);
     SmartDashboard.putNumber(m_name + " Primary velocity", m_secondaryEncoder.getVelocity());
@@ -196,15 +196,28 @@ public class SwerveMotorGroup {
     // if(maxSpeedEnabled){
     //   RobotContainer.LED.set(0.07);
     // }
-    double torqueMultiplier = MathUtil.applyDeadband(RobotContainer.m_driverController.getLeftTriggerAxis(), 0.1)*0.3;
-    double backdrive = torqueRateLimiter.calculate(driveVoltage*torqueMultiplier);
-    if(Math.abs(driveVoltage) < 3){
-      backdrive = 0;
+    double torqueMultiplier = MathUtil.applyDeadband(RobotContainer.m_driverController.getLeftTriggerAxis(), 0.1)*0.3; // [0,0.3]
+    double back_drive = -(driveVoltage*torqueMultiplier);
+    double forward_drive = driveVoltage * (boostThrottle * (driveVoltage/driveVoltage));
+    
+    if(back_drive > 5){
+      back_drive = 5;
     }
-    if(backdrive > 5){
-      backdrive = 5;
+
+    double output = 0;
+    if(maxSpeedEnabled){
+      // output = torqueRateLimiter.calculate(forward_drive);
+      output = forward_drive;
+      m_torqueRateLimiter.reset(0);
     }
-    m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : -backdrive);
+    else{
+      if(Math.abs(driveVoltage) < 3){
+        output = 0;
+      }else{
+        output = m_torqueRateLimiter.calculate(back_drive);
+      }
+    }
+    m_primaryMotor.setVoltage(output);
   }
   public double getSecondaryVelocity(){
     return m_secondaryEncoder.getVelocity();
@@ -214,10 +227,10 @@ public class SwerveMotorGroup {
    * TODO: describe
    * 
    * @param speedMetersPerSecond
-   * @param secondaryThrottle
+   * @param boostThrottle
    * @param maxSpeedEnabled
    */
-  public void setAuto(double speedMetersPerSecond, double secondaryThrottle, boolean maxSpeedEnabled, boolean isLowTorqueModeEnabled) {
+  public void setAuto(double speedMetersPerSecond, double boostThrottle, boolean maxSpeedEnabled, boolean isLowTorqueModeEnabled) {
     // TODO: a bit of cleanup
     // Calculate the drive output from the drive PID controller.
     m_primaryPID.setP(Constants.Swerve.Gains.drivePID_kP_auto);
@@ -237,7 +250,7 @@ public class SwerveMotorGroup {
     m_secondaryMotor.setVoltage(driveVoltage);
     // m_primaryMotor.setVoltage(driveVoltage);
     // copy sign
-    // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+    // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (boostThrottle * (driveVoltage/driveVoltage)) : 0);
     // if(m_primaryEncoder.getVelocity() > )
     SmartDashboard.putNumber(m_name + " Primary velocity", m_primaryEncoder.getVelocity());
     SmartDashboard.putNumber(m_name+" Secondary velocity", m_secondaryEncoder.getVelocity());
@@ -252,7 +265,7 @@ public class SwerveMotorGroup {
     
     prevVel = speedMetersPerSecond;
     prevTime = Timer.getFPGATimestamp();
-    // m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+    // m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (boostThrottle * (driveVoltage/driveVoltage)) : 0);
   }
 
   /** Update data being sent and recieved from NetworkTables. */

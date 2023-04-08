@@ -81,7 +81,8 @@ public class SwerveDrive extends SubsystemBase {
 
   private double m_debugAngleSetpoint = 0; // radians
   private boolean m_maxSpeedEnabled = false;
-  private double m_secondaryThrottle = 0; // 0 to 1
+  private double m_boostThrottle = 0; // 0 to 0.5
+  private double m_torqueThrottle = 0; // 0 to 0.3
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive(XboxController driverController) {
@@ -145,7 +146,7 @@ public class SwerveDrive extends SubsystemBase {
       resetPose(new Pose2d());
       SmartDashboard.putBoolean("Reset Encoders", false); // reset the button
     }
-    SmartDashboard.putNumber("Boost Multiplier", m_secondaryThrottle);
+    SmartDashboard.putNumber("Boost Multiplier", m_boostThrottle);
     // navx
     SmartDashboard.putBoolean("Navx Connected", m_navx.isConnected());
     SmartDashboard.putNumber("Gyro Pitch (deg)", m_navx.getPitch());
@@ -363,7 +364,8 @@ public class SwerveDrive extends SubsystemBase {
     //             * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
 
     m_maxSpeedEnabled = m_driverController.getAButton();
-    m_secondaryThrottle = m_driverController.getRightTriggerAxis() / 2.0;
+    m_boostThrottle = m_driverController.getRightTriggerAxis() / 2.0; // [0,0.5]
+    m_torqueThrottle = m_driverController.getLeftTriggerAxis() * 0.3;
 
     drive(xSpeed, ySpeed, rotSpeed, true);
   }
@@ -444,27 +446,29 @@ public class SwerveDrive extends SubsystemBase {
    */
   public void setDesiredStates(SwerveModuleState[] states) {
     // Array index order must match the order that m_kinematics was initialized with.
-    m_frontLeft.setDesiredState(states[0], m_secondaryThrottle, m_maxSpeedEnabled);
-    m_frontRight.setDesiredState(states[1], m_secondaryThrottle, m_maxSpeedEnabled);
-    m_rearLeft.setDesiredState(states[2], m_secondaryThrottle, m_maxSpeedEnabled);
-    m_rearRight.setDesiredState(states[3], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_frontLeft.setDesiredState(states[0], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
+    m_frontRight.setDesiredState(states[1], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
+    m_rearLeft.setDesiredState(states[2], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
+    m_rearRight.setDesiredState(states[3], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
     // BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates());
   }
 
   public void setDesiredStatesAuto(SwerveModuleState[] states) {
     // Array index order must match the order that m_kinematics was initialized with.
-    m_frontLeft.setDesiredStateAuto(states[0], m_secondaryThrottle, m_maxSpeedEnabled,false);
-    m_frontRight.setDesiredStateAuto(states[1], m_secondaryThrottle, m_maxSpeedEnabled, false);
-    m_rearLeft.setDesiredStateAuto(states[2], m_secondaryThrottle, m_maxSpeedEnabled, false);
-    m_rearRight.setDesiredStateAuto(states[3], m_secondaryThrottle, m_maxSpeedEnabled,false);
+    m_frontLeft.setDesiredStateAuto(states[0], m_boostThrottle, m_maxSpeedEnabled, false);
+    m_frontRight.setDesiredStateAuto(states[1], m_boostThrottle, m_maxSpeedEnabled, false);
+    m_rearLeft.setDesiredStateAuto(states[2], m_boostThrottle, m_maxSpeedEnabled, false);
+    m_rearRight.setDesiredStateAuto(states[3], m_boostThrottle, m_maxSpeedEnabled, false);
     BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
   }
+
+  // default parameters so that this function can be combined with the above one
   public void setDesiredStatesAuto(SwerveModuleState[] states, boolean isLowTorqueModeEnabled) {
     // Array index order must match the order that m_kinematics was initialized with.
-    m_frontLeft.setDesiredStateAuto(states[0], m_secondaryThrottle, m_maxSpeedEnabled);
-    m_frontRight.setDesiredStateAuto(states[1], m_secondaryThrottle, m_maxSpeedEnabled);
-    m_rearLeft.setDesiredStateAuto(states[2], m_secondaryThrottle, m_maxSpeedEnabled);
-    m_rearRight.setDesiredStateAuto(states[3], m_secondaryThrottle, m_maxSpeedEnabled);
+    m_frontLeft.setDesiredStateAuto(states[0], m_boostThrottle, m_maxSpeedEnabled, isLowTorqueModeEnabled);
+    m_frontRight.setDesiredStateAuto(states[1], m_boostThrottle, m_maxSpeedEnabled, isLowTorqueModeEnabled);
+    m_rearLeft.setDesiredStateAuto(states[2], m_boostThrottle, m_maxSpeedEnabled, isLowTorqueModeEnabled);
+    m_rearRight.setDesiredStateAuto(states[3], m_boostThrottle, m_maxSpeedEnabled, isLowTorqueModeEnabled);
     BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
   }
 

@@ -242,7 +242,7 @@ public class SwerveModule { // implements Sendable {
    *
    * @param desiredState Desired state with speed and angle.
    */
-  public void setDesiredState(SwerveModuleState desiredState, double secondaryThrottle, boolean maxSpeedEnabled) {
+  public void setDesiredState(SwerveModuleState desiredState, double boostThrottle, double torqueThrottle, boolean maxSpeedEnabled) {
     /* If the robot is not being instructed to move, do not move any motors. 
      * This prevents the swerve module from returning to its original position
      * when the robot is not moving, which is the default behaviour of
@@ -266,12 +266,12 @@ public class SwerveModule { // implements Sendable {
         SwerveModuleState.optimize(desiredState, new Rotation2d(m_rotationEncoder.getPosition()));
 
     SmartDashboard.putNumber(m_name + "Set M/S", optimizedState.angle.getRadians());
-    m_driveMotors.set(optimizedState.speedMetersPerSecond, secondaryThrottle, maxSpeedEnabled);
+    m_driveMotors.set(optimizedState.speedMetersPerSecond, boostThrottle, torqueThrottle, maxSpeedEnabled);
     SmartDashboard.putNumber(m_name + "Set Angle", optimizedState.angle.getRadians());
     m_rotationPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
   }
 
-  public void setDesiredStateAuto(SwerveModuleState desiredState, double secondaryThrottle, boolean maxSpeedEnabled) {
+  public void setDesiredStateAuto(SwerveModuleState desiredState, double boostThrottle, boolean maxSpeedEnabled) {
     /* If the robot is not being instructed to move, do not move any motors. 
      * This prevents the swerve module from returning to its original position
      * when the robot is not moving, which is the default behaviour of
@@ -288,12 +288,14 @@ public class SwerveModule { // implements Sendable {
         SwerveModuleState.optimize(desiredState, new Rotation2d(m_rotationEncoder.getPosition()));
 
     SmartDashboard.putNumber(m_name + "Set M/S", optimizedState.angle.getRadians());
-    m_driveMotors.setAuto(optimizedState.speedMetersPerSecond, secondaryThrottle, maxSpeedEnabled,false);
+    m_driveMotors.setAuto(optimizedState.speedMetersPerSecond, boostThrottle, maxSpeedEnabled,false);
     SmartDashboard.putNumber(m_name + "Set Angle", optimizedState.angle.getRadians());
     m_rotationPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
     
   }
-  public void setDesiredStateAuto(SwerveModuleState desiredState, double secondaryThrottle, boolean maxSpeedEnabled, boolean isLowTorqueModeEnabled) {
+
+  // how to do default parameters
+  public void setDesiredStateAuto(SwerveModuleState desiredState, double boostThrottle, boolean maxSpeedEnabled, boolean isLowTorqueModeEnabled) {
     /* If the robot is not being instructed to move, do not move any motors. 
      * This prevents the swerve module from returning to its original position
      * when the robot is not moving, which is the default behaviour of
@@ -310,7 +312,7 @@ public class SwerveModule { // implements Sendable {
         SwerveModuleState.optimize(desiredState, new Rotation2d(m_rotationEncoder.getPosition()));
 
     SmartDashboard.putNumber(m_name + "Set M/S", optimizedState.angle.getRadians());
-    m_driveMotors.setAuto(optimizedState.speedMetersPerSecond, secondaryThrottle, maxSpeedEnabled,isLowTorqueModeEnabled);
+    m_driveMotors.setAuto(optimizedState.speedMetersPerSecond, boostThrottle, maxSpeedEnabled,isLowTorqueModeEnabled);
     SmartDashboard.putNumber(m_name + "Set Angle", optimizedState.angle.getRadians());
     m_rotationPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
     
@@ -359,7 +361,7 @@ public class SwerveModule { // implements Sendable {
    * Stop all motors in this module.
    */
   public void stop() {
-    m_driveMotors.set(0, 0, false);
+    m_driveMotors.set(0, 0, 0,false);
     m_rotationMotor.setVoltage(0);
   }
 }
