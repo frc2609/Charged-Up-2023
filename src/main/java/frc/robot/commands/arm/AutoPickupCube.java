@@ -19,7 +19,7 @@ public class AutoPickupCube extends SequentialCommandGroup {
     addCommands(
         new MoveArmToSetpoint(STOW_LOWER, STOW_UPPER, 0.045, isFinished(), isFinished(), isFinished(), gripper),
         new InstantCommand(gripper::openGripper),
-        new AutoClose(gripper, 200, 7),
+        new AutoClose(gripper, 7),
         new InstantCommand(gripper::closeGripper),
         Commands.waitSeconds(0.2),
         new MoveArmToStow(gripper)
