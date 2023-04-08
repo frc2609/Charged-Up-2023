@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.Swerve.AutonomousLimits;
-// import frc.robot.commands.AlignToNode;
+import frc.robot.commands.AlignToNode;
 import frc.robot.commands.Autobalance;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
@@ -29,7 +29,6 @@ import frc.robot.commands.PickupGrab;
 import frc.robot.commands.QueueCommand;
 import frc.robot.commands.StowMidToHigh;
 // import frc.robot.commands.ResetModules;
-import frc.robot.commands.VisionAlign;
 import frc.robot.commands.arm.GroundPickCube;
 import frc.robot.commands.arm.PickupThenExtend;
 import frc.robot.commands.arm.ShortThrowMid;
@@ -144,7 +143,7 @@ public class RobotContainer {
     m_driverPickup.onTrue(new PickupThenExtend(m_armGripper,false));
     // m_enableBalanceLock.whileTrue(new InstantCommand(m_swerveDrive::setBalanceLock, m_swerveDrive));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
-    m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
+    m_alignToNode.whileTrue(new AlignToNode(m_swerveDrive));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
