@@ -248,7 +248,7 @@ public class SwerveModule { // implements Sendable {
      * when the robot is not moving, which is the default behaviour of
      * ChassisSpeeds and SwerveModuleState.
      */
-    
+    // TODO: just found the cause of all loop overruns:
      m_rotationPIDController.setP(rotationPID_kP_auto);
      m_rotationPIDController.setI(rotationPID_kI_auto);
      m_rotationPIDController.setD(rotationPID_kD_auto);
@@ -277,6 +277,7 @@ public class SwerveModule { // implements Sendable {
      * when the robot is not moving, which is the default behaviour of
      * ChassisSpeeds and SwerveModuleState.
      */
+    // TODO: super bad, very laggy:
     m_rotationMotor.setIdleMode(IdleMode.kBrake);
     m_rotationPIDController.setP(rotationPID_kP_auto);
     m_rotationPIDController.setI(rotationPID_kI_auto);

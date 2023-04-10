@@ -1,0 +1,26 @@
+Improvements:
+Merge ECVT class & SwerveMotorGroup
+Move XboxControllers to static-only member of RobotContainer? maybe not because it's not going to be initialized
+^^^ Custom array to hold ECVTModuleState?
+-> Rotation2d for rotation
+-> Boost throttle
+-> metres per second
+-> Torque throttle
+^^^ still have SwerveModuleState
+Remove unused autos
+Move commands into appropriate folders
+Gripper should NOT be the same subsystem as arm
+CommandXboxController instead of XboxController
+Go through BeaverLogger and improve it/remove unused values and add titles for ones being logged
+Make it easier to import arm profiles
+-> Error checking if an invalid profile is selected
+change the swerve dimensions in constants to the actual swerve dimensions please
+
+Functionality:
+Limelight tracking
+Align-To-Rotation (DPAD?)
+Integrate arm kinematics with robot code (much easier to change setpoints)
+-> Probably not because python one has graphing (can't port) and would take long to port the math
+Lock swerve drive on the balance platform
+Swerve needs to drift less (does it drift?)
+
