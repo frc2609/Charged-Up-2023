@@ -4,19 +4,24 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.Swerve;
 import frc.robot.subsystems.SwerveDrive;
 
+/**
+ * Bind this to {@code Trigger.whileTrue()} to use it (or a toggleOnTrue).
+ */
 public class AlignToRotation extends CommandBase {
-  private final PIDController m_anglePID = new PIDController(1, 0, 0);
+  // kP = rad/s per deg (yaw) of error
+  private final PIDController m_anglePID = new PIDController(0.1, 0, 0.004);
   private final XboxController m_driverController;
   private final Rotation2d m_setpoint;
   private final SwerveDrive m_swerveDrive;
-  private final Rotation2d m_tolerance;
 
   /**
    * Creates a new AlignToRotation with the default tolerance.
@@ -32,7 +37,8 @@ public class AlignToRotation extends CommandBase {
     m_driverController = driverController;
     m_setpoint = angle;
     m_swerveDrive = swerveDrive;
-    m_tolerance = Swerve.DEFAULT_ROTATION_TOLERANCE;
+    m_anglePID.enableContinuousInput(-180, 180);
+    m_anglePID.setTolerance(Swerve.DEFAULT_ROTATION_TOLERANCE.getDegrees());
     addRequirements(swerveDrive);
   }
 
@@ -52,7 +58,8 @@ public class AlignToRotation extends CommandBase {
     m_driverController = driverController;
     m_setpoint = angle;
     m_swerveDrive = swerveDrive;
-    m_tolerance = tolerance;
+    m_anglePID.enableContinuousInput(-180, 180);
+    m_anglePID.setTolerance(tolerance.getDegrees());
     addRequirements(swerveDrive);
   }
 
@@ -65,13 +72,19 @@ public class AlignToRotation extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    final double curAngle = m_swerveDrive.getYaw().getDegrees();
+    final double rotSpeed = MathUtil.clamp(m_anglePID.calculate(curAngle, m_setpoint.getDegrees()), -Math.PI / 2.0, Math.PI / 2.0);
     // TODO: sketchy: doesn't square inputs
     m_swerveDrive.drive(
         -m_driverController.getLeftY(),
         -m_driverController.getLeftX(),
-        m_anglePID.calculate(m_swerveDrive.getYaw().getRadians(), m_setpoint.getRadians()),
+        rotSpeed,
         true
+        // also not correct, look at manualDrive()
     );
+    SmartDashboard.putNumber("alignRot/Target Yaw (deg, +ive = left)", m_setpoint.getDegrees());
+    SmartDashboard.putNumber("alignRot/Current Yaw (deg, +ive = left)", curAngle);
+    SmartDashboard.putNumber("alignRot/Calculated Rot Speed (radps [left])", rotSpeed);
   }
 
   // Called once the command ends or is interrupted.
@@ -83,6 +96,8 @@ public class AlignToRotation extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(m_swerveDrive.getYaw().getDegrees() - m_setpoint.getDegrees()) <= m_tolerance.getDegrees();
+    final boolean ended = m_anglePID.atSetpoint();
+    SmartDashboard.putBoolean("alignRot/atTarget", ended);
+    return ended;
   }
 }

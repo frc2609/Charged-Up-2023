@@ -357,7 +357,7 @@ public final class Constants {
         }
         // Miscellaneous:
         /** The default angle tolerance for AlignToRotation. */
-        public static final Rotation2d DEFAULT_ROTATION_TOLERANCE = Rotation2d.fromDegrees(3.0);
+        public static final Rotation2d DEFAULT_ROTATION_TOLERANCE = Rotation2d.fromDegrees(1.5);
         /** 
          * The allowed rotation error in radians when rotating a module to a
          * specific angle (not used when setting a SwerveModuleState).
