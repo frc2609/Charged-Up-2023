@@ -364,7 +364,8 @@ public class SwerveDrive extends SubsystemBase {
     //             * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
 
     m_maxSpeedEnabled = m_driverController.getAButton();
-    m_boostThrottle = m_driverController.getRightTriggerAxis() / 2.0; // [0,0.5]
+    // this does not actually limit boost to 50% of its speed (see SwerveMotorGroup)
+    m_boostThrottle = m_driverController.getRightTriggerAxis() * 0.75; // / 2.0; // [0,0.5]
     m_torqueThrottle = m_driverController.getLeftTriggerAxis() * 0.3;
 
     drive(xSpeed, ySpeed, rotSpeed, true);
