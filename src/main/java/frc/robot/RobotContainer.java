@@ -85,8 +85,6 @@ public class RobotContainer {
       m_driverController, XboxController.Button.kY.value);
   private final JoystickButton m_alignToNode = new JoystickButton(
       m_driverController, XboxController.Button.kB.value);
-  private final JoystickButton m_resetTo180 = new JoystickButton(
-      m_driverController, XboxController.Button.kBack.value);
   private final Trigger m_rotateToPickup = new Trigger(
       () -> { return m_driverController.getPOV() == 0; });
   private final Trigger m_rotateToScore = new Trigger(
@@ -156,7 +154,6 @@ public class RobotContainer {
     m_alignToNode.whileTrue(new AlignToNode(m_swerveDrive));
     m_rotateToPickup.whileTrue(new AlignToRotation(Rotation2d.fromDegrees(0.0), m_swerveDrive, m_driverController));
     m_rotateToScore.whileTrue(new AlignToRotation(Rotation2d.fromDegrees(180.0), m_swerveDrive, m_driverController));
-    m_resetTo180.onTrue(new InstantCommand(m_swerveDrive::zeroYawTo180));
     // operator controls
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));

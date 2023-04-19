@@ -476,9 +476,4 @@ public class SwerveDrive extends SubsystemBase {
   public void zeroYaw() {
     resetPose(new Pose2d(m_odometry.getPoseMeters().getTranslation(), new Rotation2d(0)));
   }
-
-  // TODO: temp for testing
-  public void zeroYawTo180() {
-    resetPose(new Pose2d(m_odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(180)));
-  }
 }
