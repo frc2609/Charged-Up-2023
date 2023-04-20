@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.HashMap;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 // import edu.wpi.first.wpilibj.PowerDistribution;
@@ -17,8 +18,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.Swerve.AutonomousLimits;
+import frc.robot.commands.AlignToNode;
+import frc.robot.commands.AlignToRotation;
 import frc.robot.commands.Autobalance;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
@@ -28,7 +32,6 @@ import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.PickupGrab;
 import frc.robot.commands.QueueCommand;
 // import frc.robot.commands.ResetModules;
-import frc.robot.commands.VisionAlign;
 import frc.robot.commands.arm.GroundPickCube;
 import frc.robot.commands.arm.ShortThrowMid;
 import frc.robot.commands.arm.StowMidToHigh;
@@ -82,6 +85,11 @@ public class RobotContainer {
       m_driverController, XboxController.Button.kY.value);
   private final JoystickButton m_alignToNode = new JoystickButton(
       m_driverController, XboxController.Button.kB.value);
+  private final Trigger m_rotateToPickup = new Trigger(
+      () -> { return m_driverController.getPOV() == 0; });
+  private final Trigger m_rotateToScore = new Trigger(
+      () -> { return m_driverController.getPOV() == 180; });
+  // CommandXboxController is very useful...
 
   // operator controls
   private final JoystickButton m_cancelArmCommand = new JoystickButton(
@@ -143,7 +151,9 @@ public class RobotContainer {
     m_driverPickup.onTrue(new PickupGrab(m_armGripper,m_operatorController));
     // m_enableBalanceLock.whileTrue(new InstantCommand(m_swerveDrive::setBalanceLock, m_swerveDrive));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
-    m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
+    m_alignToNode.whileTrue(new AlignToNode(m_swerveDrive));
+    m_rotateToPickup.whileTrue(new AlignToRotation(Rotation2d.fromDegrees(0.0), m_swerveDrive, m_driverController));
+    m_rotateToScore.whileTrue(new AlignToRotation(Rotation2d.fromDegrees(180.0), m_swerveDrive, m_driverController));
     // operator controls
     /*
      * Call a function that does nothing and require ArmGripper to cancel any

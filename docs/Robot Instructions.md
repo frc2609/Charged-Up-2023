@@ -91,8 +91,8 @@ In teleop mode, the robot can collide with parts of the field, and other robots,
 
 | DPAD  | Function |
 | ----- | -------- |
-| Up    | NA
-| Down  | NA
+| Up    | Rotate robot to pickup
+| Down  | Rotate robot to score
 | Left  | NA
 | Right | NA
 
