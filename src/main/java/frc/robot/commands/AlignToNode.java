@@ -12,16 +12,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDrive;
 
-// TODO: Attach the limelight and move cursor to correct position
-// TODO: Make sure it tracks the correct target...
-
 /**
  * Align the robot to a cone node using retroreflective tape.
  * Bind this to {@code Trigger.whileTrue()} to use it (or a toggleOnTrue).
  */
 public class AlignToNode extends CommandBase {
   private final SwerveDrive m_swerveDrive;
-  // I think these units are correct, may not be
   // kP = m/s per degree (limelight) of error
   private final PIDController m_xPID = new PIDController(0.1, 0, 0); // fwd/back (ty) note: should be larger than y as this is typically smaller
   private final PIDController m_yPID = new PIDController(0.05, 0, 0); // left/right (tx, yaw)
@@ -86,10 +82,10 @@ public class AlignToNode extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // does not actually work
+    // TODO: does not actually work
     final boolean ended = m_xPID.atSetpoint() && m_yPID.atSetpoint() && m_rotPID.atSetpoint();
     SmartDashboard.putBoolean("align/atTarget", ended);
-    return false; // TODO: pretty sure that shouldn't be that way
+    return false; // false because this doesn't actually work
   }
 
   /**
