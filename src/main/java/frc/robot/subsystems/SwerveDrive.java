@@ -154,6 +154,20 @@ public class SwerveDrive extends SubsystemBase {
     SmartDashboard.putNumber("Odometry Yaw (deg)", getPose().getRotation().getDegrees());
   }
 
+  
+  /**
+   * Apply a deadband, square, and multiply an input value from a controller by
+   * a maximum value and return the resulting number.
+   * @param input The raw axis input (correctly inverted) from the controller.
+   * @param multiplier The maximum value to output. For example, the maximum velocity of a drivetrain.
+   * @return 'input' after applying a deadband, squaring the resulting value (sign is kept), and multiplying squared value by 'multiplier'.
+   */
+  public static double calculateManualInput(double input, double multiplier) {
+    final double deadband = MathUtil.applyDeadband(input, Xbox.JOYSTICK_DEADBAND);
+    final double squared = Math.pow(deadband, 2) * Math.signum(deadband);
+    return squared * multiplier;
+  }
+
   /** 
    * Drive the robot using given inputs.
    *
@@ -227,7 +241,6 @@ public class SwerveDrive extends SubsystemBase {
   //       MP
   //   );
   // }
-
 
   /**
    * Returns a reference to the robot's gyro.
@@ -314,35 +327,14 @@ public class SwerveDrive extends SubsystemBase {
     /* Speeds are inverted because Xbox controllers return negative values when
      * joystick is pushed forward or to the left.
      */
-    final double xInput = MathUtil.applyDeadband(-m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND);
-    final double xSpeedSquare = Math.pow(xInput, 2) * Math.signum(xInput);
-    final double xSpeed = xSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
-    // final double xSpeed =
-    //     -m_xSpeedLimiter.calculate(MathUtil.applyDeadband(
-    //         m_driverController.getLeftY(), Xbox.JOYSTICK_DEADBAND))
-    //             * TeleopLimits.MAX_LINEAR_VELOCITY; // m/s
-    //             // scale value from 0-1 to 0-MAX_LINEAR_SPEED
-
-    final double yInput = MathUtil.applyDeadband(-m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND);
-    final double ySpeedSquare = Math.pow(yInput, 2) * Math.signum(yInput);
-    final double ySpeed = ySpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
-    // final double ySpeed =
-    //     -m_ySpeedLimiter.calculate(MathUtil.applyDeadband(
-    //         m_driverController.getLeftX(), Xbox.JOYSTICK_DEADBAND))
-    //             * TeleopLimits.MAX_LINEAR_VELOCITY;
-
-    final double rotInput = MathUtil.applyDeadband(-m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND);
-    final double rotSpeedSquare = Math.pow(rotInput, 2) * Math.signum(rotInput);
-    final double rotSpeed = rotSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
-    // final double rotationSpeed =
-    //     -m_rotationLimiter.calculate(MathUtil.applyDeadband(
-    //         m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
-    //             * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
+    final double xSpeed = calculateManualInput(-m_driverController.getLeftY(), TeleopLimits.MAX_LINEAR_VELOCITY);
+    final double ySpeed = calculateManualInput(-m_driverController.getLeftX(), TeleopLimits.MAX_LINEAR_VELOCITY);
+    final double rSpeed = calculateManualInput(-m_driverController.getRightX(), TeleopLimits.MAX_ANGULAR_VELOCITY);
 
     m_maxSpeedEnabled = m_driverController.getAButton();
     m_secondaryThrottle = m_driverController.getRightTriggerAxis() / 2.0;
 
-    drive(xSpeed, ySpeed, rotSpeed, true);
+    drive(xSpeed, ySpeed, rSpeed, true);
   }
 
   /**

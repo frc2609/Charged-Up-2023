@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.Swerve;
+import frc.robot.Constants.Swerve.TeleopLimits;
 import frc.robot.subsystems.SwerveDrive;
 
 /**
@@ -74,13 +75,11 @@ public class AlignToRotation extends CommandBase {
   public void execute() {
     final double curAngle = m_swerveDrive.getYaw().getDegrees();
     final double rotSpeed = MathUtil.clamp(m_anglePID.calculate(curAngle, m_setpoint.getDegrees()), -Math.PI / 2.0, Math.PI / 2.0);
-    // TODO: sketchy: doesn't square inputs
     m_swerveDrive.drive(
-        -m_driverController.getLeftY(),
-        -m_driverController.getLeftX(),
+        SwerveDrive.calculateManualInput(-m_driverController.getLeftY(), TeleopLimits.MAX_LINEAR_VELOCITY),
+        SwerveDrive.calculateManualInput(-m_driverController.getLeftX(), TeleopLimits.MAX_LINEAR_VELOCITY),
         rotSpeed,
         true
-        // also not correct, look at manualDrive()
     );
     SmartDashboard.putNumber("alignRot/Target Yaw (deg, +ive = left)", m_setpoint.getDegrees());
     SmartDashboard.putNumber("alignRot/Current Yaw (deg, +ive = left)", curAngle);
