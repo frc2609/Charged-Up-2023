@@ -56,9 +56,10 @@ public class Autobalance extends CommandBase {
     double xSpeed = MathUtil.clamp(output, -MAX_SPEED, MAX_SPEED);
     SmartDashboard.putNumber("Autobalance Limited Output", xSpeed);
     if (m_anglePIDController.atSetpoint()) {
+      // hold position
       m_swerveDrive.driveAuto(0, 0, 0, false);
-    }else{
-    m_swerveDrive.driveAuto(xSpeed, 0, 0, false);
+    } else {
+      m_swerveDrive.driveAuto(xSpeed, 0, 0, false);
     }
   }
 
