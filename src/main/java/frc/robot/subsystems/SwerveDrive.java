@@ -357,7 +357,7 @@ public class SwerveDrive extends SubsystemBase {
 
     final double rotInput = MathUtil.applyDeadband(-m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND);
     final double rotSpeedSquare = rotInput >= 0.0 ? rotInput * rotInput : -(rotInput * rotInput);
-    final double rotSpeed = rotSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
+    final double rotSpeed = rotSpeedSquare * TeleopLimits.MAX_ANGULAR_VELOCITY;
     // final double rotationSpeed =
     //     -m_rotationLimiter.calculate(MathUtil.applyDeadband(
     //         m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
