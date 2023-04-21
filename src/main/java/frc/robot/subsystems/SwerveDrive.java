@@ -92,6 +92,7 @@ public class SwerveDrive extends SubsystemBase {
   public double rotationSpeed = 0.0;
   public boolean isAuto;
 
+  // This isn't actually being called started yet
   private Loop m_loop = new Loop(){
 
     @Override
@@ -124,6 +125,9 @@ public class SwerveDrive extends SubsystemBase {
     }
 
   };
+  public Loop getLoop(){
+    return m_loop;
+  }
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive(XboxController driverController) {

@@ -38,7 +38,7 @@ public class Robot extends TimedRobot {
     enabledLooper = new Looper();
     try{
       enabledLooper.register(m_robotContainer.getArmLoop());
-      // enabledLooper.register(slider.getLooper());
+      // enabledLooper.register(m_robotContainer.getDriveTrainLoop());
     } catch(Throwable t){
       System.out.println(t.getMessage());
       System.out.println(t.getStackTrace());

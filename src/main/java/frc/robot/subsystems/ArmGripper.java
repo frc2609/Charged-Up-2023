@@ -128,7 +128,7 @@ public class ArmGripper extends SubsystemBase {
     configurePIDs();
     m_operatorController = operatorController;
   }
-  public Loop getLooper(){
+  public Loop getLoop(){
 		return m_loop;
 	}
 
