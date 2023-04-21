@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -61,8 +62,16 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
 
-  private final Loop m_loop = new Loop(){
+  public boolean isMP = false;
+  public double[][] currentPath = new double[][]{{0.0,0.0,0.0},{0.0,0.0,0.0}};
+  public double startTime;
+  public boolean isReverse = false;
 
+  public int getReverseIndex(int i){
+    return (currentPath.length-1)-i;
+  }
+  private final Loop m_loop = new Loop(){
+    int i = 0;
     @Override
     public void onStart() {
       System.out.println("Starting ArmGripper Loops");
@@ -70,7 +79,28 @@ public class ArmGripper extends SubsystemBase {
 
     @Override
     public void onLoop() {
-      synchronized (ArmGripper.this){}
+      synchronized (ArmGripper.this){
+        if(isMP){
+          i=(int) Math.ceil(Timer.getFPGATimestamp()-startTime)*50; // 50 loops per second = 0.02 seconds per loop
+          if(i <= currentPath.length-1){
+            if(isReverse){
+              setLowerTargetAngle(currentPath[getReverseIndex(i)][0]);
+              setUpperTargetAngle(currentPath[getReverseIndex(i)][1]);
+              setExtensionTargetLength(currentPath[getReverseIndex(i)][2]);
+            }else{
+              setLowerTargetAngle(currentPath[i][0]);
+              setUpperTargetAngle(currentPath[i][1]);
+              setExtensionTargetLength(currentPath[i][2]);
+            }
+          }else{
+            isMP = false;
+            i = 0;
+          }
+
+        }else{
+          i = 0;
+        }
+      }
       
     }
 
