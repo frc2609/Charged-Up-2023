@@ -18,7 +18,7 @@ public class PickupGrab extends SequentialCommandGroup {
     addCommands(
         new PickupThenExtend(gripper, false),
         new ParallelDeadlineGroup(
-            new AutoClose(gripper, 125),
+            new AutoClose(gripper, 3),
             new ManualArmControl(gripper, operatorController)
         )
     );

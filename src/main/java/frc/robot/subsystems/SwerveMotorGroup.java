@@ -199,6 +199,7 @@ public class SwerveMotorGroup {
     double torqueMultiplier = MathUtil.applyDeadband(RobotContainer.m_driverController.getLeftTriggerAxis(), 0.1)*0.3; // [0,0.3]
     double back_drive = -(driveVoltage*torqueMultiplier);
     double forward_drive = driveVoltage * (boostThrottle * (driveVoltage/driveVoltage));
+    // ^ why is this here, half of this is redundant (literally just Math.abs(driveVoltage) * boostThrottle.)
     
     if(back_drive > 5){
       back_drive = 5;
@@ -217,6 +218,9 @@ public class SwerveMotorGroup {
         output = m_torqueRateLimiter.calculate(back_drive);
       }
     }
+    SmartDashboard.putNumber("Boost set voltage", output);
+    SmartDashboard.putNumber("Boost motor rpm", m_primaryEncoder.getVelocity()); // rpm currently as factor is 1
+    SmartDashboard.putNumber("Boost motor current", m_primaryMotor.getOutputCurrent());
     m_primaryMotor.setVoltage(output);
   }
   public double getSecondaryVelocity(){
