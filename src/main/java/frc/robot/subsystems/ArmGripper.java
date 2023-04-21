@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.MP.Loop;
 import frc.robot.Constants.Arm;
 import frc.robot.Constants.CANID;
 import frc.robot.Constants.DIO;
@@ -60,6 +61,26 @@ public class ArmGripper extends SubsystemBase {
   private final SparkMaxPIDController m_upperPID = m_upperMotor.getPIDController();
   private final SparkMaxPIDController m_extensionPID = m_extensionMotor.getPIDController();
 
+  private final Loop m_loop = new Loop(){
+
+    @Override
+    public void onStart() {
+      System.out.println("Starting ArmGripper Loops");
+    }
+
+    @Override
+    public void onLoop() {
+      synchronized (ArmGripper.this){}
+      
+    }
+
+    @Override
+    public void onStop() {
+      System.out.println("Ending ArmGripper Loops");
+    }
+    
+  };
+
   private DigitalInput intakeSensor = new DigitalInput(DIO.INTAKE_SENSOR); 
   private boolean m_isCubeRequested;
 
@@ -77,6 +98,9 @@ public class ArmGripper extends SubsystemBase {
     configurePIDs();
     m_operatorController = operatorController;
   }
+  public Loop getLooper(){
+		return m_loop;
+	}
 
   @Override
   public void periodic() {

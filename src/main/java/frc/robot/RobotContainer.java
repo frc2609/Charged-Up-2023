@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.MP.Loop;
 import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.Swerve.AutonomousLimits;
 import frc.robot.commands.AlignToNode;
@@ -248,6 +249,9 @@ public class RobotContainer {
     // PathConstraints constraints = new PathConstraints(AutonomousLimits.MAX_LINEAR_VELOCITY, 1);
 
     // return m_autoBuilder.fullAuto(PathPlanner.loadPath("DriveStraight", constraints));
+  }
+  public Loop getArmLoop(){
+    return m_armGripper.getLooper();
   }
 
   public void resetArmEncoders(){

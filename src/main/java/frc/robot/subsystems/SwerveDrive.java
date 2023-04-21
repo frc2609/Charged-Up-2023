@@ -13,6 +13,7 @@ import frc.robot.Constants.Swerve.PhysicalLimits;
 import frc.robot.Constants.Swerve.TeleopLimits;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.PathLogger;
+import frc.MP.Loop;
 import frc.robot.Constants.CANID;
 import frc.robot.Constants.Xbox;
 
@@ -34,6 +35,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -83,6 +85,45 @@ public class SwerveDrive extends SubsystemBase {
   private boolean m_maxSpeedEnabled = false;
   private double m_boostThrottle = 0; // 0 to 0.5
   private double m_torqueThrottle = 0; // 0 to 0.3
+  public SwerveModuleState[] targetStates;
+  public boolean isFieldRelative = true;
+  public double xSpeed = 0.0;
+  public double ySpeed = 0.0;
+  public double rotationSpeed = 0.0;
+  public boolean isAuto;
+
+  private Loop m_loop = new Loop(){
+
+    @Override
+    public void onStart() {
+      // TODO Auto-generated method stub
+      System.out.println("Starting DriveTrain Loops");
+
+    }
+
+    @Override
+    public void onLoop() {
+      synchronized(SwerveDrive.this){} {
+        SwerveModuleState[] states= m_kinematics.toSwerveModuleStates(
+                isFieldRelative
+                    ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, getYaw())
+                    : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
+        // Prevent robot from going faster than it should.
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
+        if(!isAuto){
+          targetStates = states;
+        }
+    }
+    }
+
+    @Override
+    public void onStop() {
+      // TODO Auto-generated method stub
+      System.out.println("Stopping DriveTrain Loops");
+
+    }
+
+  };
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive(XboxController driverController) {
@@ -134,12 +175,12 @@ public class SwerveDrive extends SubsystemBase {
   public void periodic() {
     // odometry and NetworkTables
     updateOdometry();
+    this.isAuto = DriverStation.isAutonomous();
     m_field.setRobotPose(m_odometry.getPoseMeters());
     m_frontLeft.updateNetworkTables();
     m_frontRight.updateNetworkTables();
     m_rearLeft.updateNetworkTables();
     m_rearRight.updateNetworkTables();
-    m_rearLeft.simulateECVT();
     // handle button input from NetworkTables
     if (SmartDashboard.getBoolean("Reset Encoders", false)) {
       resetModuleEncoders();
@@ -153,6 +194,15 @@ public class SwerveDrive extends SubsystemBase {
     SmartDashboard.putNumber("Gyro Roll (deg)", m_navx.getRoll());
     SmartDashboard.putNumber("Odometry Yaw (rad)", getPose().getRotation().getRadians());
     SmartDashboard.putNumber("Odometry Yaw (deg)", getPose().getRotation().getDegrees());
+    if(DriverStation.isEnabled()){
+      if(targetStates != null){
+        setDesiredStates(targetStates);
+      }
+    }
+  }
+
+  public void setAutoMode(boolean isAuto){
+    this.isAuto = isAuto;
   }
 
   
@@ -169,6 +219,10 @@ public class SwerveDrive extends SubsystemBase {
     return squared * multiplier;
   }
 
+  public void setTargetStates(SwerveModuleState[] state){
+    this.targetStates = state;
+  }
+
   /** 
    * Drive the robot using given inputs.
    *
@@ -183,14 +237,11 @@ public class SwerveDrive extends SubsystemBase {
    */
   public void drive(double xSpeed, double ySpeed, double rotationSpeed, boolean isFieldRelative) {
     // Find states using field relative position or robot relative position.
-    SwerveModuleState[] states = 
-        m_kinematics.toSwerveModuleStates(
-            isFieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, getYaw())
-                : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
-    // Prevent robot from going faster than it should.
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
-    setDesiredStates(states);
+    
+    this.xSpeed = xSpeed;
+    this.ySpeed = ySpeed;
+    this.rotationSpeed = rotationSpeed;
+    this.isFieldRelative =isFieldRelative;
   }
 
   public void driveAuto(double xSpeed, double ySpeed, double rotationSpeed, boolean isFieldRelative) {

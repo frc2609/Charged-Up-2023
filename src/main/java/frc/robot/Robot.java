@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.MP.Looper;
 import frc.robot.utils.BeaverLogger;
 
 /**
@@ -22,6 +23,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
   
+	private Looper enabledLooper;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -33,6 +35,14 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
     PathPlannerServer.startServer(Constants.Autonomous.PATHPLANNER_SERVER_PORT);
     m_robotContainer.setArmBrake(true);
+    enabledLooper = new Looper();
+    try{
+      enabledLooper.register(m_robotContainer.getArmLoop());
+      // enabledLooper.register(slider.getLooper());
+    } catch(Throwable t){
+      System.out.println(t.getMessage());
+      System.out.println(t.getStackTrace());
+    }
   }
 
   /**
@@ -60,6 +70,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Arm Brake", true);
     SmartDashboard.putBoolean("Rotation Brake", true);
     BeaverLogger.getInstance().saveLogs();
+		enabledLooper.stop();
   }
 
   @Override
@@ -85,6 +96,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    
+		enabledLooper.start();
   }
 
   /** This function is called periodically during autonomous. */
@@ -103,6 +116,8 @@ public class Robot extends TimedRobot {
     m_robotContainer.enableTeleopControl();
     m_robotContainer.setArmBrake(true);
     m_robotContainer.setRotationBrake(true);
+    
+		enabledLooper.start();
   }
 
   /** This function is called periodically during operator control. */
