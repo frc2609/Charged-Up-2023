@@ -194,11 +194,11 @@ public class SwerveDrive extends SubsystemBase {
     SmartDashboard.putNumber("Gyro Roll (deg)", m_navx.getRoll());
     SmartDashboard.putNumber("Odometry Yaw (rad)", getPose().getRotation().getRadians());
     SmartDashboard.putNumber("Odometry Yaw (deg)", getPose().getRotation().getDegrees());
-    if(DriverStation.isEnabled()){
-      if(targetStates != null){
-        setDesiredStates(targetStates);
-      }
-    }
+    // if(DriverStation.isEnabled()){
+    //   if(targetStates != null){
+    //     setDesiredStates(targetStates);
+    //   }
+    // }
   }
 
   public void setAutoMode(boolean isAuto){
@@ -238,10 +238,17 @@ public class SwerveDrive extends SubsystemBase {
   public void drive(double xSpeed, double ySpeed, double rotationSpeed, boolean isFieldRelative) {
     // Find states using field relative position or robot relative position.
     
-    this.xSpeed = xSpeed;
-    this.ySpeed = ySpeed;
-    this.rotationSpeed = rotationSpeed;
-    this.isFieldRelative =isFieldRelative;
+    SwerveModuleState[] states= m_kinematics.toSwerveModuleStates(
+      isFieldRelative
+          ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, getYaw())
+          : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
+    // Prevent robot from going faster than it should.
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
+    setDesiredStates(states);
+    // this.xSpeed = xSpeed;
+    // this.ySpeed = ySpeed;
+    // this.rotationSpeed = rotationSpeed;
+    // this.isFieldRelative =isFieldRelative;
   }
 
   public void driveAuto(double xSpeed, double ySpeed, double rotationSpeed, boolean isFieldRelative) {
