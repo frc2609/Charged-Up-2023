@@ -85,7 +85,7 @@ In teleop mode, the robot can collide with parts of the field, and other robots,
 | Start        | Reset odometry yaw
 | Select       | **DISABLED** (Hold) Lock charge position
 | A            | Enable Boost
-| B            | Autoalign to cone node (not working)
+| B            | Autoalign to cone node
 | X            | Move to stow position
 | Y            | Confirm queued command
 
