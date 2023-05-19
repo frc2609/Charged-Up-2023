@@ -60,7 +60,7 @@ public class BeaverLogger {
         		file = Paths.get(loggingLocation + fileName+Integer.toString(logNumber)+".csv");
 			}
 			Files.createFile(file);
-			saveTitles();
+			saveTitlesArm();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

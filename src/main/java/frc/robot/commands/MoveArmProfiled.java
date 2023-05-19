@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import java.util.HashMap;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.Arm.Tolerances;
@@ -25,16 +26,21 @@ public class MoveArmProfiled extends CommandBase {
     m_armGripper = armGripper;
     addRequirements(armGripper);
     this.currProfile = path;
-    this.currentPath = ArmPaths.paths.getOrDefault(path, new double[][]{{0.0,0.0,0.0},{0.0,0.0,0.0}});
+    ArmPaths all_paths = new ArmPaths();
+    this.currentPath = all_paths.paths.getOrDefault(path, new double[][]{{0.0,0.0,0.0},{0.0,0.0,0.0}});
     this.isReverse = isReversed;
-    m_armGripper.isReverse = isReversed;
-    m_armGripper.currentPath = this.currentPath;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_armGripper.currentPath = ArmPaths.paths.getOrDefault(currProfile, new double[][]{{0.0,0.0,0.0},{0.0,0.0,0.0}});; // makes sure the correct path is loaded
+    // m_armGripper.currentPath = ArmPaths.paths.getOrDefault(currProfile, new double[][]{{0.0,0.0,0.0},{0.0,0.0,0.0}});
+    m_armGripper.isReverse = this.isReverse;
+    m_armGripper.currentPath = this.currentPath;
+    if(m_armGripper.currentPath.length == 2 || this.currentPath.length == 2){
+      DriverStation.reportError("PATHS NOT SET", null);
+    }
+
     m_armGripper.isMP = true;    // enables the loop
     m_armGripper.startTime = Timer.getFPGATimestamp();
     if(isReverse){

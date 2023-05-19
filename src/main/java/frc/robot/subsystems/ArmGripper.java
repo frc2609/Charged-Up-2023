@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 
+import java.util.logging.Logger;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -34,6 +36,7 @@ import frc.robot.Constants.Arm.Encoder;
 import frc.robot.Constants.Arm.IsInverted;
 import frc.robot.Constants.Arm.Pneumatics;
 import frc.robot.Constants.Arm.SoftStop;
+import frc.robot.utils.BeaverLogger;
 
 public class ArmGripper extends SubsystemBase {
   private final Compressor m_compressor =
@@ -72,6 +75,7 @@ public class ArmGripper extends SubsystemBase {
   }
   private final Loop m_loop = new Loop(){
     int i = 0;
+    ArmGripper _arm;
     @Override
     public void onStart() {
       System.out.println("Starting ArmGripper Loops");
@@ -81,16 +85,22 @@ public class ArmGripper extends SubsystemBase {
     public void onLoop() {
       synchronized (ArmGripper.this){
         if(isMP){
-          i=(int) Math.ceil(Timer.getFPGATimestamp()-startTime)*50; // 50 loops per second = 0.02 seconds per loop
+          i=(int) (Math.ceil((Timer.getFPGATimestamp()-startTime)*50)); // 50 loops per second = 0.02 seconds per loop
+          System.out.println("ARM LOOP RUNNING path  len: " + Integer.toString(currentPath.length));
+          System.out.println("I = " + Integer.toString(i));
           if(i <= currentPath.length-1){
             if(isReverse){
               setLowerTargetAngle(currentPath[getReverseIndex(i)][0]);
               setUpperTargetAngle(currentPath[getReverseIndex(i)][1]);
               setExtensionTargetLength(currentPath[getReverseIndex(i)][2]);
+              System.out.println(currentPath[i]);
+              log(currentPath[getReverseIndex(i)]);
             }else{
               setLowerTargetAngle(currentPath[i][0]);
               setUpperTargetAngle(currentPath[i][1]);
               setExtensionTargetLength(currentPath[i][2]);
+              System.out.println(currentPath[i]);
+              log(currentPath[i]);
             }
           }else{
             isMP = false;
@@ -131,6 +141,9 @@ public class ArmGripper extends SubsystemBase {
   public Loop getLoop(){
 		return m_loop;
 	}
+  public void log(double[] joint_targets){
+    BeaverLogger.getInstance().logArm(joint_targets, this);
+  }
 
   @Override
   public void periodic() {
