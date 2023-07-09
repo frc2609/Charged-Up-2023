@@ -55,7 +55,9 @@ public class ArmGripper extends SubsystemBase {
 
   // Absolute encoder range is 0 to 1
   private final DutyCycleEncoder m_lowerEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_LOWER_ENCODER);
+  private final DutyCycleEncoder m_lowerEncoderAbsoluteBak = new DutyCycleEncoder(DIO.ARM_LOWER_ENCODER_BAK);
   private final DutyCycleEncoder m_upperEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER);
+  // private final DutyCycleEncoder m_upperEncoderAbsoluteBak = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER_BAK);
 
   private final RelativeEncoder m_lowerEncoderRelative = m_lowerMotor.getEncoder();
   private final RelativeEncoder m_upperEncoderRelative = m_upperMotor.getEncoder();
@@ -152,9 +154,11 @@ public class ArmGripper extends SubsystemBase {
     // extension
     SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoderRelative.getVelocity());
     // absolute encoder value
+    SmartDashboard.putNumber("Lower Arm Position Bak (0-1)", m_lowerEncoderAbsoluteBak.getAbsolutePosition());
     SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
     // absolute angle
+    SmartDashboard.putNumber("Lower Arm Angle Bak (Deg)", getLowerAngleAbsoluteBak()); // positive away from robot
     SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperAngleAbsolute()); // positive away from robot
     // relative angle
@@ -283,7 +287,20 @@ public class ArmGripper extends SubsystemBase {
    */
   private double getLowerAngleAbsolute() {
     // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
-    return ((m_lowerEncoderAbsolute.getAbsolutePosition() - Encoder.LOWER_POSITION_OFFSET) * Encoder.LOWER_ABSOLUTE_POSITION_CONVERSION) + 90.0;
+    return ((m_lowerEncoderAbsolute.getAbsolutePosition() - Encoder.LOWER_POSITION_OFFSET) * 360) + 90.0;
+  }
+
+  /**
+   * Returns the angle of the lower arm relative to the front of the robot
+   * using the absolute encoder.
+   * <p>WARNING: This value is only accurate for certain arm positions (mostly
+   * when the arm is facing upwards). Only use this reading to offset the NEO
+   * encoders at the start of the match!
+   * @return The robot-relative angle of the lower arm in degrees.
+   */
+  private double getLowerAngleAbsoluteBak() {
+    // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
+    return ((m_lowerEncoderAbsoluteBak.getAbsolutePosition() - Encoder.LOWER_POSITION_OFFSET_BAK) * Encoder.LOWER_BAK_ABSOLUTE_POSITION_CONVERSION) + 90.0;
   }
 
   /**
@@ -318,9 +335,23 @@ public class ArmGripper extends SubsystemBase {
    * encoders at the start of the match!
    * @return The robot-relative angle of the upper arm in degrees.
    */
+  private double getUpperAngleAbsoluteNew() {
+    // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
+    // return ((m_upperEncoderAbsolute.getAbsolutePosition() - Encoder.UPPER_POSITION_OFFSET) * 360) + 90;
+    return 0;
+  }
+
+    /**
+   * Returns the angle of the upper arm relative to the lower arm in degrees.
+   * <p>WARNING: This value is only accurate for certain arm positions (mostly
+   * when the arm is facing upwards). Only use this reading to offset the NEO
+   * encoders at the start of the match!
+   * @return The robot-relative angle of the upper arm in degrees.
+   */
   private double getUpperAngleAbsolute() {
     // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
-    return ((m_upperEncoderAbsolute.getAbsolutePosition() - Encoder.UPPER_POSITION_OFFSET) * Encoder.LOWER_ABSOLUTE_POSITION_CONVERSION) + 90.0;
+    return ((m_upperEncoderAbsolute.getAbsolutePosition() - Encoder.UPPER_POSITION_OFFSET_BAK) * Encoder.LOWER_BAK_ABSOLUTE_POSITION_CONVERSION) + 90.0;
+    // return 0;
   }
 
   /**
