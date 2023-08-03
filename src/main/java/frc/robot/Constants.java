@@ -64,7 +64,7 @@ public final class Constants {
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
-            public static final double UPPER_POSITION_OFFSET = 0.006;
+            public static final double UPPER_POSITION_OFFSET = 0.52;
 
             
             
@@ -226,7 +226,7 @@ public final class Constants {
     public static final class DIO {
         public static final int ARM_LOWER_ENCODER_BAK = 0;
         public static final int ARM_LOWER_ENCODER = 3;
-        public static final int ARM_UPPER_ENCODER = 1;
+        public static final int ARM_UPPER_ENCODER = 4;
         public static final int ARM_UPPER_ENCODER_BAK = 1;
         public static final int INTAKE_SENSOR = 7;
     } 

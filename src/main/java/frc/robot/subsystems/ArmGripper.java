@@ -57,7 +57,7 @@ public class ArmGripper extends SubsystemBase {
   private final DutyCycleEncoder m_lowerEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_LOWER_ENCODER);
   private final DutyCycleEncoder m_lowerEncoderAbsoluteBak = new DutyCycleEncoder(DIO.ARM_LOWER_ENCODER_BAK);
   private final DutyCycleEncoder m_upperEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER);
-  // private final DutyCycleEncoder m_upperEncoderAbsoluteBak = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER_BAK);
+  private final DutyCycleEncoder m_upperEncoderAbsoluteBak = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER_BAK);
 
   private final RelativeEncoder m_lowerEncoderRelative = m_lowerMotor.getEncoder();
   private final RelativeEncoder m_upperEncoderRelative = m_upperMotor.getEncoder();
@@ -161,6 +161,8 @@ public class ArmGripper extends SubsystemBase {
     SmartDashboard.putNumber("Lower Arm Angle Bak (Deg)", getLowerAngleAbsoluteBak()); // positive away from robot
     SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperAngleAbsolute()); // positive away from robot
+    SmartDashboard.putNumber("Upper Arm Angle Bak (Deg)", getUpperAngleAbsoluteBak()); // positive away from robot
+    
     // relative angle
     SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerAngleRelative());
     SmartDashboard.putNumber("Upper Arm NEO Encoder Position", getUpperAngleRelative());
@@ -335,10 +337,10 @@ public class ArmGripper extends SubsystemBase {
    * encoders at the start of the match!
    * @return The robot-relative angle of the upper arm in degrees.
    */
-  private double getUpperAngleAbsoluteNew() {
+  private double getUpperAngleAbsoluteBak() {
     // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
-    // return ((m_upperEncoderAbsolute.getAbsolutePosition() - Encoder.UPPER_POSITION_OFFSET) * 360) + 90;
-    return 0;
+    return ((m_upperEncoderAbsoluteBak.getAbsolutePosition() - Encoder.UPPER_POSITION_OFFSET_BAK)  * Encoder.LOWER_BAK_ABSOLUTE_POSITION_CONVERSION) + 90;
+    // return 0;
   }
 
     /**
@@ -350,7 +352,7 @@ public class ArmGripper extends SubsystemBase {
    */
   private double getUpperAngleAbsolute() {
     // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
-    return ((m_upperEncoderAbsolute.getAbsolutePosition() - Encoder.UPPER_POSITION_OFFSET_BAK) * Encoder.LOWER_BAK_ABSOLUTE_POSITION_CONVERSION) + 90.0;
+    return ((m_upperEncoderAbsolute.getAbsolutePosition() - Encoder.UPPER_POSITION_OFFSET) * 360) + 90.0;
     // return 0;
   }
 
@@ -415,12 +417,12 @@ public class ArmGripper extends SubsystemBase {
   }
 
   public void openGripper() {
-    System.out.println(("gripper oppened at Lower: "+Double.toHexString(getLowerAngleRelative())+" upper: "+ Double.toString(getUpperAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
+    System.out.println(("gripper oppened at Lower: "+Double.toString(getLowerAngleRelative())+" upper: "+ Double.toString(getUpperAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
     m_gripperSolenoid.set(kForward);
   }
 
   public void closeGripper() {
-    System.out.println(("gripper close at Lower: "+Double.toHexString(getLowerAngleRelative())+" upper: "+ Double.toString(getUpperAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
+    System.out.println(("gripper close at Lower: "+Double.toString(getLowerAngleRelative())+" upper: "+ Double.toString(getUpperAngleRelative())+" extension:"+Double.toString(getExtensionDistance())));
     m_gripperSolenoid.set(kReverse);
   }
 
