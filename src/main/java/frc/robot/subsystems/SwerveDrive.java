@@ -526,7 +526,7 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.setDesiredState(states[1], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
     m_rearLeft.setDesiredState(states[2], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
     m_rearRight.setDesiredState(states[3], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
-    // BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates());
+    BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
   }
 
   public void setDesiredStatesAuto(SwerveModuleState[] states) {
