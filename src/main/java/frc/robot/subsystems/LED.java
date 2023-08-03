@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.LED.*;
 
+import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
@@ -14,55 +15,44 @@ import frc.robot.Constants.PWMID;
 /** Add your docs here. */
 public class LED {
   // REV Blinkin pretends to be a PWM motor controller
-  private static final Spark m_controller = new Spark(PWMID.REV_BLINKIN);
-  private double currentColor;
+  // private static final AddressableLED controller = new AddressableLED(2);
+  private Pattern pattern_drive;
+  private Pattern pattern_human;
+  private BlinkMode blinkMode_drive;
+  private BlinkMode blinkMode_human;
+  public LED(){
+    pattern_drive = Pattern.SETUP;
+    pattern_human = Pattern.SETUP;
+    blinkMode_drive = BlinkMode.SOLID;
+    blinkMode_human = BlinkMode.SOLID;
+  }
+  public enum BlinkMode{
+    SOLID,
+    BLINKING_ON,
+    BLINKING_OFF,
+    OFF;
+  };
+  public enum Pattern{
+    CONE,
+    CUBE,
+    FIRST_STAGE,
+    SECOND_STAGE,
+    BOOST,
+    SETUP;
+  };
 
   /** Colour values are located in {@link frc.robot.Constants.LED Constants::LED}. */
-  public static void setColour(double colour) {
-    m_controller.set(colour);
+  public void setDrive(Pattern pattern, BlinkMode blink) {
+    this.pattern_drive = pattern;
+    this.blinkMode_drive = blink;
   }
 
-  public static void setBlue() {
-    setColour(BLUE);
+  public void setHuman(Pattern pattern, BlinkMode blink) {
+    this.pattern_human = pattern;
+    this.blinkMode_human = blink;
   }
 
-  public static void setCone() {
-    setColour(YELLOW);
-  }
-
-  public static void setCube() {
-    setColour(VIOLET);
-  }
-
-  public static void setGreen() {
-    setColour(GREEN);
-  }
-
-  public static void setIdle() {
-    if (DriverStation.getAlliance().equals(Alliance.Blue)) {
-      setColour(BREATH_BLUE);
-    } else {
-      setColour(BREATH_RED);
-    }
-  }
-
-  public static void setLime() {
-    setColour(LIME);
-  }
-
-  public static void setRed() {
-    setColour(RED);
-  }
-
-  public static void setUrgentCone() {
-    setColour(C2_STROBE); // colour 2 = yellow
-  }
-
-  public static void setUrgentCube() {
-    setColour(C1_STROBE); // colour 1 = purple
-  }
-
-  public static void setWhite() {
-    setColour(WHITE);
+  public void setIdle() {
+    this.setHuman(Pattern.SETUP, BlinkMode.SOLID);
   }
 }
