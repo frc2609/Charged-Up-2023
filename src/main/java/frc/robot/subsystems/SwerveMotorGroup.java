@@ -169,7 +169,6 @@ public class SwerveMotorGroup {
 
     final double driveVoltage = driveFeedforward;//driveOutput + driveFeedforward;
    
-    m_secondaryMotor.setVoltage(driveVoltage);
     // m_primaryMotor.setVoltage(driveVoltage);
     // copy sign
     // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (boostThrottle * (driveVoltage/driveVoltage)) : 0);
