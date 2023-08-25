@@ -253,7 +253,7 @@ public final class Constants {
         public static final int EXTENSION_CURRENT = 40;
     }
     public static final class PWMID {
-        public static final int REV_BLINKIN = 0;
+        public static final int REV_BLINKIN = 2;
     }
     /** Swerve drive related constants. */
     public final static class Swerve {
@@ -350,7 +350,7 @@ public final class Constants {
         /** Physical acceleration and velocity limits. */
         public final static class PhysicalLimits {
             /** The maximum possible RPM of a REV NEO v1.0/v1.1 motor. */
-            public static final double MAX_NEO_RPM = 5676;
+            public static final double MAX_NEO_RPM = 5376;
             /** The maximum angular acceleration the robot can achieve in radians/s^2. */
             // public static final double MAX_POSSIBLE_ANGULAR_ACCELERATION = 2 * Math.PI; // unused
             /** The maximum linear speed a swerve module can achieve in m/s. */

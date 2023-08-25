@@ -31,10 +31,10 @@ public class AutoClose extends CommandBase {
   public void execute() {
     if(gripper.getIntakeSensor()) {
       iterations++;
-      LED.setWhite();
+      // LED.setWhite();
     } else {
       iterations = 0;
-      LED.setIdle();
+      // LED.setIdle();
     }
   }
 
@@ -44,7 +44,7 @@ public class AutoClose extends CommandBase {
     // only close the gripper if this ended successfully
     if (!interrupted) {
       gripper.closeGripper();
-      LED.setGreen();
+      // LED.setGreen();
     }
   }
 

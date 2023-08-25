@@ -18,8 +18,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+// import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
@@ -64,6 +65,12 @@ public class SwerveMotorGroup {
     public double getPositionMeters(){
       return ((2.0/15.0)*(sunEncoder.getPosition()+ringEncoder.getPosition()))*Constants.Swerve.WHEEL_CIRCUMFERENCE;
     }
+    public boolean isTotalRPMOver(double threshold){
+      if(Math.abs(ringEncoder.getVelocity()+sunEncoder.getVelocity()) >= threshold){
+        return true;
+      }
+      return false;
+    }
   }
 
   public final CANSparkMax m_primaryMotor;
@@ -107,9 +114,6 @@ public class SwerveMotorGroup {
     m_ecvt = new ECVT(m_secondaryEncoder, m_primaryEncoder);
     m_name = name;
     
-    SmartDashboard.putNumber("Test Secondary RPM", 0);
-    SmartDashboard.putNumber("Test Primary RPM", 0);
-    SmartDashboard.putNumber("Test Target Vel", 1);
   }
 
   /** 
@@ -169,38 +173,54 @@ public class SwerveMotorGroup {
 
     final double driveVoltage = driveFeedforward;//driveOutput + driveFeedforward;
    
-    // m_primaryMotor.setVoltage(driveVoltage);
+    m_secondaryMotor.setVoltage(driveVoltage);
     // copy sign
     // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (boostThrottle * (driveVoltage/driveVoltage)) : 0);
     // if(m_primaryEncoder.getVelocity() > )
     SmartDashboard.putNumber("drive voltage", driveVoltage);
-    SmartDashboard.putNumber(m_name + " Primary velocity", m_secondaryEncoder.getVelocity());
-    SmartDashboard.putNumber(m_name + " Secondary velocity", m_primaryEncoder.getVelocity());
+    SmartDashboard.putNumber(m_name + " Primary velocity", m_primaryEncoder.getVelocity());
+    SmartDashboard.putNumber(m_name + " Secondary velocity", m_secondaryEncoder.getVelocity());
     SmartDashboard.putNumber(m_name + " ecvt velocity", m_ecvt.getOutputSpeed());
-    if(m_ecvt.getOutputSpeed() > 2){
+    if(m_ecvt.isTotalRPMOver(2000.0)){
       primarySpeedCounter++;
       if(primarySpeedCounter > 5){
         isPrimaryOverThreshold = true;
-        RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0.5);
         // RobotContainer.LED.set(0.05);
       }
     }else{
-      primarySpeedCounter += -1;
-      if(primarySpeedCounter == 0){
+      if(primarySpeedCounter > 0){
+        primarySpeedCounter += -1;
+      }else if (primarySpeedCounter == 0){
         isPrimaryOverThreshold = false;
-        RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0);
+      }else{
+        primarySpeedCounter = 0;
       }
     }
+    SmartDashboard.putNumber("speedcounter", primarySpeedCounter);
+
     // double torqueMultiplier = MathUtil.applyDeadband(RobotContainer.m_driverController.getLeftTriggerAxis(), 0.1)*0.3; // [0,0.3]
-    // double back_drive = -(driveVoltage*torqueMultiplier);
-    double forward_drive = driveVoltage * (0.5);
+    // double back_drive = driveVoltage*0.05;
+    // double forward_drive = driveVoltage;
     
-    double output = forward_drive;
+    // double output = forward_drive;
     if(maxSpeedEnabled){
       // output = torqueRateLimiter.calculate(forward_drive);
-      output += (driveVoltage*torqueThrottle);
+      if(!isPrimaryOverThreshold){
+        // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 1);
+        m_primaryMotor.setVoltage(driveVoltage*0.05);
+      }else{
+        // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0);
+        m_primaryMotor.setVoltage(driveVoltage*Math.abs(boostThrottle));
+      }
       // m_torqueRateLimiter.reset(0);
-    }
+      }else{
+        if(isPrimaryOverThreshold){
+          // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0.5);
+        }else{
+          // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0);
+        }
+        m_primaryMotor.setVoltage(driveVoltage*0.05);
+      }
     // else{
     //   if(Math.abs(driveVoltage) < 3){
     //     output = 0;
@@ -211,8 +231,7 @@ public class SwerveMotorGroup {
     // SmartDashboard.putNumber("Boost set voltage", output);
     // SmartDashboard.putNumber("Boost motor rpm", m_primaryEncoder.getVelocity()); // rpm currently as factor is 1
     // SmartDashboard.putNumber("Boost motor current", m_primaryMotor.getOutputCurrent());
-    m_primaryMotor.setVoltage(output);
-    m_secondaryMotor.setVoltage(output);
+    // m_secondaryMotor.setVoltage(output);
   }
   public double getSecondaryVelocity(){
     return m_secondaryEncoder.getVelocity();
