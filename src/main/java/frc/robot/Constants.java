@@ -4,9 +4,13 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.pathplanner.lib.auto.PIDConstants;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.util.Color;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -242,6 +246,31 @@ public final class Constants {
         public static final double WHITE = 0.93;
         public static final double BREATH_RED = -0.17;
         public static final double BREATH_BLUE = -0.15;
+
+        public static final int LED_LEN = 200;
+        
+        public enum BlinkMode{
+          SOLID,
+          BLINKING_ON,
+          BLINKING_OFF,
+          OFF;
+        };
+        public enum Pattern{
+          CONE,
+          CUBE,
+          FIRST_STAGE,
+          SECOND_STAGE,
+          BOOST,
+          SETUP;
+        };
+        public static final Map<Constants.LED.Pattern, Color> PATTERN_MAP = new HashMap<Constants.LED.Pattern, Color>(){{
+            put(Pattern.CONE, new Color(255, 255, 0));
+            put(Pattern.CUBE, new Color(230, 230, 250));
+            put(Pattern.FIRST_STAGE, new Color(0, 255, 0));
+            put(Pattern.SECOND_STAGE, new Color(255, 255, 0));
+            put(Pattern.BOOST, new Color(255,0,0));
+            put(Pattern.SETUP, new Color(255,0,0));
+        }};
     }
     /** Smart current limits for Spark Max motor controllers in amps. */
     public static final class Limits {
@@ -253,7 +282,7 @@ public final class Constants {
         public static final int EXTENSION_CURRENT = 40;
     }
     public static final class PWMID {
-        public static final int REV_BLINKIN = 2;
+        public static final int LED = 2;
     }
     /** Swerve drive related constants. */
     public final static class Swerve {
