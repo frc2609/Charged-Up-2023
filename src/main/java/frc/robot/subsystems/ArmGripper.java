@@ -18,6 +18,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -288,8 +289,10 @@ public class ArmGripper extends SubsystemBase {
    * @return The robot-relative angle of the lower arm in degrees.
    */
   private double getLowerAngleAbsolute() {
+    final double absolutePosition = m_lowerEncoderAbsolute.getAbsolutePosition();
+    DataLogManager.log("Lower Encoder Absolute Position" + Double.toString(absolutePosition));
     // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
-    return ((m_lowerEncoderAbsolute.getAbsolutePosition() - Encoder.LOWER_POSITION_OFFSET) * 360) + 90.0;
+    return ((absolutePosition - Encoder.LOWER_POSITION_OFFSET) * 360) + 90.0;
   }
 
   /**
@@ -351,9 +354,10 @@ public class ArmGripper extends SubsystemBase {
    * @return The robot-relative angle of the upper arm in degrees.
    */
   private double getUpperAngleAbsolute() {
+    final double absolutePosition = m_upperEncoderAbsolute.getAbsolutePosition();
+    DataLogManager.log("Upper Encoder Absolute Position" + Double.toString(absolutePosition));
     // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
-    return ((m_upperEncoderAbsolute.getAbsolutePosition() - Encoder.UPPER_POSITION_OFFSET) * 360) + 90.0;
-    // return 0;
+    return ((absolutePosition - Encoder.UPPER_POSITION_OFFSET) * 360) + 90.0;
   }
 
   /**
