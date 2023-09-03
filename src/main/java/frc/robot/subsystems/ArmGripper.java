@@ -6,8 +6,6 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 
-import java.util.logging.Logger;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -18,7 +16,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DataLogManager;
+// import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -37,7 +35,9 @@ import frc.robot.Constants.Arm.Encoder;
 import frc.robot.Constants.Arm.IsInverted;
 import frc.robot.Constants.Arm.Pneumatics;
 import frc.robot.Constants.Arm.SoftStop;
-import frc.robot.utils.BeaverLogger;
+import frc.robot.Constants.LED.BlinkMode;
+import frc.robot.Constants.LED.Pattern;
+// import frc.robot.utils.BeaverLogger;
 
 public class ArmGripper extends SubsystemBase {
   private final Compressor m_compressor =
@@ -145,7 +145,9 @@ public class ArmGripper extends SubsystemBase {
 		return m_loop;
 	}
   public void log(double[] joint_targets){
-    BeaverLogger.getInstance().logArm(joint_targets, this);
+    // BeaverLogger.getInstance().logArm(joint_targets, this);
+    // TODO: add setpoints to wpilib
+    return;
   }
 
   @Override
@@ -199,6 +201,11 @@ public class ArmGripper extends SubsystemBase {
     m_upperEncoderRelative.setPosition(getUpperAngleAbsolute());
     // Reset extension encoder
     m_extensionEncoderRelative.setPosition(0.0);
+
+    SmartDashboard.putNumber("Lower Arm Position Conversion Factor (Should be 3.0)", m_lowerEncoderRelative.getPositionConversionFactor());
+    SmartDashboard.putNumber("Lower Arm Velocity Conversion Factor", m_lowerEncoderRelative.getVelocityConversionFactor());
+    SmartDashboard.putNumber("Upper Arm Position Conversion Factor", m_upperEncoderRelative.getPositionConversionFactor());
+    SmartDashboard.putNumber("Upper Arm Velocity Conversion Factor", m_upperEncoderRelative.getVelocityConversionFactor());
   }
 
   private void configureMotors() {
@@ -226,7 +233,7 @@ public class ArmGripper extends SubsystemBase {
     m_extensionMotor.setSmartCurrentLimit(Limits.EXTENSION_CURRENT);
     m_extensionMotor.setInverted(IsInverted.EXTENSION_MOTOR);
   }
-
+  
   private void configurePIDs() {
     m_lowerPID.setP(0.0);
     m_lowerPID.setI(0.00015);//0.00015
@@ -290,7 +297,7 @@ public class ArmGripper extends SubsystemBase {
    */
   private double getLowerAngleAbsolute() {
     final double absolutePosition = m_lowerEncoderAbsolute.getAbsolutePosition();
-    DataLogManager.log("Lower Encoder Absolute Position" + Double.toString(absolutePosition));
+    // DataLogManager.log("Lower Encoder Absolute Position" + Double.toString(absolutePosition));
     // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
     return ((absolutePosition - Encoder.LOWER_POSITION_OFFSET) * 360) + 90.0;
   }
@@ -355,7 +362,7 @@ public class ArmGripper extends SubsystemBase {
    */
   private double getUpperAngleAbsolute() {
     final double absolutePosition = m_upperEncoderAbsolute.getAbsolutePosition();
-    DataLogManager.log("Upper Encoder Absolute Position" + Double.toString(absolutePosition));
+    // DataLogManager.log("Upper Encoder Absolute Position" + Double.toString(absolutePosition));
     // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
     return ((absolutePosition - Encoder.UPPER_POSITION_OFFSET) * 360) + 90.0;
   }
@@ -433,11 +440,13 @@ public class ArmGripper extends SubsystemBase {
   public void requestCube(){
     m_isCubeRequested = true;
     // LED.setCube();
+    LED.getInstance().setHuman(Pattern.CUBE, BlinkMode.SOLID);
   }
   
   public void requestCone(){
     m_isCubeRequested = false;
     // LED.setCone();
+    LED.getInstance().setHuman(Pattern.CONE, BlinkMode.SOLID);
   }
 
   public void setBrake(boolean isBrake) {
@@ -467,6 +476,16 @@ public class ArmGripper extends SubsystemBase {
   /** Set the amount to extend the upper arm in metres. */
   public void setExtensionTargetLength(double length) {
     m_extensionPID.setReference(length, ControlType.kSmartMotion);
+  }
+
+  public void setupLED(boolean initial) {
+    if(Math.abs(getLowerAngleRelative()-107.0) <5 && Math.abs(getUpperAngleRelative()-13.0) < 5 && Math.abs(getExtensionDistance()) < 0.05){
+      LED.getInstance().setDrive(Pattern.INTAKE_GRABBED, BlinkMode.SOLID);
+      LED.getInstance().setHuman(Pattern.INTAKE_GRABBED, BlinkMode.SOLID);
+    }else{
+      LED.getInstance().setDrive(Pattern.INTAKE_EMPTY, BlinkMode.SOLID);
+      LED.getInstance().setHuman(Pattern.INTAKE_EMPTY, BlinkMode.SOLID);
+    }
   }
 
   /**

@@ -201,13 +201,14 @@ public class SwerveMotorGroup {
     // double torqueMultiplier = MathUtil.applyDeadband(RobotContainer.m_driverController.getLeftTriggerAxis(), 0.1)*0.3; // [0,0.3]
     // double back_drive = driveVoltage*0.05;
     // double forward_drive = driveVoltage;
-    
+    // m_primaryMotor.set(0.5);
     // double output = forward_drive;
     if(maxSpeedEnabled){
       // output = torqueRateLimiter.calculate(forward_drive);
       if(!isPrimaryOverThreshold){
         // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 1);
-        m_primaryMotor.setVoltage(driveVoltage*0.05);
+        m_primaryMotor.setVoltage(0);
+        // m_primaryMotor.setVoltage(driveVoltage*0.05);
       }else{
         // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0);
         m_primaryMotor.setVoltage(driveVoltage*Math.abs(boostThrottle));
@@ -215,11 +216,13 @@ public class SwerveMotorGroup {
       // m_torqueRateLimiter.reset(0);
       }else{
         if(isPrimaryOverThreshold){
+          m_primaryMotor.setVoltage(driveVoltage*0.05);
+
           // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0.5);
         }else{
           // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0);
         }
-        m_primaryMotor.setVoltage(driveVoltage*0.05);
+        // m_primaryMotor.setVoltage(driveVoltage*0.05);
       }
     // else{
     //   if(Math.abs(driveVoltage) < 3){

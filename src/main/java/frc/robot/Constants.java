@@ -261,15 +261,19 @@ public final class Constants {
           FIRST_STAGE,
           SECOND_STAGE,
           BOOST,
+          INTAKE_GRABBED,
+          INTAKE_EMPTY,
           SETUP;
         };
         public static final Map<Constants.LED.Pattern, Color> PATTERN_MAP = new HashMap<Constants.LED.Pattern, Color>(){{
-            put(Pattern.CONE, new Color(255, 255, 0));
-            put(Pattern.CUBE, new Color(230, 230, 250));
+            put(Pattern.CONE, new Color(100, 100, 0));
+            put(Pattern.CUBE, new Color(60, 0, 150));
             put(Pattern.FIRST_STAGE, new Color(0, 255, 0));
             put(Pattern.SECOND_STAGE, new Color(255, 255, 0));
             put(Pattern.BOOST, new Color(255,0,0));
             put(Pattern.SETUP, new Color(255,0,0));
+            put(Pattern.INTAKE_GRABBED, new Color(0,255,0));
+            put(Pattern.INTAKE_EMPTY, new Color(255,0,0));
         }};
     }
     /** Smart current limits for Spark Max motor controllers in amps. */

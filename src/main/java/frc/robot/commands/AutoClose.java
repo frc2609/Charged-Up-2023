@@ -5,6 +5,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.LED.BlinkMode;
+import frc.robot.Constants.LED.Pattern;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.LED;
 
@@ -34,6 +36,7 @@ public class AutoClose extends CommandBase {
       // LED.setWhite();
     } else {
       iterations = 0;
+      LED.getInstance().setDrive(Pattern.INTAKE_EMPTY, BlinkMode.SOLID);
       // LED.setIdle();
     }
   }
@@ -44,6 +47,7 @@ public class AutoClose extends CommandBase {
     // only close the gripper if this ended successfully
     if (!interrupted) {
       gripper.closeGripper();
+      LED.getInstance().setDrive(Pattern.INTAKE_GRABBED, BlinkMode.SOLID);
       // LED.setGreen();
     }
   }
