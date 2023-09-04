@@ -216,7 +216,7 @@ public class SwerveMotorGroup {
       // m_torqueRateLimiter.reset(0);
       }else{
         if(isPrimaryOverThreshold){
-          m_primaryMotor.setVoltage(driveVoltage*0.05);
+          m_primaryMotor.setVoltage(0);
 
           // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0.5);
         }else{

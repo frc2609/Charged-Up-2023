@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
@@ -16,6 +17,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DataLogManager;
 // import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -165,7 +167,6 @@ public class ArmGripper extends SubsystemBase {
     SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Upper Arm Angle Bak (Deg)", getUpperAngleAbsoluteBak()); // positive away from robot
-    
     // relative angle
     SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerAngleRelative());
     SmartDashboard.putNumber("Upper Arm NEO Encoder Position", getUpperAngleRelative());
@@ -178,18 +179,21 @@ public class ArmGripper extends SubsystemBase {
     SmartDashboard.putNumber("Lower Arm Motor Temp (C)", m_lowerMotor.getMotorTemperature());
     SmartDashboard.putNumber("Upper Arm Motor Temp (C)", m_upperMotor.getMotorTemperature());
     SmartDashboard.putNumber("Extension Arm Motor Temp (C)", m_extensionMotor.getMotorTemperature());
+    // current/voltage
+    SmartDashboard.putNumber("Lower Arm Motor Current (A)", m_lowerMotor.getOutputCurrent());
+    SmartDashboard.putNumber("Lower Arm Motor Applied Output DUTY CYCLE", m_lowerMotor.getAppliedOutput());
     // check solenoid status
     if (m_gripperSolenoid.isFwdSolenoidDisabled()) {
-      System.out.print("OPEN SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
+      DataLogManager.log("OPEN SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
     }
     if (m_gripperSolenoid.isRevSolenoidDisabled()) {
-      System.out.print("CLOSE SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
+      DataLogManager.log("CLOSE SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
     }
   }
 
   private void configureEncoders() {
     // position
-    m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
+    REVLibError lowerEncoderPositionConversionError = m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
     m_upperEncoderRelative.setPositionConversionFactor(Encoder.UPPER_POSITION_CONVERSION);
     m_extensionEncoderRelative.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
     // velocity
@@ -197,10 +201,35 @@ public class ArmGripper extends SubsystemBase {
     m_upperEncoderRelative.setVelocityConversionFactor(Encoder.UPPER_VELOCITY_CONVERSION);
     m_extensionEncoderRelative.setVelocityConversionFactor(Encoder.EXTENSION_VELOCITY_CONVERSION);
     // Copy absolute position to NEO encoders
-    m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
+    REVLibError lowerEncoderSetPositionError = m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
     m_upperEncoderRelative.setPosition(getUpperAngleAbsolute());
     // Reset extension encoder
     m_extensionEncoderRelative.setPosition(0.0);
+
+    // " " + is to convert to string, because there is String + REVLibError overload but not a cast to String
+    SmartDashboard.putString("Lower Encoder Position Conversion Error", " " + lowerEncoderPositionConversionError);
+    SmartDashboard.putString("Lower Encoder Set Position Error", " " + lowerEncoderSetPositionError);
+
+    // this usually doesn't succeed (the program thinks it does, but it usually has no effect)
+    if (lowerEncoderPositionConversionError != REVLibError.kOk) {
+      DataLogManager.log("LOWER ENCODER POSITION CONVERSION FACTOR SET FAILED, TRYING AGAIN.");
+      lowerEncoderPositionConversionError = m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
+      SmartDashboard.putString("Lower Encoder Position Conversion Error", " " + lowerEncoderPositionConversionError);
+    }
+
+    if (lowerEncoderPositionConversionError != REVLibError.kOk) {
+      DataLogManager.log("LOWER ENCODER POSITION CONVERSION FACTOR SET FAILED TWICE, RESET ROBOT CODE!");
+    }
+
+    if (lowerEncoderSetPositionError != REVLibError.kOk) {
+      DataLogManager.log("LOWER ENCODER SET POSITION FAILED, TRYING AGAIN.");
+      lowerEncoderSetPositionError = m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
+      SmartDashboard.putString("Lower Encoder Set Position Error", " " + lowerEncoderPositionConversionError);
+    }
+
+    if (lowerEncoderSetPositionError != REVLibError.kOk) {
+      DataLogManager.log("LOWER ENCODER SET POSITION FAILED TWICE, RESET ROBOT CODE!");
+    }
 
     SmartDashboard.putNumber("Lower Arm Position Conversion Factor (Should be 3.0)", m_lowerEncoderRelative.getPositionConversionFactor());
     SmartDashboard.putNumber("Lower Arm Velocity Conversion Factor", m_lowerEncoderRelative.getVelocityConversionFactor());
