@@ -187,10 +187,10 @@ public class RobotContainer {
     // m_resetArmEncoders.onTrue(new ResetModules(m_swerveDrive,0));
     // operator LED controls
     // blink LEDs while held
-    // m_requestCone.whileTrue(new InstantCommand(LED::setUrgentCone));
+    m_requestCone.whileTrue(new InstantCommand(LED.getInstance()::setUrgentCone));
     // set solid while not held (when button no longer held sets to solid)
     m_requestCone.onFalse(new InstantCommand(m_armGripper::requestCone));
-    // m_requestCube.whileTrue(new InstantCommand(LED::setUrgentCube));
+    m_requestCube.whileTrue(new InstantCommand(LED.getInstance()::setUrgentCube));
     m_requestCube.onFalse(new InstantCommand(m_armGripper::requestCube));
   }
 
@@ -293,6 +293,10 @@ public class RobotContainer {
   // TODO: Temp til Antoine puts on absolute encoders
   public void setRotationBrake(boolean isBrake) {
     m_swerveDrive.setRotationBrake(isBrake);
+  }
+  
+  public void armLEDSetup(boolean initial) {
+    m_armGripper.setupLED(initial);
   }
 
   /**

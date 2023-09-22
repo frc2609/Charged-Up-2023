@@ -6,12 +6,16 @@ package frc.robot;
 
 import com.pathplanner.lib.server.PathPlannerServer;
 
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.MP.Looper;
-import frc.robot.utils.BeaverLogger;
+import frc.robot.subsystems.LED;
+// import frc.robot.utils.BeaverLogger;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -30,11 +34,18 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    /* These methods log NetworkTables values & DS data to a WPILOG
+     * file that can be converted to a CSV or viewed with AdvantageScope. */
+    DataLogManager.start(); // log NetworkTables values
+    DriverStation.startDataLog(DataLogManager.getLog()); // log DS data
+
+
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    PathPlannerServer.startServer(Constants.Autonomous.PATHPLANNER_SERVER_PORT);
     m_robotContainer.setArmBrake(true);
+    PathPlannerServer.startServer(Constants.Autonomous.PATHPLANNER_SERVER_PORT);
+
     enabledLooper = new Looper();
     try{
       enabledLooper.register(m_robotContainer.getArmLoop());
@@ -43,6 +54,7 @@ public class Robot extends TimedRobot {
       System.out.println(t.getMessage());
       System.out.println(t.getStackTrace());
     }
+    m_robotContainer.armLEDSetup(false);
   }
 
   /**
@@ -60,6 +72,7 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
     m_robotContainer.updateNetworkTables();
+    LED.getInstance().periodic();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -69,8 +82,10 @@ public class Robot extends TimedRobot {
     m_robotContainer.setRotationBrake(true);
     SmartDashboard.putBoolean("Arm Brake", true);
     SmartDashboard.putBoolean("Rotation Brake", true);
-    BeaverLogger.getInstance().saveLogs();
+    // BeaverLogger.getInstance().saveLogs();
 		enabledLooper.stop();
+    
+    RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0);
   }
 
   @Override
@@ -81,6 +96,7 @@ public class Robot extends TimedRobot {
     if (m_robotContainer.m_resetArmEncoders.getAsBoolean()) {
       m_robotContainer.resetArmEncoders();
     }
+    m_robotContainer.armLEDSetup(false);
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

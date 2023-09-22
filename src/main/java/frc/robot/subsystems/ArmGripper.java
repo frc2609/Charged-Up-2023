@@ -6,9 +6,8 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 
-import java.util.logging.Logger;
-
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
@@ -18,6 +17,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DataLogManager;
+// import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -36,7 +37,9 @@ import frc.robot.Constants.Arm.Encoder;
 import frc.robot.Constants.Arm.IsInverted;
 import frc.robot.Constants.Arm.Pneumatics;
 import frc.robot.Constants.Arm.SoftStop;
-import frc.robot.utils.BeaverLogger;
+import frc.robot.Constants.LED.BlinkMode;
+import frc.robot.Constants.LED.Pattern;
+// import frc.robot.utils.BeaverLogger;
 
 public class ArmGripper extends SubsystemBase {
   private final Compressor m_compressor =
@@ -144,7 +147,9 @@ public class ArmGripper extends SubsystemBase {
 		return m_loop;
 	}
   public void log(double[] joint_targets){
-    BeaverLogger.getInstance().logArm(joint_targets, this);
+    // BeaverLogger.getInstance().logArm(joint_targets, this);
+    // TODO: add setpoints to wpilib
+    return;
   }
 
   @Override
@@ -162,7 +167,6 @@ public class ArmGripper extends SubsystemBase {
     SmartDashboard.putNumber("Lower Arm Angle (Deg)", getLowerAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Upper Arm Angle (Deg)", getUpperAngleAbsolute()); // positive away from robot
     SmartDashboard.putNumber("Upper Arm Angle Bak (Deg)", getUpperAngleAbsoluteBak()); // positive away from robot
-    
     // relative angle
     SmartDashboard.putNumber("Lower Arm NEO Encoder Position", getLowerAngleRelative());
     SmartDashboard.putNumber("Upper Arm NEO Encoder Position", getUpperAngleRelative());
@@ -175,18 +179,21 @@ public class ArmGripper extends SubsystemBase {
     SmartDashboard.putNumber("Lower Arm Motor Temp (C)", m_lowerMotor.getMotorTemperature());
     SmartDashboard.putNumber("Upper Arm Motor Temp (C)", m_upperMotor.getMotorTemperature());
     SmartDashboard.putNumber("Extension Arm Motor Temp (C)", m_extensionMotor.getMotorTemperature());
+    // current/voltage
+    SmartDashboard.putNumber("Lower Arm Motor Current (A)", m_lowerMotor.getOutputCurrent());
+    SmartDashboard.putNumber("Lower Arm Motor Applied Output DUTY CYCLE", m_lowerMotor.getAppliedOutput());
     // check solenoid status
     if (m_gripperSolenoid.isFwdSolenoidDisabled()) {
-      System.out.print("OPEN SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
+      DataLogManager.log("OPEN SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
     }
     if (m_gripperSolenoid.isRevSolenoidDisabled()) {
-      System.out.print("CLOSE SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
+      DataLogManager.log("CLOSE SOLENOID DISABLED: CHECK FOR SHORTED/DISCONNECTED WIRES");
     }
   }
 
   private void configureEncoders() {
     // position
-    m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
+    REVLibError lowerEncoderPositionConversionError = m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
     m_upperEncoderRelative.setPositionConversionFactor(Encoder.UPPER_POSITION_CONVERSION);
     m_extensionEncoderRelative.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
     // velocity
@@ -194,10 +201,40 @@ public class ArmGripper extends SubsystemBase {
     m_upperEncoderRelative.setVelocityConversionFactor(Encoder.UPPER_VELOCITY_CONVERSION);
     m_extensionEncoderRelative.setVelocityConversionFactor(Encoder.EXTENSION_VELOCITY_CONVERSION);
     // Copy absolute position to NEO encoders
-    m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
+    REVLibError lowerEncoderSetPositionError = m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
     m_upperEncoderRelative.setPosition(getUpperAngleAbsolute());
     // Reset extension encoder
     m_extensionEncoderRelative.setPosition(0.0);
+
+    // " " + is to convert to string, because there is String + REVLibError overload but not a cast to String
+    SmartDashboard.putString("Lower Encoder Position Conversion Error", " " + lowerEncoderPositionConversionError);
+    SmartDashboard.putString("Lower Encoder Set Position Error", " " + lowerEncoderSetPositionError);
+
+    // this usually doesn't succeed (the program thinks it does, but it usually has no effect)
+    if (lowerEncoderPositionConversionError != REVLibError.kOk) {
+      DataLogManager.log("LOWER ENCODER POSITION CONVERSION FACTOR SET FAILED, TRYING AGAIN.");
+      lowerEncoderPositionConversionError = m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
+      SmartDashboard.putString("Lower Encoder Position Conversion Error", " " + lowerEncoderPositionConversionError);
+    }
+
+    if (lowerEncoderPositionConversionError != REVLibError.kOk) {
+      DataLogManager.log("LOWER ENCODER POSITION CONVERSION FACTOR SET FAILED TWICE, RESET ROBOT CODE!");
+    }
+
+    if (lowerEncoderSetPositionError != REVLibError.kOk) {
+      DataLogManager.log("LOWER ENCODER SET POSITION FAILED, TRYING AGAIN.");
+      lowerEncoderSetPositionError = m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
+      SmartDashboard.putString("Lower Encoder Set Position Error", " " + lowerEncoderPositionConversionError);
+    }
+
+    if (lowerEncoderSetPositionError != REVLibError.kOk) {
+      DataLogManager.log("LOWER ENCODER SET POSITION FAILED TWICE, RESET ROBOT CODE!");
+    }
+
+    SmartDashboard.putNumber("Lower Arm Position Conversion Factor (Should be 3.0)", m_lowerEncoderRelative.getPositionConversionFactor());
+    SmartDashboard.putNumber("Lower Arm Velocity Conversion Factor", m_lowerEncoderRelative.getVelocityConversionFactor());
+    SmartDashboard.putNumber("Upper Arm Position Conversion Factor", m_upperEncoderRelative.getPositionConversionFactor());
+    SmartDashboard.putNumber("Upper Arm Velocity Conversion Factor", m_upperEncoderRelative.getVelocityConversionFactor());
   }
 
   private void configureMotors() {
@@ -225,7 +262,7 @@ public class ArmGripper extends SubsystemBase {
     m_extensionMotor.setSmartCurrentLimit(Limits.EXTENSION_CURRENT);
     m_extensionMotor.setInverted(IsInverted.EXTENSION_MOTOR);
   }
-
+  
   private void configurePIDs() {
     m_lowerPID.setP(0.0);
     m_lowerPID.setI(0.00015);//0.00015
@@ -288,8 +325,10 @@ public class ArmGripper extends SubsystemBase {
    * @return The robot-relative angle of the lower arm in degrees.
    */
   private double getLowerAngleAbsolute() {
+    final double absolutePosition = m_lowerEncoderAbsolute.getAbsolutePosition();
+    // DataLogManager.log("Lower Encoder Absolute Position" + Double.toString(absolutePosition));
     // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
-    return ((m_lowerEncoderAbsolute.getAbsolutePosition() - Encoder.LOWER_POSITION_OFFSET) * 360) + 90.0;
+    return ((absolutePosition - Encoder.LOWER_POSITION_OFFSET) * 360) + 90.0;
   }
 
   /**
@@ -351,9 +390,10 @@ public class ArmGripper extends SubsystemBase {
    * @return The robot-relative angle of the upper arm in degrees.
    */
   private double getUpperAngleAbsolute() {
+    final double absolutePosition = m_upperEncoderAbsolute.getAbsolutePosition();
+    // DataLogManager.log("Upper Encoder Absolute Position" + Double.toString(absolutePosition));
     // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
-    return ((m_upperEncoderAbsolute.getAbsolutePosition() - Encoder.UPPER_POSITION_OFFSET) * 360) + 90.0;
-    // return 0;
+    return ((absolutePosition - Encoder.UPPER_POSITION_OFFSET) * 360) + 90.0;
   }
 
   /**
@@ -429,11 +469,13 @@ public class ArmGripper extends SubsystemBase {
   public void requestCube(){
     m_isCubeRequested = true;
     // LED.setCube();
+    LED.getInstance().setHuman(Pattern.CUBE, BlinkMode.SOLID);
   }
   
   public void requestCone(){
     m_isCubeRequested = false;
     // LED.setCone();
+    LED.getInstance().setHuman(Pattern.CONE, BlinkMode.SOLID);
   }
 
   public void setBrake(boolean isBrake) {
@@ -463,6 +505,16 @@ public class ArmGripper extends SubsystemBase {
   /** Set the amount to extend the upper arm in metres. */
   public void setExtensionTargetLength(double length) {
     m_extensionPID.setReference(length, ControlType.kSmartMotion);
+  }
+
+  public void setupLED(boolean initial) {
+    if(Math.abs(getLowerAngleRelative()-107.0) <5 && Math.abs(getUpperAngleRelative()-13.0) < 5 && Math.abs(getExtensionDistance()) < 0.05){
+      LED.getInstance().setDrive(Pattern.INTAKE_GRABBED, BlinkMode.SOLID);
+      LED.getInstance().setHuman(Pattern.INTAKE_GRABBED, BlinkMode.SOLID);
+    }else{
+      LED.getInstance().setDrive(Pattern.INTAKE_EMPTY, BlinkMode.SOLID);
+      LED.getInstance().setHuman(Pattern.INTAKE_EMPTY, BlinkMode.SOLID);
+    }
   }
 
   /**

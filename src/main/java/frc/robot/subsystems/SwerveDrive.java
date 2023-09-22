@@ -526,7 +526,7 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.setDesiredState(states[1], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
     m_rearLeft.setDesiredState(states[2], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
     m_rearRight.setDesiredState(states[3], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
-    BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
+    // BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
   }
 
   public void setDesiredStatesAuto(SwerveModuleState[] states) {
@@ -535,7 +535,7 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.setDesiredStateAuto(states[1], m_boostThrottle, m_maxSpeedEnabled, false);
     m_rearLeft.setDesiredStateAuto(states[2], m_boostThrottle, m_maxSpeedEnabled, false);
     m_rearRight.setDesiredStateAuto(states[3], m_boostThrottle, m_maxSpeedEnabled, false);
-    BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
+    // BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
   }
 
   // default parameters so that this function can be combined with the above one
@@ -545,7 +545,7 @@ public class SwerveDrive extends SubsystemBase {
     m_frontRight.setDesiredStateAuto(states[1], m_boostThrottle, m_maxSpeedEnabled, isLowTorqueModeEnabled);
     m_rearLeft.setDesiredStateAuto(states[2], m_boostThrottle, m_maxSpeedEnabled, isLowTorqueModeEnabled);
     m_rearRight.setDesiredStateAuto(states[3], m_boostThrottle, m_maxSpeedEnabled, isLowTorqueModeEnabled);
-    BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
+    // BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
   }
 
   /**
