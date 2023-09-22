@@ -372,9 +372,9 @@ public final class Constants {
         /** Teleop acceleration and velocity limits */
         public final static class TeleopLimits {
             /** The maximum speed the robot should spin in teleop in radians/s. */
-            public static final double MAX_ANGULAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_ANGULAR_VELOCITY;
+            public static final double MAX_ANGULAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_ANGULAR_VELOCITY * 0.5;
             /** The maximum speed the drivetrain should go in teleop in m/s. */
-            public static final double MAX_LINEAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED;
+            public static final double MAX_LINEAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED * 0.5;
         }
         // Miscellaneous:
         /** The default angle tolerance for AlignToRotation. */

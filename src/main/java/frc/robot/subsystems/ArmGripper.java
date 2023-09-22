@@ -428,12 +428,12 @@ public class ArmGripper extends SubsystemBase {
 
   public void requestCube(){
     m_isCubeRequested = true;
-    LED.setCube();
+    // LED.setCube();
   }
   
   public void requestCone(){
     m_isCubeRequested = false;
-    LED.setCone();
+    // LED.setCone();
   }
 
   public void setBrake(boolean isBrake) {

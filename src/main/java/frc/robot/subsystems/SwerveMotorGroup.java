@@ -197,11 +197,11 @@ public class SwerveMotorGroup {
     double forward_drive = driveVoltage * (0.5);
     
     double output = forward_drive;
-    if(maxSpeedEnabled){
-      // output = torqueRateLimiter.calculate(forward_drive);
-      output += (driveVoltage*torqueThrottle);
-      // m_torqueRateLimiter.reset(0);
-    }
+    // if(maxSpeedEnabled){
+    //   // output = torqueRateLimiter.calculate(forward_drive);
+    //   output += (driveVoltage*torqueThrottle);
+    //   // m_torqueRateLimiter.reset(0);
+    // }
     // else{
     //   if(Math.abs(driveVoltage) < 3){
     //     output = 0;
@@ -212,8 +212,8 @@ public class SwerveMotorGroup {
     // SmartDashboard.putNumber("Boost set voltage", output);
     // SmartDashboard.putNumber("Boost motor rpm", m_primaryEncoder.getVelocity()); // rpm currently as factor is 1
     // SmartDashboard.putNumber("Boost motor current", m_primaryMotor.getOutputCurrent());
-    m_primaryMotor.setVoltage(output);
-    m_secondaryMotor.setVoltage(output);
+    m_primaryMotor.setVoltage(output);//output);
+    m_secondaryMotor.setVoltage(0);//0);//output);
   }
   public double getSecondaryVelocity(){
     return m_secondaryEncoder.getVelocity();
