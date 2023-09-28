@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.HashMap;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 // import edu.wpi.first.wpilibj.PowerDistribution;
@@ -16,8 +18,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.MP.Loop;
 import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.Swerve.AutonomousLimits;
+import frc.robot.commands.AlignToNode;
+import frc.robot.commands.AlignToRotation;
 import frc.robot.commands.Autobalance;
 import frc.robot.commands.ManualArmControl;
 import frc.robot.commands.ManualDrive;
@@ -26,12 +32,10 @@ import frc.robot.commands.MoveArmToLow;
 import frc.robot.commands.MoveArmToStow;
 import frc.robot.commands.PickupGrab;
 import frc.robot.commands.QueueCommand;
-import frc.robot.commands.StowMidToHigh;
 // import frc.robot.commands.ResetModules;
-import frc.robot.commands.VisionAlign;
 import frc.robot.commands.arm.GroundPickCube;
-import frc.robot.commands.arm.PickupThenExtend;
 import frc.robot.commands.arm.ShortThrowMid;
+import frc.robot.commands.arm.StowMidToHigh;
 import frc.robot.commands.autonomous.ScoreConeHigh;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.LED;
@@ -43,37 +47,41 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
   /** Entries in this map must be non-null, or the program will crash. */
   private final HashMap<String, Command> m_eventMap = new HashMap<>();
   private final SendableChooser<PathPlannerTrajectory> m_pathChooser = new SendableChooser<>();
-  /* Subsystems should be marked as private so they can only be accessed by
+  /*
+   * Subsystems should be marked as private so they can only be accessed by
    * commands that require them. This prevents a subsystem from being used by
-   * multiple things at once, which may potentially cause issues. */
+   * multiple things at once, which may potentially cause issues.
+   */
   private final ArmGripper m_armGripper;
-  private final NetworkTable m_limelight =
-      NetworkTableInstance.getDefault().getTable("limelight");
+  private final NetworkTable m_limelight = NetworkTableInstance.getDefault().getTable("limelight");
   private final SwerveDrive m_swerveDrive;
   private final SwerveAutoBuilder m_autoBuilder;
   // private final PowerDistribution m_powerDistribution =
-  //     new PowerDistribution(1, ModuleType.kRev);
-  private final XboxController m_driverController = new XboxController(
+  // new PowerDistribution(1, ModuleType.kRev);
+  public static XboxController m_driverController = new XboxController(
       Constants.Xbox.DRIVER_CONTROLLER_PORT);
-  private final XboxController m_operatorController = new XboxController(
+  public static XboxController m_operatorController = new XboxController(
       Constants.Xbox.OPERATOR_CONTROLLER_PORT);
-  
+
   // driver controls
   private final JoystickButton m_zeroYawButton = new JoystickButton(
       m_driverController, XboxController.Button.kStart.value);
   private final JoystickButton m_driverPickup = new JoystickButton(
       m_driverController, XboxController.Button.kRightBumper.value);
   // private final JoystickButton m_enableBalanceLock = new JoystickButton(
-  //     m_driverController, XboxController.Button.kBack.value);
+  // m_driverController, XboxController.Button.kBack.value);
   private final JoystickButton m_driverGroundPickup = new JoystickButton(
       m_driverController, XboxController.Button.kLeftBumper.value);
   private final JoystickButton m_driverStow = new JoystickButton(
@@ -82,8 +90,19 @@ public class RobotContainer {
       m_driverController, XboxController.Button.kY.value);
   private final JoystickButton m_alignToNode = new JoystickButton(
       m_driverController, XboxController.Button.kB.value);
+  private final Trigger m_rotateToPickup = new Trigger(
+      () -> {
+        return m_driverController.getPOV() == 0;
+      });
+  private final Trigger m_rotateToScore = new Trigger(
+      () -> {
+        return m_driverController.getPOV() == 180;
+      });
+  // CommandXboxController is very useful...
 
   // operator controls
+  private final JoystickButton m_cancelArmCommand = new JoystickButton(
+      m_operatorController, XboxController.Button.kStart.value);
   private final JoystickButton m_openGripper = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftBumper.value);
   private final JoystickButton m_closeGripper = new JoystickButton(
@@ -101,10 +120,13 @@ public class RobotContainer {
   private final JoystickButton m_requestCone = new JoystickButton(
       m_operatorController, XboxController.Button.kLeftStick.value);
   private final JoystickButton m_requestCube = new JoystickButton(
-      m_operatorController, XboxController.Button.kRightStick.value);  
-          
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+      m_operatorController, XboxController.Button.kRightStick.value);
+
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
+    CameraServer.startAutomaticCapture();
     m_armGripper = new ArmGripper(m_operatorController);
     m_swerveDrive = new SwerveDrive(m_driverController);
     m_swerveDrive.resetModuleEncoders();
@@ -115,79 +137,97 @@ public class RobotContainer {
     configureEventMap();
     configurePathChooser();
     m_autoBuilder = new SwerveAutoBuilder(
-      m_swerveDrive::getPose,
-      m_swerveDrive::resetPose,
-      m_swerveDrive.getKinematics(),
-      Autonomous.translationPIDConstants,
-      Autonomous.rotationPIDConstants,
-      m_swerveDrive::setDesiredStatesAuto,
-      m_eventMap,
-      true,
-      m_swerveDrive
-    );
+        m_swerveDrive::getPose,
+        m_swerveDrive::resetPose,
+        m_swerveDrive.getKinematics(),
+        Autonomous.translationPIDConstants,
+        Autonomous.rotationPIDConstants,
+        m_swerveDrive::setDesiredStatesAuto,
+        m_eventMap,
+        true,
+        m_swerveDrive);
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be created by
+   * Use this method to define your button->command mappings. Buttons can be
+   * created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
+   * it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
     // driver controls
     m_zeroYawButton.onTrue(new InstantCommand(m_swerveDrive::zeroYaw));
-    m_driverGroundPickup.onTrue(new PickupGrab(m_armGripper, m_operatorController));
-    m_driverPickup.onTrue(new PickupThenExtend(m_armGripper,false));
-    // m_enableBalanceLock.whileTrue(new InstantCommand(m_swerveDrive::setBalanceLock, m_swerveDrive));
+    m_driverGroundPickup.onTrue(new GroundPickCube(m_armGripper));
+    m_driverPickup.onTrue(new PickupGrab(m_armGripper, m_operatorController));
+    // m_enableBalanceLock.whileTrue(new
+    // InstantCommand(m_swerveDrive::setBalanceLock, m_swerveDrive));
     m_driverStow.onTrue(new MoveArmToStow(m_armGripper));
-    m_alignToNode.whileTrue(new VisionAlign(m_swerveDrive, m_driverController));
+    m_alignToNode.whileTrue(new AlignToNode(m_swerveDrive));
+    m_rotateToPickup.whileTrue(new AlignToRotation(Rotation2d.fromDegrees(0.0), m_swerveDrive, m_driverController));
+    m_rotateToScore.whileTrue(new AlignToRotation(Rotation2d.fromDegrees(180.0), m_swerveDrive, m_driverController));
     // operator controls
+    /*
+     * Call a function that does nothing and require ArmGripper to cancel any
+     * commands that require it.
+     */
+    m_cancelArmCommand.onTrue(new InstantCommand(() -> {
+    }, m_armGripper));
     m_stowButton.onTrue(new MoveArmToStow(m_armGripper));
     m_scoreLowButton.onTrue(new QueueCommand(m_executeQueuedCommand, new MoveArmToLow(m_armGripper)));
-    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand, new ShortThrowMid(m_armGripper)));
-    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand, new StowMidToHigh(m_armGripper)));
+    m_scoreMidButton.onTrue(new QueueCommand(m_executeQueuedCommand,
+        new ShortThrowMid(m_armGripper, m_executeQueuedCommand, m_operatorController)));
+    m_scoreHighButton.onTrue(new QueueCommand(m_executeQueuedCommand,
+        new StowMidToHigh(m_armGripper, m_executeQueuedCommand, m_operatorController)));
     m_closeGripper.onTrue(new InstantCommand(m_armGripper::closeGripper));
     m_openGripper.onTrue(new InstantCommand(m_armGripper::openGripper));
     m_resetArmEncoders.onTrue(new InstantCommand(m_armGripper::setEncoderOffsets));
+    // m_restartSensor.onFalse(new InstantCommand(m_armGripper::restartSensor));
+    // m_resetArmEncoders.onTrue(new ResetModules(m_swerveDrive,0));
     // operator LED controls
     // blink LEDs while held
-    m_requestCone.whileTrue(new InstantCommand(LED::setUrgentCone));
+    m_requestCone.whileTrue(new InstantCommand(LED.getInstance()::setUrgentCone));
     // set solid while not held (when button no longer held sets to solid)
     m_requestCone.onFalse(new InstantCommand(m_armGripper::requestCone));
-    m_requestCube.whileTrue(new InstantCommand(LED::setUrgentCube));
+    m_requestCube.whileTrue(new InstantCommand(LED.getInstance()::setUrgentCube));
     m_requestCube.onFalse(new InstantCommand(m_armGripper::requestCube));
   }
 
-  /** 
+  /**
    * Add markers to the autonomous event map.
    */
   private void configureEventMap() {
     m_eventMap.put("Autobalance", new Autobalance(m_swerveDrive));
     m_eventMap.put("MoveArmToStow", new MoveArmToStow(m_armGripper));
     m_eventMap.put("ScoreHigh", new ScoreConeHigh(m_swerveDrive, m_armGripper));
-    m_eventMap.put("DeadlinePickUp", new GroundPickCube(m_armGripper));
+    m_eventMap.put("CubePickup", new GroundPickCube(m_armGripper));
   }
 
   /**
    * Load possible autonomous paths.
    */
   private void configurePathChooser() {
-    PathConstraints constraints = new PathConstraints(AutonomousLimits.MAX_LINEAR_VELOCITY, AutonomousLimits.MAX_LINEAR_ACCELERATION);
-    /* 
+    PathConstraints constraints = new PathConstraints(AutonomousLimits.MAX_LINEAR_VELOCITY,
+        AutonomousLimits.MAX_LINEAR_ACCELERATION);
+    /*
      * Do not include filepath or extension in path name.
      * File path assumed to be `src/main/deploy/pathplanner/`.
      * Extension assumed to be `.path`.
      */
     m_pathChooser.setDefaultOption("ScoreThenAutobalance", PathPlanner.loadPath("ScoreThenAutobalance", constraints));
     m_pathChooser.addOption("ScoreThenDriveOut", PathPlanner.loadPath("ScoreThenDriveOut", constraints));
-    m_pathChooser.addOption("ScoreThenDriveOutAndRotate", PathPlanner.loadPath("ScoreThenDriveOutAndRotate", constraints));
+    m_pathChooser.addOption("ScoreThenDriveOutAndRotate",
+        PathPlanner.loadPath("ScoreThenDriveOutAndRotate", constraints));
     m_pathChooser.addOption("ConeCubeAuto", PathPlanner.loadPath("ConeCubeAuto", constraints));
+    m_pathChooser.addOption("ClearSide2piece", PathPlanner.loadPath("ClearSide2piece", constraints));
     SmartDashboard.putData(m_pathChooser);
   }
 
   /**
    * Disable driver control of the drivetrain.
-   * <p>Should be called at the start of autonomous to prevent driver control
+   * <p>
+   * Should be called at the start of autonomous to prevent driver control
    * during autonomous after the robot is switched from teleop to autonomous
    * mode. If this is not called, whenever autonomous is not using the
    * drivetrain, the driver will have control of the robot during autonomous.
@@ -201,14 +241,17 @@ public class RobotContainer {
 
   /**
    * Set the default command of the drivetrain to driver control.
-   * <p>Should be called at the start of teleop to allow the driver to control
+   * <p>
+   * Should be called at the start of teleop to allow the driver to control
    * the robot.
    */
   public void enableTeleopControl() {
-    /* Using a default command instead of calling the manualDrive() function in
+    /*
+     * Using a default command instead of calling the manualDrive() function in
      * teleopPeriodic() allows a command to take over the drivetrain
      * temporarily during teleop. This may be useful for auto-balancing or
-     * moving into position to deliver a game piece. */
+     * moving into position to deliver a game piece.
+     */
     // Use `ManualArmAdjustment` if adjusting the arm with the DPAD is desired.
     m_armGripper.setDefaultCommand(new ManualArmControl(m_armGripper, m_operatorController));
     m_swerveDrive.setDefaultCommand(new ManualDrive(m_swerveDrive));
@@ -223,10 +266,23 @@ public class RobotContainer {
    * @return The selected autonomous command.
    */
   public Command getAutonomousCommand() {
-    return m_autoBuilder.fullAuto(m_pathChooser.getSelected());
+    return m_autoBuilder.fullAuto(m_pathChooser.getSelected()).andThen(new InstantCommand(m_swerveDrive::stop));
+    // PathConstraints constraints = new
+    // PathConstraints(AutonomousLimits.MAX_LINEAR_VELOCITY, 1);
+
+    // return m_autoBuilder.fullAuto(PathPlanner.loadPath("DriveStraight",
+    // constraints));
   }
 
-  public void resetArmEncoders(){
+  public Loop getArmLoop() {
+    return m_armGripper.getLoop();
+  }
+
+  public Loop getDriveTrainLoop() {
+    return m_swerveDrive.getLoop();
+  }
+
+  public void resetArmEncoders() {
     m_armGripper.setEncoderOffsets();
   }
 
@@ -234,15 +290,20 @@ public class RobotContainer {
     m_armGripper.setBrake(isBrake);
   }
 
-  //TODO: Temp til Antoine puts on absolute encoders
+  // TODO: Temp til Antoine puts on absolute encoders
   public void setRotationBrake(boolean isBrake) {
     m_swerveDrive.setRotationBrake(isBrake);
+  }
+  
+  public void armLEDSetup(boolean initial) {
+    m_armGripper.setupLED(initial);
   }
 
   /**
    * Update NetworkTables values set by RobotContainer.
    */
   public void updateNetworkTables() {
-    // SmartDashboard.putNumber("Robot Current Draw (A)", m_powerDistribution.getTotalCurrent());
+    // SmartDashboard.putNumber("Robot Current Draw (A)",
+    // m_powerDistribution.getTotalCurrent());
   }
 }

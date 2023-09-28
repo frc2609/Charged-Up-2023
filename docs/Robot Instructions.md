@@ -80,19 +80,19 @@ In teleop mode, the robot can collide with parts of the field, and other robots,
 | ------------ | -------- |
 | Left Stick   | Request cone
 | Right Stick  | Request cube
-| Left Bumper  | Move to ground pickup
-| Right Bumper | Move to station pickup
+| Left Bumper  | Move to ground cube pickup
+| Right Bumper | Move to double substation pickup
 | Start        | Reset odometry yaw
 | Select       | **DISABLED** (Hold) Lock charge position
 | A            | Enable Boost
-| B            | Autoalign to cone node
+| B            | Autoalign to cone node (not working)
 | X            | Move to stow position
 | Y            | Confirm queued command
 
 | DPAD  | Function |
 | ----- | -------- |
-| Up    | NA
-| Down  | NA
+| Up    | Rotate robot to pickup
+| Down  | Rotate robot to score
 | Left  | NA
 | Right | NA
 
@@ -112,7 +112,7 @@ In teleop mode, the robot can collide with parts of the field, and other robots,
 | Right Stick  | (Press) Request cube (Hold) Urgent request cube
 | Left Bumper  | Open gripper
 | Right Bumper | Close gripper
-| Start        | NA
+| Start        | Cancel current arm command
 | Select       | Reset arm encoders to absolute
 | A            | Queue move to low
 | B            | Queue move to mid

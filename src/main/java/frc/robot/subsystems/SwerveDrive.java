@@ -13,6 +13,7 @@ import frc.robot.Constants.Swerve.PhysicalLimits;
 import frc.robot.Constants.Swerve.TeleopLimits;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.PathLogger;
+import frc.MP.Loop;
 import frc.robot.Constants.CANID;
 import frc.robot.Constants.Xbox;
 
@@ -34,6 +35,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -81,7 +83,51 @@ public class SwerveDrive extends SubsystemBase {
 
   private double m_debugAngleSetpoint = 0; // radians
   private boolean m_maxSpeedEnabled = false;
-  private double m_secondaryThrottle = 0; // 0 to 1
+  private double m_boostThrottle = 0; // 0 to 0.5
+  private double m_torqueThrottle = 0; // 0 to 0.3
+  public SwerveModuleState[] targetStates;
+  public boolean isFieldRelative = true;
+  public double xSpeed = 0.0;
+  public double ySpeed = 0.0;
+  public double rotationSpeed = 0.0;
+  public boolean isAuto;
+
+  // This isn't actually being called started yet
+  private Loop m_loop = new Loop(){
+
+    @Override
+    public void onStart() {
+      // TODO Auto-generated method stub
+      System.out.println("Starting DriveTrain Loops");
+
+    }
+
+    @Override
+    public void onLoop() {
+      synchronized(SwerveDrive.this){} {
+        SwerveModuleState[] states= m_kinematics.toSwerveModuleStates(
+                isFieldRelative
+                    ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, getYaw())
+                    : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
+        // Prevent robot from going faster than it should.
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
+        if(!isAuto){
+          targetStates = states;
+        }
+    }
+    }
+
+    @Override
+    public void onStop() {
+      // TODO Auto-generated method stub
+      System.out.println("Stopping DriveTrain Loops");
+
+    }
+
+  };
+  public Loop getLoop(){
+    return m_loop;
+  }
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive(XboxController driverController) {
@@ -133,25 +179,52 @@ public class SwerveDrive extends SubsystemBase {
   public void periodic() {
     // odometry and NetworkTables
     updateOdometry();
+    this.isAuto = DriverStation.isAutonomous();
     m_field.setRobotPose(m_odometry.getPoseMeters());
     m_frontLeft.updateNetworkTables();
     m_frontRight.updateNetworkTables();
     m_rearLeft.updateNetworkTables();
     m_rearRight.updateNetworkTables();
-    m_rearLeft.simulateECVT();
     // handle button input from NetworkTables
     if (SmartDashboard.getBoolean("Reset Encoders", false)) {
       resetModuleEncoders();
       resetPose(new Pose2d());
       SmartDashboard.putBoolean("Reset Encoders", false); // reset the button
     }
-    SmartDashboard.putNumber("Boost Multiplier", m_secondaryThrottle);
+    SmartDashboard.putNumber("Boost Multiplier", m_boostThrottle);
     // navx
     SmartDashboard.putBoolean("Navx Connected", m_navx.isConnected());
     SmartDashboard.putNumber("Gyro Pitch (deg)", m_navx.getPitch());
     SmartDashboard.putNumber("Gyro Roll (deg)", m_navx.getRoll());
     SmartDashboard.putNumber("Odometry Yaw (rad)", getPose().getRotation().getRadians());
     SmartDashboard.putNumber("Odometry Yaw (deg)", getPose().getRotation().getDegrees());
+    // if(DriverStation.isEnabled()){
+    //   if(targetStates != null){
+    //     setDesiredStates(targetStates);
+    //   }
+    // }
+  }
+
+  public void setAutoMode(boolean isAuto){
+    this.isAuto = isAuto;
+  }
+
+  
+  /**
+   * Apply a deadband, square, and multiply an input value from a controller by
+   * a maximum value and return the resulting number.
+   * @param input The raw axis input (correctly inverted) from the controller.
+   * @param multiplier The maximum value to output. For example, the maximum velocity of a drivetrain.
+   * @return 'input' after applying a deadband, squaring the resulting value (sign is kept), and multiplying squared value by 'multiplier'.
+   */
+  public static double calculateManualInput(double input, double multiplier) {
+    final double deadband = MathUtil.applyDeadband(input, Xbox.JOYSTICK_DEADBAND);
+    final double squared = Math.pow(deadband, 2) * Math.signum(deadband);
+    return squared * multiplier;
+  }
+
+  public void setTargetStates(SwerveModuleState[] state){
+    this.targetStates = state;
   }
 
   /** 
@@ -168,6 +241,22 @@ public class SwerveDrive extends SubsystemBase {
    */
   public void drive(double xSpeed, double ySpeed, double rotationSpeed, boolean isFieldRelative) {
     // Find states using field relative position or robot relative position.
+    
+    SwerveModuleState[] states= m_kinematics.toSwerveModuleStates(
+      isFieldRelative
+          ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, getYaw())
+          : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
+    // Prevent robot from going faster than it should.
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
+    setDesiredStates(states);
+    // this.xSpeed = xSpeed;
+    // this.ySpeed = ySpeed;
+    // this.rotationSpeed = rotationSpeed;
+    // this.isFieldRelative =isFieldRelative;
+  }
+
+  public void driveAuto(double xSpeed, double ySpeed, double rotationSpeed, boolean isFieldRelative) {
+    // Find states using field relative position or robot relative position.
     SwerveModuleState[] states = 
         m_kinematics.toSwerveModuleStates(
             isFieldRelative
@@ -175,7 +264,18 @@ public class SwerveDrive extends SubsystemBase {
                 : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
     // Prevent robot from going faster than it should.
     SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
-    setDesiredStates(states);
+    setDesiredStatesAuto(states);
+  }
+  public void driveAuto(double xSpeed, double ySpeed, double rotationSpeed, boolean isFieldRelative, boolean isLowTorqueModeEnabled) {
+    // Find states using field relative position or robot relative position.
+    SwerveModuleState[] states = 
+        m_kinematics.toSwerveModuleStates(
+            isFieldRelative
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, getYaw())
+                : new ChassisSpeeds(xSpeed, ySpeed, rotationSpeed));
+    // Prevent robot from going faster than it should.
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED);
+    setDesiredStatesAuto(states);
   }
 
   /**
@@ -227,7 +327,6 @@ public class SwerveDrive extends SubsystemBase {
   //       MP
   //   );
   // }
-
 
   /**
    * Returns a reference to the robot's gyro.
@@ -333,14 +432,16 @@ public class SwerveDrive extends SubsystemBase {
 
     final double rotInput = MathUtil.applyDeadband(-m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND);
     final double rotSpeedSquare = rotInput >= 0.0 ? rotInput * rotInput : -(rotInput * rotInput);
-    final double rotSpeed = rotSpeedSquare * TeleopLimits.MAX_LINEAR_VELOCITY;
+    final double rotSpeed = rotSpeedSquare * TeleopLimits.MAX_ANGULAR_VELOCITY;
     // final double rotationSpeed =
     //     -m_rotationLimiter.calculate(MathUtil.applyDeadband(
     //         m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
     //             * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
 
     m_maxSpeedEnabled = m_driverController.getAButton();
-    m_secondaryThrottle = m_driverController.getRightTriggerAxis() / 2.0;
+    // this does not actually limit boost to 50% of its speed (see SwerveMotorGroup)
+    m_boostThrottle = m_driverController.getRightTriggerAxis() * 0.75; // / 2.0; // [0,0.5]
+    m_torqueThrottle = m_driverController.getLeftTriggerAxis() * 0.3;
 
     drive(xSpeed, ySpeed, rotSpeed, true);
   }
@@ -421,20 +522,30 @@ public class SwerveDrive extends SubsystemBase {
    */
   public void setDesiredStates(SwerveModuleState[] states) {
     // Array index order must match the order that m_kinematics was initialized with.
-    m_frontLeft.setDesiredState(states[0], m_secondaryThrottle, m_maxSpeedEnabled);
-    m_frontRight.setDesiredState(states[1], m_secondaryThrottle, m_maxSpeedEnabled);
-    m_rearLeft.setDesiredState(states[2], m_secondaryThrottle, m_maxSpeedEnabled);
-    m_rearRight.setDesiredState(states[3], m_secondaryThrottle, m_maxSpeedEnabled);
-    // BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates());
+    m_frontLeft.setDesiredState(states[0], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
+    m_frontRight.setDesiredState(states[1], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
+    m_rearLeft.setDesiredState(states[2], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
+    m_rearRight.setDesiredState(states[3], m_boostThrottle, m_torqueThrottle, m_maxSpeedEnabled);
+    // BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
   }
 
   public void setDesiredStatesAuto(SwerveModuleState[] states) {
     // Array index order must match the order that m_kinematics was initialized with.
-    m_frontLeft.setDesiredStateAuto(states[0], m_secondaryThrottle, m_maxSpeedEnabled);
-    m_frontRight.setDesiredStateAuto(states[1], m_secondaryThrottle, m_maxSpeedEnabled);
-    m_rearLeft.setDesiredStateAuto(states[2], m_secondaryThrottle, m_maxSpeedEnabled);
-    m_rearRight.setDesiredStateAuto(states[3], m_secondaryThrottle, m_maxSpeedEnabled);
-    BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates());
+    m_frontLeft.setDesiredStateAuto(states[0], m_boostThrottle, m_maxSpeedEnabled, false);
+    m_frontRight.setDesiredStateAuto(states[1], m_boostThrottle, m_maxSpeedEnabled, false);
+    m_rearLeft.setDesiredStateAuto(states[2], m_boostThrottle, m_maxSpeedEnabled, false);
+    m_rearRight.setDesiredStateAuto(states[3], m_boostThrottle, m_maxSpeedEnabled, false);
+    // BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
+  }
+
+  // default parameters so that this function can be combined with the above one
+  public void setDesiredStatesAuto(SwerveModuleState[] states, boolean isLowTorqueModeEnabled) {
+    // Array index order must match the order that m_kinematics was initialized with.
+    m_frontLeft.setDesiredStateAuto(states[0], m_boostThrottle, m_maxSpeedEnabled, isLowTorqueModeEnabled);
+    m_frontRight.setDesiredStateAuto(states[1], m_boostThrottle, m_maxSpeedEnabled, isLowTorqueModeEnabled);
+    m_rearLeft.setDesiredStateAuto(states[2], m_boostThrottle, m_maxSpeedEnabled, isLowTorqueModeEnabled);
+    m_rearRight.setDesiredStateAuto(states[3], m_boostThrottle, m_maxSpeedEnabled, isLowTorqueModeEnabled);
+    // BeaverLogger.getInstance().logMP(m_pathLogger, states, getModuleStates(), m_frontLeft);
   }
 
   /**

@@ -5,18 +5,23 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.LED.BlinkMode;
+import frc.robot.Constants.LED.Pattern;
 import frc.robot.subsystems.ArmGripper;
 import frc.robot.subsystems.LED;
 
 public class AutoClose extends CommandBase {
   private final ArmGripper gripper;
-  private final double threshold;
-  private int i; // name
+  private int iterations;
+  private int count = 2;
 
-  /** Creates a new AutoClose. */
-  public AutoClose(ArmGripper gripper, double threshold) {
+  /** Creates a new AutoClose.
+   * @param gripper The ArmGripper to close automatically.
+   * @param count How many loops the sensor must report a game piece for before closing.
+   */
+  public AutoClose(ArmGripper gripper, int count) {
     this.gripper = gripper;
-    this.threshold = threshold;
+    this.count = count;
   }
 
   // Called when the command is initially scheduled.
@@ -26,26 +31,30 @@ public class AutoClose extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(gripper.isIntakeReadingValid() && gripper.getIntakeSensorDistance() < threshold) {
-      i++;
-      LED.setGreen();
+    if(gripper.getIntakeSensor()) {
+      iterations++;
+      // LED.setWhite();
     } else {
-      i = 0;
-      LED.setIdle();
-    }
-    // TODO: move to a constant
-    if (i >= 2) {
-      gripper.closeGripper();
+      iterations = 0;
+      LED.getInstance().setDrive(Pattern.INTAKE_EMPTY, BlinkMode.SOLID);
+      // LED.setIdle();
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    // only close the gripper if this ended successfully
+    if (!interrupted) {
+      gripper.closeGripper();
+      LED.getInstance().setDrive(Pattern.INTAKE_GRABBED, BlinkMode.SOLID);
+      // LED.setGreen();
+    }
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return i >= 5;
+    return iterations >= count;
   }
 }

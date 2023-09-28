@@ -4,7 +4,13 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.pathplanner.lib.auto.PIDConstants;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.util.Color;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -30,7 +36,7 @@ public final class Constants {
              * <p>Make sure to subtract the encoder offset before multiplying
              * by this value.
              */
-            public static final double LOWER_ABSOLUTE_POSITION_CONVERSION = Ratios.LOWER_ARM_CHAIN * 360.0;
+            public static final double LOWER_BAK_ABSOLUTE_POSITION_CONVERSION = Ratios.LOWER_ARM_CHAIN * 360.0;
             /** 
              * How many degrees the arm moves per absolute encoder rotation.
              * <p>Make sure to subtract the encoder offset before multiplying
@@ -46,13 +52,32 @@ public final class Constants {
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
-            public static final double LOWER_POSITION_OFFSET = 0.494;
+            public static final double LOWER_POSITION_OFFSET_BAK = 0.494;
+
+            
+            /**
+             * Pointing straight up (angle = 90.0 degrees). 
+             * Encoder values increase as the arm moves away from the front of
+             * the robot.
+             */
+            public static final double LOWER_POSITION_OFFSET = 0.1645;
+
+            
             /**
              * Parallel robot front (angle = 90.0 degrees).
              * Encoder values increase as the arm moves away from the front of
              * the robot.
              */
-            public static final double UPPER_POSITION_OFFSET = 0.761;
+            public static final double UPPER_POSITION_OFFSET = 0.52;
+
+            
+            
+            /**
+             * Parallel robot front (angle = 90.0 degrees).
+             * Encoder values increase as the arm moves away from the front osf
+             * the robot.
+             */
+            public static final double UPPER_POSITION_OFFSET_BAK = 0.977; // TODO: Change this when the backup gets wired up
             /**
              * How many degrees the arm moves per second.
              * <p>Default is RPM -> * by LOWER_POSITION_CONVERSION to get
@@ -75,9 +100,9 @@ public final class Constants {
             public static final double GROUND_PICKUP_LOWER = 72.0;
             public static final double GROUND_PICKUP_UPPER = 32.4;
             public static final double GROUND_PICKUP_EXTENSION = 0.0;
-            public static final double LOW_LOWER = 77.6;
-            public static final double LOW_UPPER = 49.6;
-            public static final double LOW_EXTENSION = 0.0;
+            public static final double LOW_LOWER = 104.6;
+            public static final double LOW_UPPER = 41.5;
+            public static final double LOW_EXTENSION = 0.22;
             public static final double MID_LOWER = 62.0;
             public static final double MID_UPPER = 139.7;
             public static final double MID_EXTENSION = 0.0;
@@ -159,11 +184,11 @@ public final class Constants {
         /** Autobalance-related constants. */
         public static final class Balance {
             /** P gain for going up the ramp on the charge station. */
-            public static final double START_P = 0.05;
+            public static final double START_P = 0.015;
             /** P gain for staying on the charge station. */
-            public static final double HOLD_P = 0.025;
+            public static final double HOLD_P = 0.001;
             /** The acceptable amount of tilt error in degrees. */
-            public static final double ANGLE_TOLERANCE = 5;
+            public static final double ANGLE_TOLERANCE = 8;
             /** The maximum autobalance speed in metres per second. */
             public static final double MAX_SPEED = 1.5;
         }
@@ -203,8 +228,11 @@ public final class Constants {
         public static final int EXTENSION_MOTOR = 22;
     }
     public static final class DIO {
-        public static final int ARM_LOWER_ENCODER = 0;
-        public static final int ARM_UPPER_ENCODER = 1;
+        public static final int ARM_LOWER_ENCODER_BAK = 0;
+        public static final int ARM_LOWER_ENCODER = 3;
+        public static final int ARM_UPPER_ENCODER = 4;
+        public static final int ARM_UPPER_ENCODER_BAK = 1;
+        public static final int INTAKE_SENSOR = 7;
     } 
     public static final class LED {
         public static final double BLUE = 0.87;
@@ -215,8 +243,38 @@ public final class Constants {
         public static final double YELLOW = 0.69;
         public static final double C1_STROBE = 0.15;
         public static final double C2_STROBE = 0.35;
+        public static final double WHITE = 0.93;
         public static final double BREATH_RED = -0.17;
         public static final double BREATH_BLUE = -0.15;
+
+        public static final int LED_LEN = 200;
+        
+        public enum BlinkMode{
+          SOLID,
+          BLINKING_ON,
+          BLINKING_OFF,
+          OFF;
+        };
+        public enum Pattern{
+          CONE,
+          CUBE,
+          FIRST_STAGE,
+          SECOND_STAGE,
+          BOOST,
+          INTAKE_GRABBED,
+          INTAKE_EMPTY,
+          SETUP;
+        };
+        public static final Map<Constants.LED.Pattern, Color> PATTERN_MAP = new HashMap<Constants.LED.Pattern, Color>(){{
+            put(Pattern.CONE, new Color(100, 100, 0));
+            put(Pattern.CUBE, new Color(60, 0, 150));
+            put(Pattern.FIRST_STAGE, new Color(0, 255, 0));
+            put(Pattern.SECOND_STAGE, new Color(255, 255, 0));
+            put(Pattern.BOOST, new Color(255,0,0));
+            put(Pattern.SETUP, new Color(255,0,0));
+            put(Pattern.INTAKE_GRABBED, new Color(0,255,0));
+            put(Pattern.INTAKE_EMPTY, new Color(255,0,0));
+        }};
     }
     /** Smart current limits for Spark Max motor controllers in amps. */
     public static final class Limits {
@@ -228,7 +286,7 @@ public final class Constants {
         public static final int EXTENSION_CURRENT = 40;
     }
     public static final class PWMID {
-        public static final int REV_BLINKIN = 0;
+        public static final int LED = 2;
     }
     /** Swerve drive related constants. */
     public final static class Swerve {
@@ -245,10 +303,10 @@ public final class Constants {
             public static final double drivePID_kD = 0;
 
             
-            public static final double drivePID_kP_auto = 0.001;
+            public static final double drivePID_kP_auto = 0.002;
             public static final double drivePID_kI_auto = 0;
             public static final double drivePID_kD_auto = 0;
-            public static final double drivePID_kF_auto = 0.3;
+            public static final double drivePID_kF_auto = 0.0;
 
             
             public static final double rotationPID_kP_auto = 1;
@@ -261,10 +319,9 @@ public final class Constants {
             public static final double rotationPID_kD = 1.0;
             public static final double rotationPID_IZone = 0.001;
 
-            public static final double driveFF_kS = 0;
-            public static final double driveFF_kV = 3.333;
-            public static final double driveFF_kA = 0;
-
+            public static final double driveFF_kS = 1;
+            public static final double driveFF_kV = 3.333; // 3.333
+            public static final double driveFF_kA = 0.5;
             
             public static final double driveFF_kS_auto = 0;
             public static final double driveFF_kV_auto = 2.609;
@@ -326,7 +383,7 @@ public final class Constants {
         /** Physical acceleration and velocity limits. */
         public final static class PhysicalLimits {
             /** The maximum possible RPM of a REV NEO v1.0/v1.1 motor. */
-            public static final double MAX_NEO_RPM = 5676;
+            public static final double MAX_NEO_RPM = 5376;
             /** The maximum angular acceleration the robot can achieve in radians/s^2. */
             // public static final double MAX_POSSIBLE_ANGULAR_ACCELERATION = 2 * Math.PI; // unused
             /** The maximum linear speed a swerve module can achieve in m/s. */
@@ -348,11 +405,13 @@ public final class Constants {
         /** Teleop acceleration and velocity limits */
         public final static class TeleopLimits {
             /** The maximum speed the robot should spin in teleop in radians/s. */
-            public static final double MAX_ANGULAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_ANGULAR_VELOCITY;
+            public static final double MAX_ANGULAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_ANGULAR_VELOCITY * 0.5;
             /** The maximum speed the drivetrain should go in teleop in m/s. */
-            public static final double MAX_LINEAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED;
+            public static final double MAX_LINEAR_VELOCITY = PhysicalLimits.MAX_POSSIBLE_LINEAR_SPEED * 0.5;
         }
         // Miscellaneous:
+        /** The default angle tolerance for AlignToRotation. */
+        public static final Rotation2d DEFAULT_ROTATION_TOLERANCE = Rotation2d.fromDegrees(1.5);
         /** 
          * The allowed rotation error in radians when rotating a module to a
          * specific angle (not used when setting a SwerveModuleState).

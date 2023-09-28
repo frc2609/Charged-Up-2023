@@ -10,7 +10,7 @@ public class MoveArmToLow extends SequentialCommandGroup {
   public MoveArmToLow(ArmGripper armGripper) {
     addCommands(
         // move arm away from ground
-        new MoveArmToSetpoint(EXIT_STOW_LOWER, EXIT_STOW_UPPER, EXIT_STOW_EXTENSION, false, false, true, armGripper),
+        new MoveArmProfiled(armGripper, "StowToHybridNoExt", false),
         new MoveArmToSetpoint(LOW_LOWER, LOW_UPPER, LOW_EXTENSION, false, false, false, armGripper)
     );
   }

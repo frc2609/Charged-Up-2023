@@ -1,0 +1,308 @@
+<xml version="1.0">
+<dashboard>
+	<widget field="intakeSensor" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.BooleanBox">
+		<location x="1013" y="20"/>
+		<width>569</width>
+		<height>121</height>
+	</widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.CameraServerViewer">
+		<location x="1010" y="152"/>
+		<width>887</width>
+		<height>613</height>
+		<property name="Camera Choice" value=""/>
+	</static-widget>
+	<widget field="Autobalance Limited Output" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="861"/>
+	</widget>
+	<widget field="Autobalance Output" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="840"/>
+	</widget>
+	<widget field="Arm Brake" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.CheckBox">
+		<location x="1621" y="27"/>
+	</widget>
+	<widget field="Upper Arm Angle (Deg)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="819"/>
+	</widget>
+	<widget field="Lower Arm Angle (Deg)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="798"/>
+	</widget>
+	<widget field="Upper Arm Position (0-1)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="777"/>
+	</widget>
+	<widget field="Lower Arm Position (0-1)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="756"/>
+	</widget>
+	<widget field="Rotation Brake" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.CheckBox">
+		<location x="1602" y="50"/>
+	</widget>
+	<widget field="extSetp" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="181" y="399"/>
+	</widget>
+	<widget field="upperSetp" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="180" y="378"/>
+	</widget>
+	<widget field="lowerSetp" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="162" y="294"/>
+	</widget>
+	<widget field="Rear RightSet Angle" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="735"/>
+	</widget>
+	<widget field="Rear LeftSet Angle" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="714"/>
+	</widget>
+	<widget field="Front RightSet Angle" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="693"/>
+	</widget>
+	<widget field="Front LeftSet Angle" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="672"/>
+	</widget>
+	<widget field="Rear Right ecvt velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="651"/>
+	</widget>
+	<widget field="Rear Right Secondary velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="630"/>
+	</widget>
+	<widget field="Rear Right Primary velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="609"/>
+	</widget>
+	<widget field="Rear Left ecvt velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="588"/>
+	</widget>
+	<widget field="Rear Left Secondary velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="567"/>
+	</widget>
+	<widget field="Rear Left Primary velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="546"/>
+	</widget>
+	<widget field="Front Right ecvt velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="525"/>
+	</widget>
+	<widget field="Front Right Secondary velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="504"/>
+	</widget>
+	<widget field="Front Right Primary velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="483"/>
+	</widget>
+	<widget field="Front Left ecvt velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="462"/>
+	</widget>
+	<widget field="Front Left Secondary velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="441"/>
+	</widget>
+	<widget field="Front Left Primary velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="420"/>
+	</widget>
+	<widget field="drive voltage" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="171" y="84"/>
+	</widget>
+	<widget field="SendableChooser[0]" type="String Chooser" class="edu.wpi.first.smartdashboard.gui.elements.Chooser">
+		<location x="1696" y="16"/>
+	</widget>
+	<widget field="Odometry Yaw (deg)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="399"/>
+	</widget>
+	<widget field="Odometry Yaw (rad)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="378"/>
+	</widget>
+	<widget field="Gyro Roll (deg)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="357"/>
+	</widget>
+	<widget field="Gyro Pitch (deg)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="336"/>
+	</widget>
+	<widget field="Navx Connected" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="315"/>
+	</widget>
+	<widget field="Boost Multiplier" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="294"/>
+	</widget>
+	<widget field="position" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="186" y="63"/>
+	</widget>
+	<widget field="SunSetp SIM" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="158" y="42"/>
+	</widget>
+	<widget field="Output SIM" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="178" y="21"/>
+	</widget>
+	<widget field="Rear Right Secondary Motor Current (A)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="273"/>
+	</widget>
+	<widget field="Rear Right Primary Motor Current (A)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="252"/>
+	</widget>
+	<widget field="Rear Right Secondary Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="231"/>
+	</widget>
+	<widget field="Rear Right Primary Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="210"/>
+	</widget>
+	<widget field="Rear Right Rotation Motor Current (A)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="189"/>
+	</widget>
+	<widget field="Rear Right Rotation Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="168"/>
+	</widget>
+	<widget field="Rear Right Distance Travelled (m)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="147"/>
+	</widget>
+	<widget field="Rear Right Angle (rad)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="126"/>
+	</widget>
+	<widget field="Rear Left Secondary Motor Current (A)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="105"/>
+	</widget>
+	<widget field="Rear Left Primary Motor Current (A)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="84"/>
+	</widget>
+	<widget field="Rear Left Secondary Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="63"/>
+	</widget>
+	<widget field="Rear Left Primary Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="42"/>
+	</widget>
+	<widget field="Rear Left Rotation Motor Current (A)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="21"/>
+	</widget>
+	<widget field="Rear Left Rotation Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="400" y="0"/>
+	</widget>
+	<widget field="Rear Left Distance Travelled (m)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="158" y="0"/>
+	</widget>
+	<widget field="Rear Left Angle (rad)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="966"/>
+	</widget>
+	<widget field="Front Right Secondary Motor Current (A)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="945"/>
+	</widget>
+	<widget field="Front Right Primary Motor Current (A)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="924"/>
+	</widget>
+	<widget field="Front Right Secondary Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="903"/>
+	</widget>
+	<widget field="Front Right Primary Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="882"/>
+	</widget>
+	<widget field="Front Right Rotation Motor Current (A)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="861"/>
+	</widget>
+	<widget field="Front Right Rotation Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="840"/>
+	</widget>
+	<widget field="Front Right Distance Travelled (m)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="819"/>
+	</widget>
+	<widget field="Front Right Angle (rad)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="798"/>
+	</widget>
+	<widget field="Front Left Secondary Motor Current (A)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="777"/>
+	</widget>
+	<widget field="Front Left Primary Motor Current (A)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="756"/>
+	</widget>
+	<widget field="Front Left Secondary Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="735"/>
+	</widget>
+	<widget field="Front Left Primary Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="714"/>
+	</widget>
+	<widget field="Front Left Rotation Motor Current (A)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="693"/>
+	</widget>
+	<widget field="Front Left Rotation Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="672"/>
+	</widget>
+	<widget field="Front Left Distance Travelled (m)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="651"/>
+	</widget>
+	<widget field="Front Left Angle (rad)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="630"/>
+	</widget>
+	<widget field="Extension Arm Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="609"/>
+	</widget>
+	<widget field="Upper Arm Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="588"/>
+	</widget>
+	<widget field="Lower Arm Motor Temp (C)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="567"/>
+	</widget>
+	<widget field="Arm Extension Distance (m)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="546"/>
+	</widget>
+	<widget field="Upper Arm Total Length (m)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="525"/>
+	</widget>
+	<widget field="Upper Arm Base Length (m)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="504"/>
+	</widget>
+	<widget field="Lower Arm Length (m)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="483"/>
+	</widget>
+	<widget field="Upper Arm NEO Encoder Position" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="462"/>
+	</widget>
+	<widget field="Lower Arm NEO Encoder Position" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="441"/>
+	</widget>
+	<widget field="Extension Arm RPM" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="420"/>
+	</widget>
+	<widget field="Align to Node Rotation Set" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="357"/>
+	</widget>
+	<widget field="Align to Node Translation P" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="336"/>
+	</widget>
+	<widget field="Align to Node Rotation P" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="315"/>
+	</widget>
+	<widget field="Reset Encoders" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="294"/>
+	</widget>
+	<widget field="Rear Right Drive Voltage" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="273"/>
+	</widget>
+	<widget field="Rear Right Angle Setpoint (rad)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="252"/>
+	</widget>
+	<widget field="Rear Left Drive Voltage" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="231"/>
+	</widget>
+	<widget field="Rear Left Angle Setpoint (rad)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="210"/>
+	</widget>
+	<widget field="Front Right Drive Voltage" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="189"/>
+	</widget>
+	<widget field="Front Right Angle Setpoint (rad)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="168"/>
+	</widget>
+	<widget field="Front Left Drive Voltage" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="147"/>
+	</widget>
+	<widget field="Front Left Angle Setpoint (rad)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="126"/>
+	</widget>
+	<widget field="Test Target Vel" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="105"/>
+	</widget>
+	<widget field="Test Primary RPM" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="84"/>
+	</widget>
+	<widget field="Test Secondary RPM" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="63"/>
+	</widget>
+	<widget field="Secondary velocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="21"/>
+	</widget>
+</dashboard>
+<live-window>
+</live-window>
+	<hidden field="Field"/>
+	<hidden field="IsIntakeRangeValid"/>
+	<hidden field="Intake Sensor (mm)"/>
+</xml>

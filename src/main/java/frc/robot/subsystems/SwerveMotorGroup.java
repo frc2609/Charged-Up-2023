@@ -14,10 +14,16 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Limits;
 
 // velocity conversion factors with/without motors
@@ -25,6 +31,7 @@ import frc.robot.Constants.Limits;
 
 /** Add your docs here. */
 public class SwerveMotorGroup {
+  private double prevVel = 0;
   public class ECVT{
     private RelativeEncoder ringEncoder, sunEncoder;
     private final double sunTeeth = 36.0;
@@ -58,15 +65,23 @@ public class SwerveMotorGroup {
     public double getPositionMeters(){
       return ((2.0/15.0)*(sunEncoder.getPosition()+ringEncoder.getPosition()))*Constants.Swerve.WHEEL_CIRCUMFERENCE;
     }
+    public boolean isTotalRPMOver(double threshold){
+      if(Math.abs(ringEncoder.getVelocity()+sunEncoder.getVelocity()) >= threshold){
+        return true;
+      }
+      return false;
+    }
   }
 
-  private final CANSparkMax m_primaryMotor;
-  private final CANSparkMax m_secondaryMotor;
+  public final CANSparkMax m_primaryMotor;
+  public final CANSparkMax m_secondaryMotor;
   private boolean isPrimaryOverThreshold;
   private int primarySpeedCounter = 0;
-  private final RelativeEncoder m_primaryEncoder;
-  private final RelativeEncoder m_secondaryEncoder;
+  public final RelativeEncoder m_primaryEncoder;
+  public final RelativeEncoder m_secondaryEncoder;
   private final ECVT m_ecvt;
+  private double prevTime = -1;
+  private final SlewRateLimiter m_torqueRateLimiter = new SlewRateLimiter(4, -2, 0);
 
   private final PIDController m_primaryPID =
       new PIDController(drivePID_kP, drivePID_kI, drivePID_kD);
@@ -99,9 +114,6 @@ public class SwerveMotorGroup {
     m_ecvt = new ECVT(m_secondaryEncoder, m_primaryEncoder);
     m_name = name;
     
-    SmartDashboard.putNumber("Test Secondary RPM", 0);
-    SmartDashboard.putNumber("Test Primary RPM", 0);
-    SmartDashboard.putNumber("Test Target Vel", 1);
   }
 
   /** 
@@ -143,10 +155,10 @@ public class SwerveMotorGroup {
    * TODO: describe
    * 
    * @param speedMetersPerSecond The target speed in metres per second.
-   * @param secondaryThrottle Boost throttle (0 to 1).
+   * @param boostThrottle Boost throttle (0 to 1).
    * @param maxSpeedEnabled Whether or not to use boost.
    */
-  public void set(double speedMetersPerSecond, double secondaryThrottle, boolean maxSpeedEnabled) {
+  public void set(double speedMetersPerSecond, double boostThrottle, double torqueThrottle, boolean maxSpeedEnabled) {
     // TODO: rewrite this function
     // Calculate the drive output from the drive PID controller.
     
@@ -162,65 +174,116 @@ public class SwerveMotorGroup {
     final double driveVoltage = driveFeedforward;//driveOutput + driveFeedforward;
    
     m_secondaryMotor.setVoltage(driveVoltage);
-    // m_primaryMotor.setVoltage(driveVoltage);
     // copy sign
-    // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+    // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (boostThrottle * (driveVoltage/driveVoltage)) : 0);
     // if(m_primaryEncoder.getVelocity() > )
     SmartDashboard.putNumber("drive voltage", driveVoltage);
-    SmartDashboard.putNumber("Primary velocity", m_secondaryEncoder.getVelocity());
-    SmartDashboard.putNumber("Secondary velocity", m_primaryEncoder.getVelocity());
-    SmartDashboard.putNumber("ecvt velocity", m_ecvt.getOutputSpeed());
-    // if(Math.abs(m_secondaryEncoder.getVelocity()) > 3000){
-    //   primarySpeedCounter++;
-    //   if(primarySpeedCounter > 5){
-    //     isPrimaryOverThreshold = true;
-    //     RobotContainer.LED.set(0.05);
+    SmartDashboard.putNumber(m_name + " Primary velocity", m_primaryEncoder.getVelocity());
+    SmartDashboard.putNumber(m_name + " Secondary velocity", m_secondaryEncoder.getVelocity());
+    SmartDashboard.putNumber(m_name + " ecvt velocity", m_ecvt.getOutputSpeed());
+    if(m_ecvt.isTotalRPMOver(2000.0)){
+      primarySpeedCounter++;
+      if(primarySpeedCounter > 5){
+        isPrimaryOverThreshold = true;
+        // RobotContainer.LED.set(0.05);
+      }
+    }else{
+      if(primarySpeedCounter > 0){
+        primarySpeedCounter += -1;
+      }else if (primarySpeedCounter == 0){
+        isPrimaryOverThreshold = false;
+      }else{
+        primarySpeedCounter = 0;
+      }
+    }
+    SmartDashboard.putNumber("speedcounter", primarySpeedCounter);
+
+    // double torqueMultiplier = MathUtil.applyDeadband(RobotContainer.m_driverController.getLeftTriggerAxis(), 0.1)*0.3; // [0,0.3]
+    // double back_drive = driveVoltage*0.05;
+    // double forward_drive = driveVoltage;
+    // m_primaryMotor.set(0.5);
+    // double output = forward_drive;
+    if(maxSpeedEnabled){
+      // output = torqueRateLimiter.calculate(forward_drive);
+      if(!isPrimaryOverThreshold){
+        // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 1);
+        m_primaryMotor.setVoltage(0);
+        // m_primaryMotor.setVoltage(driveVoltage*0.05);
+      }else{
+        // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0);
+        m_primaryMotor.setVoltage(driveVoltage*Math.abs(boostThrottle));
+      }
+      // m_torqueRateLimiter.reset(0);
+      }else{
+        if(isPrimaryOverThreshold){
+          m_primaryMotor.setVoltage(0);
+
+          // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0.5);
+        }else{
+          // RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0);
+        }
+        // m_primaryMotor.setVoltage(driveVoltage*0.05);
+      }
+    // else{
+    //   if(Math.abs(driveVoltage) < 3){
+    //     output = 0;
+    //   }else{
+    //     output = m_torqueRateLimiter.calculate(back_drive);
     //   }
-    // }else{
-    //   primarySpeedCounter += -1;
-    //   if(primarySpeedCounter == 0){
-    //     isPrimaryOverThreshold = false;
-    //   }
     // }
-    // if(!isPrimaryOverThreshold){
-    //   maxSpeedEnabled = false;
-    //   RobotContainer.LED.set(-0.15);
-    // }
-    // if(maxSpeedEnabled){
-    //   RobotContainer.LED.set(0.07);
-    // }
-    m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+    // SmartDashboard.putNumber("Boost set voltage", output);
+    // SmartDashboard.putNumber("Boost motor rpm", m_primaryEncoder.getVelocity()); // rpm currently as factor is 1
+    // SmartDashboard.putNumber("Boost motor current", m_primaryMotor.getOutputCurrent());
+    m_primaryMotor.setVoltage(driveVoltage);//output);
+    m_secondaryMotor.setVoltage(0);//0);//output);
+  }
+  public double getSecondaryVelocity(){
+    return m_secondaryEncoder.getVelocity();
   }
 
   /**
    * TODO: describe
    * 
    * @param speedMetersPerSecond
-   * @param secondaryThrottle
+   * @param boostThrottle
    * @param maxSpeedEnabled
    */
-  public void setAuto(double speedMetersPerSecond, double secondaryThrottle, boolean maxSpeedEnabled) {
+  public void setAuto(double speedMetersPerSecond, double boostThrottle, boolean maxSpeedEnabled, boolean isLowTorqueModeEnabled) {
     // TODO: a bit of cleanup
     // Calculate the drive output from the drive PID controller.
     m_primaryPID.setP(Constants.Swerve.Gains.drivePID_kP_auto);
     m_primaryPID.setI(Constants.Swerve.Gains.drivePID_kI_auto);
     m_primaryPID.setD(Constants.Swerve.Gains.drivePID_kD_auto);
-    final double driveOutput =
-    m_primaryPID.calculate(m_secondaryEncoder.getVelocity(), m_ecvt.getRingSetpoint(speedMetersPerSecond));//m_primaryEncoder.getVelocity(), speedMetersPerSecond); // why isn't this swapped for secondary motor?
+    final double driveOutput = m_primaryPID.calculate(m_secondaryEncoder.getVelocity(), m_ecvt.getRingSetpoint(speedMetersPerSecond));//m_primaryEncoder.getVelocity(), speedMetersPerSecond); // why isn't this swapped for secondary motor?
         // this also doesn't use metres per second
     final double driveFeedforward = m_primaryFF.calculate(speedMetersPerSecond);
     // swerve has not a clue as to what speed it is going
+    double ff = 0;
+    if(prevTime != -1){
+      ff = Math.abs(prevVel - speedMetersPerSecond)/Math.abs(Timer.getFPGATimestamp()-prevTime)*1;
+      // ff = Math.min(Math.abs(ff), Math.abs(driveVoltage*0.15));
 
+    }
     final double driveVoltage = driveOutput + driveFeedforward;
     m_secondaryMotor.setVoltage(driveVoltage);
     // m_primaryMotor.setVoltage(driveVoltage);
     // copy sign
-    // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+    // m_secondaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (boostThrottle * (driveVoltage/driveVoltage)) : 0);
     // if(m_primaryEncoder.getVelocity() > )
-    SmartDashboard.putNumber("Primary velocity", m_secondaryEncoder.getVelocity());
-    SmartDashboard.putNumber("Secondary velocity", m_primaryEncoder.getVelocity());
-    SmartDashboard.putNumber("ecvt velocity", m_ecvt.getOutputSpeed());
-    // m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (secondaryThrottle * (driveVoltage/driveVoltage)) : 0);
+    SmartDashboard.putNumber(m_name + " Primary velocity", m_primaryEncoder.getVelocity());
+    SmartDashboard.putNumber(m_name+" Secondary velocity", m_secondaryEncoder.getVelocity());
+    SmartDashboard.putNumber(m_name+" ecvt velocity", m_ecvt.getOutputSpeed());
+    
+    if(isLowTorqueModeEnabled){
+    // m_primaryMotor.setVoltage(-ff);
+    }
+    else{
+      m_primaryMotor.set(0);
+    }
+    
+    prevVel = speedMetersPerSecond;
+    prevTime = Timer.getFPGATimestamp();
+    // m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (boostThrottle * (driveVoltage/driveVoltage)) : 0);
   }
 
   /** Update data being sent and recieved from NetworkTables. */
