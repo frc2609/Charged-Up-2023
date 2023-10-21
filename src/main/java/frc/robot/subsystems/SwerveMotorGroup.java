@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.Limits;
+import frc.robot.Constants.CurrentLimits;
 
 // velocity conversion factors with/without motors
 // Should this be in its own class?
@@ -109,8 +109,8 @@ public class SwerveMotorGroup {
     m_secondaryMotor.setInverted(invertDriveMotors);
     m_primaryMotor.setIdleMode(IdleMode.kBrake);
     m_secondaryMotor.setIdleMode(IdleMode.kBrake);
-    m_primaryMotor.setSmartCurrentLimit(Limits.DRIVE_PRIMARY_CURRENT);
-    m_secondaryMotor.setSmartCurrentLimit(Limits.DRIVE_SECONDARY_CURRENT);
+    m_primaryMotor.setSmartCurrentLimit(CurrentLimits.drivePrimary);
+    m_secondaryMotor.setSmartCurrentLimit(CurrentLimits.driveSecondary);
     m_ecvt = new ECVT(m_secondaryEncoder, m_primaryEncoder);
     m_name = name;
     

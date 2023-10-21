@@ -7,11 +7,11 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.LED.BlinkMode;
 import frc.robot.Constants.LED.Pattern;
-import frc.robot.subsystems.ArmGripper;
+import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.LED;
 
 public class AutoClose extends CommandBase {
-  private final ArmGripper gripper;
+  private final Gripper gripper;
   private int iterations;
   private int count = 2;
 
@@ -19,7 +19,7 @@ public class AutoClose extends CommandBase {
    * @param gripper The ArmGripper to close automatically.
    * @param count How many loops the sensor must report a game piece for before closing.
    */
-  public AutoClose(ArmGripper gripper, int count) {
+  public AutoClose(Gripper gripper, int count) {
     this.gripper = gripper;
     this.count = count;
   }

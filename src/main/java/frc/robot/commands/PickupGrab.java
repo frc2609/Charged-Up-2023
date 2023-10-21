@@ -8,13 +8,12 @@ import edu.wpi.first.wpilibj.XboxController;
 // import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-// import frc.robot.commands.arm.PickupPullback;
-import frc.robot.commands.arm.PickupThenExtend;
-import frc.robot.subsystems.ArmGripper;
+import frc.robot.commands.gripper.PickupThenExtend;
+import frc.robot.subsystems.Gripper;
 
 public class PickupGrab extends SequentialCommandGroup {
   /** Creates a new PickupGrab. */
-  public PickupGrab(ArmGripper gripper, XboxController operatorController) {
+  public PickupGrab(Gripper gripper, XboxController operatorController) {
     addCommands(
         new PickupThenExtend(gripper, false),
         new ParallelDeadlineGroup(
