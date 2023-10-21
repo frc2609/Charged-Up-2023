@@ -39,7 +39,7 @@ public class MoveArmToMidProfiled extends CommandBase {
   public void execute() {
     boolean isLowerInTolerance = Math.abs(m_armGripper.getLowerAngleRelative()-lowerSetpoint[i]) < 8; 
     boolean isUpperInTolerance = Math.abs(m_armGripper.getUpperAngleRelative()-upperSetpoint[i]) < 8; 
-    boolean isExtensionInTolerance = Math.abs(m_armGripper.getExtensionDistance()-extensionSetpoint[i]) < Tolerances.EXTENSION_LENGTH;
+    boolean isExtensionInTolerance = Math.abs(m_armGripper.getExtensionDistance()-extensionSetpoint[i]) < Tolerances.extensionLength;
     // if (isLowerInTolerance && isUpperInTolerance && isExtensionInTolerance){
     //   i++;
     // }

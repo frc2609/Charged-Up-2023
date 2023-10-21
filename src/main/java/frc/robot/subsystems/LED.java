@@ -6,16 +6,11 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.LED.*;
 
-// import java.sql.Driver;
-
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 // import edu.wpi.first.wpilibj.DriverStation.Alliance;
-// import edu.wpi.first.wpilibj.motorcontrol.Spark;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.Constants.PWMID;
 
 /** Add your docs here. */
 public class LED {
@@ -43,7 +38,7 @@ public class LED {
     pattern_human = Pattern.SETUP;
     blinkMode_drive = BlinkMode.SOLID;
     blinkMode_human = BlinkMode.SOLID;
-    led_dev = new AddressableLED(PWMID.LED);
+    led_dev = new AddressableLED(CONTROLLER_PWM_ID);
     led_dev.setLength(LED_LEN);
     led = new AddressableLEDBuffer(LED_LEN);
     setDrive(Pattern.SETUP, BlinkMode.SOLID);
