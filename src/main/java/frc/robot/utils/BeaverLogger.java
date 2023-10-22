@@ -13,42 +13,44 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
 public class BeaverLogger {
-    HashMap<String, Supplier<Double>> loggingMap = new HashMap<String, Supplier<Double>>();
+  HashMap<String, Supplier<Double>> loggingMap = new HashMap<String, Supplier<Double>>();
 	HashMap<String, Supplier<Double>> smartDashboardMap = new HashMap<String, Supplier<Double>>();
 	HashMap<String, DoubleLogEntry> logEntryMap = new HashMap<String, DoubleLogEntry>();
 	final DataLog log = DataLogManager.getLog();
-	public BeaverLogger(){
-    	for (String key : loggingMap.keySet()) {
+	
+  public BeaverLogger() {
+    for (String key : loggingMap.keySet()) {
 			logEntryMap.put(key, new DoubleLogEntry(log, key));
 		}
 	}
-	public void addLoggable(String name, Supplier<Double> supplier, boolean toSmartDash){
-		if(toSmartDash){
+	
+  public void addLoggable(String name, Supplier<Double> supplier, boolean toSmartDash) {
+		if (toSmartDash) {
 			smartDashboardMap.put(name, supplier);
-		}else{
+		} else {
 			loggingMap.put(name, supplier);
 		}
 	}
-	public void logAll(){
+
+	public void logAll() {
     	// Logging values in smartDashboardMap
     	for (String key : smartDashboardMap.keySet()) {
     	    Double value = smartDashboardMap.get(key).get();
-			SmartDashboard.putNumber(key, value);
+			    SmartDashboard.putNumber(key, value);
     	    // You can use your actual method for sending data to SmartDashboard here
     	}
     	// Logging values in loggingMap
     	for (String key : loggingMap.keySet()) {
     	    Double value = loggingMap.get(key).get();
-			DoubleLogEntry entry = logEntryMap.get(key);
-			if(entry == null){
-				DataLogManager.log(String.format("key: %s not found in logEntryMap", key));
-			}else{
-				entry.append(value);
-			}
+			    DoubleLogEntry entry = logEntryMap.get(key);
+        if (entry == null) {
+          DataLogManager.log(String.format("key: %s not found in logEntryMap", key));
+        } else {
+          entry.append(value);
+        }
     	}
 	}
 }
-
 
 /*
  * 
@@ -96,9 +98,5 @@ public class BeaverLogger {
       extensionOutput.append(1.0); // current PID output
 
     }
-    public void setCurrentSuppliers(){
-      
-    }
   }
-
  */

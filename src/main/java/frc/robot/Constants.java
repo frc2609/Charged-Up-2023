@@ -99,7 +99,7 @@ public final class Constants {
             /** Total ratio between lower arm motor and lower arm rotation. */
             public static final double LOWER_ARM = LOWER_ARM_MOTOR * LOWER_ARM_CHAIN;
             /** Ratio between shaft pulley (18t) and arm pulley (48t). */
-            public static final double UPPER_ARM_CHAIN = 18.0 / 48.0;
+            public static final double UPPER_ARM_CHAIN = 18.0 / 48.0; // this isn't correct.
             /** Arm shaft rotations per motor rotation. (2x 5:1 + 1x 3:1) */
             public static final double UPPER_ARM_MOTOR = 1.0 / 45.0;
             /** Total ratio between upper arm motor and upper arm rotation. */
@@ -470,8 +470,8 @@ public final class Constants {
      * provides, such as getLeftY() or getXButton().
      */
     public final static class Xbox {
-        public static final int DRIVER_CONTROLLER_PORT = 0;
-        public static final int OPERATOR_CONTROLLER_PORT = 1;
+        public static final int driverControllerPort = 0;
+        public static final int operatorControllerPort = 1;
         public static final double JOYSTICK_DEADBAND = 0.075;
     }
 }

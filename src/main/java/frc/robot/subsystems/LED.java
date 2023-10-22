@@ -157,16 +157,14 @@ public class LED {
 
   /** Colour values are located in {@link frc.robot.Constants.LED Constants::LED}. */
   public void setDrive(Pattern pattern, BlinkMode blink) {
-    this.pattern_drive = pattern;
-    this.blinkMode_drive = blink;
+    // this.pattern_drive = pattern;
+    // this.blinkMode_drive = blink;
   }
 
   public void setHuman(Pattern pattern, BlinkMode blink) {
-    this.pattern_human = pattern;
-    this.blinkMode_human = blink;
+    // this.pattern_human = pattern;
+    // this.blinkMode_human = blink;
 
-    
-    
     led_dev.setData(led);
   }
 

@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -35,17 +36,17 @@ import frc.robot.utils.ArmKinematics;
 import frc.robot.utils.BeaverLogger;
 
 public class Arm extends SubsystemBase {
-  private final Mechanism2d armMechanism = new Mechanism2d(4, 4);
-  private final MechanismRoot2d mechanismRoot = armMechanism.getRoot("Arm", 3, 1);
-  private final MechanismLigament2d lowerArmLigament = mechanismRoot.append(new MechanismLigament2d("Lower Arm", getLowerArmLength(), 0));
-  private final MechanismLigament2d upperArmLigament = lowerArmLigament.append(new MechanismLigament2d("Upper Arm + Extension", getUpperArmLength(), 0));
-
   private final CANSparkMax lowerMotor = new CANSparkMax(CANID.lowerArmMotor, MotorType.kBrushless);
   private final CANSparkMax upperMotor = new CANSparkMax(CANID.upperArmMotor, MotorType.kBrushless);
   private final CANSparkMax extensionMotor = new CANSparkMax(CANID.extensionMotor, MotorType.kBrushless);
 
   private final AbsoluteEncoderHandler lowerEncoder, upperEncoder, lowerBackupEncoder, upperBackupEncoder;
   private final RelativeEncoder extensionEncoder = extensionMotor.getEncoder();
+
+  private final Mechanism2d armMechanism = new Mechanism2d(4, 4);
+  private final MechanismRoot2d mechanismRoot = armMechanism.getRoot("Arm", 1, 1);
+  private final MechanismLigament2d lowerArmLigament = mechanismRoot.append(new MechanismLigament2d("Lower Arm", getLowerArmLength(), 0));
+  private final MechanismLigament2d upperArmLigament = lowerArmLigament.append(new MechanismLigament2d("Upper Arm + Extension", getUpperArmLength(), 0));
 
   private final PIDController lowerPID = new PIDController(0, 0, 0);
   private final PIDController upperPID = new PIDController(0, 0, 0);
@@ -56,6 +57,11 @@ public class Arm extends SubsystemBase {
   private double lowerSetpoint, upperSetpoint, extensionSetpoint = 0;
 
   public final BeaverLogger logger;
+
+  // TODO: add this to BeaverLogger
+  private final DoubleLogEntry log_tau1 = new DoubleLogEntry(DataLogManager.getLog(), "/arm/gravity/tau1");
+  private final DoubleLogEntry log_tau2 = new DoubleLogEntry(DataLogManager.getLog(), "/arm/gravity/tau2");
+  private final DoubleLogEntry log_tau3 = new DoubleLogEntry(DataLogManager.getLog(), "/arm/gravity/tau3");
 
   private final Loop loop = new Loop(){
     int i = 0;
@@ -69,7 +75,6 @@ public class Arm extends SubsystemBase {
     public void onLoop() {
       synchronized (Arm.this){
         // arm logic here
-        _arm.lowerMotor.set(i);
       }
     }
 
@@ -89,7 +94,7 @@ public class Arm extends SubsystemBase {
     upperEncoder = new AbsoluteEncoderHandler(DIO.armUpperEncoder, Encoder.upperPositionOffset, Encoder.upperPositionConversion);
     upperBackupEncoder = new AbsoluteEncoderHandler(DIO.armUpperBackupEncoder, Encoder.upperBackupPositionOffset, Encoder.upperBackupPositionConversion);
     
-    extensionEncoder.setPositionConversionFactor(Encoder.extensionPositionConversion);
+    extensionEncoder.setPositionConversionFactor(1.0);
     extensionEncoder.setVelocityConversionFactor(Encoder.extensionVelocityConversion);
     extensionEncoder.setPosition(0.0);
 
@@ -114,21 +119,32 @@ public class Arm extends SubsystemBase {
     // lowerCurrent = new DoubleLogEntry(log, "/arm/current/lower");
     // upperCurrent = new DoubleLogEntry(log, "/arm/current/upper");
     // extensionCurrent = new DoubleLogEntry(log, "/arm/current/extension");
-
     logger.addLoggable("/arm/angles/lower", getLowerAngle()::getDegrees, true);
+    logger.addLoggable("/arm/angles/upper", getUpperAngle()::getDegrees, true);
+    logger.addLoggable("/arm/angles/extension", this::getExtensionDistance, true);
+  }
+
+  public Loop getLoop(){
+    return this.loop;
   }
 
   @Override
   public void periodic() {
     // mechanism2d
     lowerArmLigament.setAngle(getLowerAngle());
-    upperArmLigament.setAngle(getUpperAngle());
+    upperArmLigament.setAngle(Rotation2d.fromDegrees(getUpperAngle().getDegrees() + 180.0));
     upperArmLigament.setLength(getUpperArmLength());
+    
     double[] gravity = ArmKinematics.gravitationalTorques(getLowerAngle().getDegrees(), getUpperAngle().getDegrees(), getExtensionDistance());
     double lowerOutput = lowerPID.calculate(getLowerAngle().getDegrees()) + lowerFF.calculate(gravity[0]);
     double upperOutput = upperPID.calculate(getUpperAngle().getDegrees()) + upperFF.calculate(gravity[1]);
-    lowerMotor.set(lowerOutput);
-    upperMotor.set(upperOutput);
+    this.log_tau1.append(gravity[0]);
+    this.log_tau2.append(gravity[1]);
+    this.log_tau3.append(gravity[2]);
+    lowerMotor.set(0); // lowerOutput
+    upperMotor.set(0); // upperOutput
+
+    this.logger.logAll();
   }
 
   private void configureMotors() {
@@ -180,7 +196,7 @@ public class Arm extends SubsystemBase {
    * @return The amount the arm extension has extended in metres.
    */
   public double getExtensionDistance() {
-    return extensionEncoder.getPosition();
+    return extensionEncoder.getPosition() * Encoder.extensionPositionConversion;
   }
 
   /**
