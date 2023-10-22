@@ -141,8 +141,8 @@ public class Arm extends SubsystemBase {
     this.log_tau1.append(gravity[0]);
     this.log_tau2.append(gravity[1]);
     this.log_tau3.append(gravity[2]);
-    lowerMotor.set(0); // lowerOutput
-    upperMotor.set(0); // upperOutput
+    lowerMotor.setVoltage(0); // lowerOutput
+    upperMotor.setVoltage(0); // upperOutput
 
     this.logger.logAll();
   }
