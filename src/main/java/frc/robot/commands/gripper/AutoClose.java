@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.gripper;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.LED.BlinkMode;
@@ -16,12 +16,13 @@ public class AutoClose extends CommandBase {
   private int count = 2;
 
   /** Creates a new AutoClose.
-   * @param gripper The ArmGripper to close automatically.
+   * @param gripper The gripper to close automatically.
    * @param count How many loops the sensor must report a game piece for before closing.
    */
   public AutoClose(Gripper gripper, int count) {
     this.gripper = gripper;
     this.count = count;
+    addRequirements(gripper);
   }
 
   // Called when the command is initially scheduled.
@@ -31,13 +32,11 @@ public class AutoClose extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(gripper.getIntakeSensor()) {
+    if (gripper.getIntakeSensor()) {
       iterations++;
-      // LED.setWhite();
     } else {
       iterations = 0;
       LED.getInstance().setDrive(Pattern.INTAKE_EMPTY, BlinkMode.SOLID);
-      // LED.setIdle();
     }
   }
 
@@ -48,7 +47,6 @@ public class AutoClose extends CommandBase {
     if (!interrupted) {
       gripper.closeGripper();
       LED.getInstance().setDrive(Pattern.INTAKE_GRABBED, BlinkMode.SOLID);
-      // LED.setGreen();
     }
   }
 
