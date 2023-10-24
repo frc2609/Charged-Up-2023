@@ -92,14 +92,14 @@ public final class Constants {
         public static final class Ratios {
             /** Extension pulley rotations per extension motor rotation. */
             public static final double EXTENSION_MOTOR = UltraPlanetaryRatios.FIVE_TO_ONE * UltraPlanetaryRatios.FOUR_TO_ONE;
-            /** Ratio between shaft pulley (18t) and arm pulley (48t). */
-            public static final double LOWER_ARM_CHAIN = 18.0 / 48.0; // this is incorrect btw
+            /** Ratio between shaft pulley (12t) and arm pulley (48t). */
+            public static final double LOWER_ARM_CHAIN = 12.0 / 48.0;
             /** Arm shaft rotations per motor rotation. (45:1) */
             public static final double LOWER_ARM_MOTOR = 1.0 / 45.0;
             /** Total ratio between lower arm motor and lower arm rotation. */
             public static final double LOWER_ARM = LOWER_ARM_MOTOR * LOWER_ARM_CHAIN;
             /** Ratio between shaft pulley (18t) and arm pulley (48t). */
-            public static final double UPPER_ARM_CHAIN = 18.0 / 48.0; // this isn't correct.
+            public static final double UPPER_ARM_CHAIN = 18.0 / 48.0;
             /** Arm shaft rotations per motor rotation. (2x 5:1 + 1x 3:1) */
             public static final double UPPER_ARM_MOTOR = 1.0 / 45.0;
             /** Total ratio between upper arm motor and upper arm rotation. */
