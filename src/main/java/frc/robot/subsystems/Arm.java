@@ -53,17 +53,17 @@ public class Arm extends SubsystemBase {
   private SimpleMotorFeedforward lowerFF = new SimpleMotorFeedforward(0.0, 0.0);
   private SimpleMotorFeedforward upperFF = new SimpleMotorFeedforward(0.0, 0.0);
 
-  private final TunableNumber lowerPID_P = new TunableNumber("arm/pid/lower_p", 0);
+  private final TunableNumber lowerPID_P = new TunableNumber("arm/pid/lower_p", 0.001);
   private final TunableNumber lowerPID_I = new TunableNumber("arm/pid/lower_i", 0);
   private final TunableNumber lowerPID_D = new TunableNumber("arm/pid/lower_d", 0);
   private final TunableNumber lowerF_s = new TunableNumber("arm/pid/lower_ks", 0);
-  private final TunableNumber lowerF_v = new TunableNumber("arm/pid/lower_kv", 0);
+  private final TunableNumber lowerF_v = new TunableNumber("arm/pid/lower_kv", 0.002);
 
-  private final TunableNumber upperPID_P = new TunableNumber("arm/pid/upper_p", 0);
+  private final TunableNumber upperPID_P = new TunableNumber("arm/pid/upper_p", 0.001);
   private final TunableNumber upperPID_I = new TunableNumber("arm/pid/upper_i", 0);
   private final TunableNumber upperPID_D = new TunableNumber("arm/pid/upper_d", 0);
   private final TunableNumber upperF_s = new TunableNumber("arm/pid/upper_ks", 0);
-  private final TunableNumber upperF_v = new TunableNumber("arm/pid/upper_kv", 0);
+  private final TunableNumber upperF_v = new TunableNumber("arm/pid/upper_kv", 0.002);
 
   private final SparkMaxPIDController extensionPID = extensionMotor.getPIDController();
 
@@ -135,17 +135,23 @@ public class Arm extends SubsystemBase {
     }
     
     double[] gravity = ArmKinematics.gravitationalTorques(getLowerAngle().getDegrees(), getUpperAngle().getDegrees(), getExtensionDistance());
-    double lowerOutput = lowerPID.calculate(getLowerAngle().getDegrees()); //+ lowerFF.calculate(gravity[0]);
-    double upperOutput = upperPID.calculate(getUpperAngle().getDegrees()); //+ upperFF.calculate(gravity[1]);
+    double lowerOutput = lowerPID.calculate(getLowerAngle().getDegrees())- lowerFF.calculate(gravity[0]);
+    double upperOutput = upperPID.calculate(getUpperAngle().getDegrees())+ upperFF.calculate(gravity[1]);
 
     SmartDashboard.putNumber("Lower Arm Gravity", gravity[0]);
     SmartDashboard.putNumber("Upper Arm Gravity", gravity[1]);
     SmartDashboard.putNumber("Extension Gravity", gravity[2]);
 
-    lowerMotor.setVoltage(lowerOutput);
-    upperMotor.setVoltage(upperOutput);
+    lowerMotor.set(lowerOutput);
+    upperMotor.set(upperOutput);
 
     this.logger.logAll();
+  }
+  public void openLoopset(double lower, double upper, double extension){
+    
+    lowerMotor.setVoltage(lower*6);
+    upperMotor.setVoltage(upper*6);
+    extensionMotor.setVoltage(extension*6);
   }
 
   private void configureLoggedData() {
@@ -177,16 +183,16 @@ public class Arm extends SubsystemBase {
     upperMotor.restoreFactoryDefaults();
     extensionMotor.restoreFactoryDefaults();
 
-    lowerMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-    lowerMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+    lowerMotor.enableSoftLimit(SoftLimitDirection.kForward, false);
+    lowerMotor.enableSoftLimit(SoftLimitDirection.kReverse, false);
     lowerMotor.setSoftLimit(SoftLimitDirection.kForward, SoftStop.LOWER_FORWARD);
     lowerMotor.setSoftLimit(SoftLimitDirection.kReverse, SoftStop.LOWER_REVERSE);
     lowerMotor.setIdleMode(IdleMode.kBrake);
     lowerMotor.setSmartCurrentLimit(frc.robot.Constants.CurrentLimits.lowerArm);
     lowerMotor.setInverted(IsInverted.LOWER_MOTOR);
 
-    upperMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-    upperMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+    upperMotor.enableSoftLimit(SoftLimitDirection.kForward, false);
+    upperMotor.enableSoftLimit(SoftLimitDirection.kReverse, false);
     upperMotor.setSoftLimit(SoftLimitDirection.kForward, SoftStop.UPPER_FORWARD);
     upperMotor.setSoftLimit(SoftLimitDirection.kReverse, SoftStop.UPPER_REVERSE);
     upperMotor.setIdleMode(IdleMode.kBrake);

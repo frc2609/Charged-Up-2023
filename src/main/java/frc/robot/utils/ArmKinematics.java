@@ -40,22 +40,22 @@ public class ArmKinematics {
         // double z2 = z1 + l2 * Math.sin(theta1 + theta2) + r2;
         // double z3 = z2 + d3 + r3;
 
-        double z1 = (l1+ r1) * Math.cos(theta1);
-        double z2 = z1 + l2 * Math.cos(theta1 + theta2) + r2;
-        double z3 = z2 + d3 + r3;
+        double x1 = (l1+ r1) * Math.cos(theta1);
+        double x2 = ((l1*Math.cos(theta1)) + ((l2+r2)* Math.sin(theta1 + theta2)))*-1;
+        double x3 = ((l1*Math.cos(theta1)) + ((l2+r2+d3)* Math.sin(theta1 + theta2)))*-1;
 
-        SmartDashboard.putNumber("Lower COM", z1);
-        SmartDashboard.putNumber("Upper COM", z2);
-        SmartDashboard.putNumber("Ext COM", z3);
+        SmartDashboard.putNumber("Lower COM", x1);
+        SmartDashboard.putNumber("Upper COM", x2);
+        SmartDashboard.putNumber("Ext COM", x3);
 
         // Gravitational torques
         // double tau1 = -g * (m1 * z1 + m2 * (z1 + z2) + m3 * (z1 + z2 + z3));
         // double tau2 = -g * (m2 * z2 + m3 * (z2 + z3));
         // double tau3 = -g * m3 * z3;
 
-        double tau1 = -g * (m1 * z1); //+ m2 * (z1 + z2) + m3 * (z1 + z2 + z3));
-        double tau2 = -g * (m2 * z2 + m3 * (z2 + z3));
-        double tau3 = -g * m3 * z3;
+        double tau1 = -g * ((m1 * x1)+(m2*x2)+(m3*x3)); //+ m2 * (z1 + z2) + m3 * (z1 + z2 + z3));
+        double tau2 = -g * ((m2*x2) + (m3*x3));
+        double tau3 = -g * m3 * x3;
 
         return new double[]{tau1, tau2, tau3};
     }

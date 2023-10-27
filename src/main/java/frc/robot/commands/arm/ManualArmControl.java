@@ -85,6 +85,8 @@ public class ManualArmControl extends CommandBase {
     arm.setUpperAngle(Rotation2d.fromDegrees(upperSetpoint));
     arm.setExtensionLength(extensionSetpoint);
 
+    // arm.openLoopset(MathUtil.applyDeadband(lowerAdjustmentSupplier.get(), Xbox.JOYSTICK_DEADBAND), MathUtil.applyDeadband(upperAdjustmentSupplier.get(), Xbox.JOYSTICK_DEADBAND), extensionExtendSupplier.get() - extensionRetractSupplier.get());
+
     // reset the timer so it tracks the time it takes to reach this again
     timer.reset();
   }

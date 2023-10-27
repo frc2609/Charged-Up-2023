@@ -44,7 +44,7 @@ public class Robot extends TimedRobot {
     robotContainer = new RobotContainer();
     robotContainer.setArmBrake(true);
     PathPlannerServer.startServer(Constants.Autonomous.PATHPLANNER_SERVER_PORT);
-
+    SmartDashboard.putBoolean("Arm Brake", true);
     enabledLooper = new Looper();
     try {
       enabledLooper.register(robotContainer.getArmLoop());
