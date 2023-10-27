@@ -18,37 +18,34 @@ public class BeaverLogger {
 	HashMap<String, DoubleLogEntry> logEntryMap = new HashMap<String, DoubleLogEntry>();
 	final DataLog log = DataLogManager.getLog();
 	
-  public BeaverLogger() {
-    for (String key : loggingMap.keySet()) {
-			logEntryMap.put(key, new DoubleLogEntry(log, key));
-		}
-	}
+  public BeaverLogger() {}
 	
   public void addLoggable(String name, Supplier<Double> supplier, boolean toSmartDash) {
 		if (toSmartDash) {
 			smartDashboardMap.put(name, supplier);
 		} else {
 			loggingMap.put(name, supplier);
+			logEntryMap.put(name, new DoubleLogEntry(log, name));
 		}
 	}
 
 	public void logAll() {
-    	// Logging values in smartDashboardMap
-    	for (String key : smartDashboardMap.keySet()) {
-    	    Double value = smartDashboardMap.get(key).get();
-			    SmartDashboard.putNumber(key, value);
-    	    // You can use your actual method for sending data to SmartDashboard here
-    	}
-    	// Logging values in loggingMap
-    	for (String key : loggingMap.keySet()) {
-    	    Double value = loggingMap.get(key).get();
-			    DoubleLogEntry entry = logEntryMap.get(key);
-        if (entry == null) {
-          DataLogManager.log(String.format("key: %s not found in logEntryMap", key));
-        } else {
-          entry.append(value);
-        }
-    	}
+    // Logging values in smartDashboardMap
+    for (String key : smartDashboardMap.keySet()) {
+        Double value = smartDashboardMap.get(key).get();
+        SmartDashboard.putNumber(key, value);
+        // You can use your actual method for sending data to SmartDashboard here
+    }
+    // Logging values in loggingMap
+    for (String key : loggingMap.keySet()) {
+        Double value = loggingMap.get(key).get();
+        DoubleLogEntry entry = logEntryMap.get(key);
+      if (entry == null) {
+        DataLogManager.log(String.format("key: %s not found in logEntryMap", key));
+      } else {
+        entry.append(value);
+      }
+    }
 	}
 }
 

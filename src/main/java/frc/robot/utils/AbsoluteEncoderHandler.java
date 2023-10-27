@@ -4,13 +4,20 @@
 
 package frc.robot.utils;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.RobotController;
 
 /** Makes absolute encoders a bit easier to use. */
-public class AbsoluteEncoderHandler {
+public class AbsoluteEncoderHandler implements AutoCloseable {
+    private static final ArrayList<AbsoluteEncoderHandler> absoluteEncoders = new ArrayList<AbsoluteEncoderHandler>();
     private final DutyCycleEncoder encoder;
     private final double positionOffset;
     private final double positionConversionFactor;
+    private double previousPosition;
+    private double previousTime;
+    private double velocity = 0;
 
     /**
      * Create a new AbsoluteEncoderHandler
@@ -22,8 +29,26 @@ public class AbsoluteEncoderHandler {
         encoder = new DutyCycleEncoder(encoderDIOID);
         this.positionOffset = positionOffset;
         this.positionConversionFactor = positionConversionFactor;
-
         encoder.setDistancePerRotation(positionConversionFactor);
+
+        previousPosition = getPosition();
+        previousTime = RobotController.getFPGATime();
+
+        absoluteEncoders.add(this);
+    }
+    
+    @Override
+    public void close() {
+        absoluteEncoders.remove(this);
+    }
+
+    /**
+     * You should call this in robotPeriodic, or all velocities will be inaccurate!
+     */
+    public static void updateAllVelocities() {
+        for (AbsoluteEncoderHandler absoluteEncoder : absoluteEncoders) {
+            absoluteEncoder.updateVelocity();
+        }
     }
 
     public double getRawValue() {
@@ -32,5 +57,18 @@ public class AbsoluteEncoderHandler {
 
     public double getPosition() {
         return encoder.getDistance() - (positionOffset * positionConversionFactor);
+    }
+
+    /* This should be tested before use. */
+    public double getVelocity() {
+        return velocity;
+    }
+
+    protected void updateVelocity() {
+        final double position = getPosition();
+        final double time = RobotController.getFPGATime();
+        velocity = (position - previousPosition) / (time - previousTime);
+        previousPosition = position;
+        previousTime = time;
     }
 }

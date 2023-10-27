@@ -5,11 +5,15 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.MP.Loop;
 import frc.robot.Constants.Xbox;
+import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.subsystems.Arm;
+import frc.robot.utils.BeaverLogger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -35,7 +39,11 @@ public class RobotContainer {
   private final CommandXboxController driverController = new CommandXboxController(Xbox.driverControllerPort);
   private final CommandXboxController operatorController = new CommandXboxController(Xbox.operatorControllerPort);
 
+  private final PowerDistribution powerDistribution;
+
   // private final SwerveAutoBuilder m_autoBuilder;
+
+  private final BeaverLogger logger = new BeaverLogger();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -44,9 +52,17 @@ public class RobotContainer {
     CameraServer.startAutomaticCapture();
     arm = new Arm();
 
+    if (RobotBase.isReal()) {
+      powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
+    } else {
+      powerDistribution = null;
+    }
+
     configureButtonBindings();
+    configureDefaultCommands();
     configureEventMap();
     // configurePathChooser();
+    configureLoggedData();
 
     // m_autoBuilder = new SwerveAutoBuilder(
     //     m_swerveDrive::getPose,
@@ -69,6 +85,16 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {}
+
+  private void configureDefaultCommands() {
+    arm.setDefaultCommand(new ManualArmControl(
+        arm,
+        operatorController::getLeftY,
+        () -> -operatorController.getRightY(),
+        operatorController::getLeftTriggerAxis,
+        operatorController::getRightTriggerAxis
+    ));
+  }
 
   /**
    * Add markers to the autonomous event map.
@@ -99,6 +125,13 @@ public class RobotContainer {
   //   m_pathChooser.addOption("ClearSide2piece", PathPlanner.loadPath("ClearSide2piece", constraints));
   //   SmartDashboard.putData(m_pathChooser);
   // }
+
+  private void configureLoggedData() {
+    if (powerDistribution != null) {
+      logger.addLoggable("PDP Voltage", powerDistribution::getVoltage, false);
+      logger.addLoggable("PDP Total Current", powerDistribution::getTotalCurrent, false);
+    }
+  }
 
   /**
    * Disable driver control of the drivetrain.
@@ -157,5 +190,8 @@ public class RobotContainer {
   /**
    * Update NetworkTables values set by RobotContainer.
    */
-  public void updateNetworkTables() {}
+  public void updateNetworkTables() {
+    arm.logger.logAll();
+    logger.logAll();
+  }
 }

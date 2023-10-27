@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.MP.Looper;
 import frc.robot.subsystems.LED;
+import frc.robot.utils.AbsoluteEncoderHandler;
+import frc.robot.utils.TunableNumber;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -68,6 +70,7 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
     LED.getInstance().periodic();
+    AbsoluteEncoderHandler.updateAllVelocities();
     robotContainer.updateNetworkTables();
   }
 
@@ -76,13 +79,15 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     robotContainer.setArmBrake(true);
     // robotContainer.setRotationBrake(true);
-    SmartDashboard.putBoolean("Arm Brake", true);
+    // SmartDashboard.putBoolean("Arm Brake", true);
     // SmartDashboard.putBoolean("Rotation Brake", true);
 		enabledLooper.stop();
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    robotContainer.setArmBrake(SmartDashboard.getBoolean("Arm Brake", true));
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -115,7 +120,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     robotContainer.enableTeleopControl();
-    robotContainer.setArmBrake(false);
+    robotContainer.setArmBrake(true);
     // robotContainer.setRotationBrake(true);
     
 		enabledLooper.start();
@@ -134,7 +139,15 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    /* 
+     * You need to switch back to disabled, teleop, or autonomous before most
+     * of the changes are actually applied (e.g. in 'Arm.java', periodic()
+     * doesn't run during test mode, so the PID constants won't change in test
+     * mode).
+     */
+    TunableNumber.updateAll();
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override

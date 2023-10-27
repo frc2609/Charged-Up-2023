@@ -4,13 +4,15 @@
 
 package frc.robot.utils;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /** Add your docs here. */
 public class ArmKinematics {
     // Link lengths and joint angles
     private static final double l1 = 0.7; // length of lower link
     private static final double l2 = 0.7; // length of upper link
 
-    // Link masses and CoM positions from base
+    // Link masses and CoM positions from base (up +, down -)
     private static final double m1 = 1.448;
     private static final double r1 = -0.6536; // center of mass of lower link
     private static final double m2 = 1.31096512;
@@ -32,13 +34,26 @@ public class ArmKinematics {
         double theta1 = thetas[0];
         double theta2 = thetas[1];
         double d3 = thetas[2];
+
         // Z-coordinates of each link's CoM
-        double z1 = l1 * Math.sin(theta1) + r1;
-        double z2 = z1 + l2 * Math.sin(theta1 + theta2) + r2;
+        // double z1 = l1 * Math.sin(theta1) + r1;
+        // double z2 = z1 + l2 * Math.sin(theta1 + theta2) + r2;
+        // double z3 = z2 + d3 + r3;
+
+        double z1 = (l1+ r1) * Math.cos(theta1);
+        double z2 = z1 + l2 * Math.cos(theta1 + theta2) + r2;
         double z3 = z2 + d3 + r3;
 
+        SmartDashboard.putNumber("Lower COM", z1);
+        SmartDashboard.putNumber("Upper COM", z2);
+        SmartDashboard.putNumber("Ext COM", z3);
+
         // Gravitational torques
-        double tau1 = -g * (m1 * z1 + m2 * (z1 + z2) + m3 * (z1 + z2 + z3));
+        // double tau1 = -g * (m1 * z1 + m2 * (z1 + z2) + m3 * (z1 + z2 + z3));
+        // double tau2 = -g * (m2 * z2 + m3 * (z2 + z3));
+        // double tau3 = -g * m3 * z3;
+
+        double tau1 = -g * (m1 * z1); //+ m2 * (z1 + z2) + m3 * (z1 + z2 + z3));
         double tau2 = -g * (m2 * z2 + m3 * (z2 + z3));
         double tau3 = -g * m3 * z3;
 

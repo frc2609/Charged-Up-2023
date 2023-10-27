@@ -46,12 +46,12 @@ public final class Constants {
 
             /** Measure at 90 degrees (pointing straight up). */
             public static final double lowerPositionOffset = 0.667 - (90.0 / lowerPositionConversion); // +- 0.002
-            /** Measure at 90 degrees (parallel with the robot frame). */
-            public static final double upperPositionOffset = 0.526 - (90.0 / upperPositionConversion); // +- 0.003
+            /** Measure at 0 degrees (parallel with the robot frame). */
+            public static final double upperPositionOffset = 0.526; // - (90.0 / upperPositionConversion); // +- 0.003
             /** Measure at 90 degrees (pointing straight up). */
             public static final double lowerBackupPositionOffset = 0.505 - (90.0 / lowerBackupPositionConversion); // +- 0.003
-            /** Measure at 90 degrees (parallel with the robot frame). */
-            public static final double upperBackupPositionOffset = 0.983 - (90.0 / upperBackupPositionConversion); // +- 0.005
+            /** Measure at 0 degrees (parallel with the robot frame). */
+            public static final double upperBackupPositionOffset = 0.983; // - (90.0 / upperBackupPositionConversion); // +- 0.005
 
             /** How many metres the extension extends per motor rotation. */
             public static final double extensionPositionConversion = Ratios.EXTENSION_MOTOR * Measurements.EXTENSION_PULLEY_CIRCUMFERENCE;
