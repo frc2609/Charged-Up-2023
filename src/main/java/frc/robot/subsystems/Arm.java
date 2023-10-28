@@ -13,9 +13,9 @@ import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
+// import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -31,6 +31,7 @@ import frc.robot.Constants.Arm.Measurements;
 import frc.robot.Constants.Arm.SoftStop;
 import frc.robot.Constants.Arm.Tolerances;
 import frc.robot.utils.AbsoluteEncoderHandler;
+import frc.robot.utils.ArmFeedForward;
 import frc.robot.utils.ArmKinematics;
 import frc.robot.utils.BeaverLogger;
 import frc.robot.utils.TunableNumber;
@@ -48,10 +49,10 @@ public class Arm extends SubsystemBase {
   private final MechanismLigament2d lowerArmLigament = mechanismRoot.append(new MechanismLigament2d("Lower Arm", getLowerArmLength(), 0));
   private final MechanismLigament2d upperArmLigament = lowerArmLigament.append(new MechanismLigament2d("Upper Arm + Extension", getUpperArmLength(), 0));
 
-  private PIDController lowerPID = new PIDController(0.001, 0, 0);
-  private PIDController upperPID = new PIDController(0.001, 0, 0);
-  private SimpleMotorFeedforward lowerFF = new SimpleMotorFeedforward(0.0, 0.002);
-  private SimpleMotorFeedforward upperFF = new SimpleMotorFeedforward(0.0, 0.002);
+  private PIDController lowerPID = new PIDController(0.1, 0, 0);
+  private PIDController upperPID = new PIDController(0.1, 0, 0);
+  private ArmFeedForward lowerFF = new ArmFeedForward(0.03, 0.0);
+  private ArmFeedForward upperFF = new ArmFeedForward(-0.09, 0.0);
 
   private final TunableNumber lowerPID_P = new TunableNumber("arm/pid/lower_p", lowerPID.getP());
   private final TunableNumber lowerPID_I = new TunableNumber("arm/pid/lower_i", lowerPID.getI());
@@ -69,11 +70,15 @@ public class Arm extends SubsystemBase {
 
   private double lowerSetpoint, upperSetpoint, extensionSetpoint = 0;
 
+  // public boolean isMP = false;
+  // public double[][] currentPath = new double[][]{{0.0,0.0,0.0},{0.0,0.0,0.0}};
+  // public double startTime;
+  // public boolean isReverse = false;
+
   public final BeaverLogger logger;
 
   private final Loop loop = new Loop() {
     // int i = 0;
-    // Arm _arm;
     @Override
     public void onStart() {
       DataLogManager.log("Starting Arm Loops");
@@ -83,6 +88,33 @@ public class Arm extends SubsystemBase {
     public void onLoop() {
       synchronized (Arm.this){
         // arm logic here
+        // synchronized (ArmGripper.this){
+        // if(isMP){
+          // i=(int) (Math.ceil((Timer.getFPGATimestamp()-startTime)*50)); // 50 loops per second = 0.02 seconds per loop
+        //   System.out.println("ARM LOOP RUNNING path  len: " + Integer.toString(currentPath.length));
+        //   System.out.println("I = " + Integer.toString(i));
+        //   if(i <= currentPath.length-1){
+        //     if(isReverse){
+        //       setLowerTargetAngle(currentPath[getReverseIndex(i)][0]);
+        //       setUpperTargetAngle(currentPath[getReverseIndex(i)][1]);
+        //       setExtensionTargetLength(currentPath[getReverseIndex(i)][2]);
+        //       System.out.println(currentPath[i]);
+        //       log(currentPath[getReverseIndex(i)]);
+        //     }else{
+        //       setLowerTargetAngle(currentPath[i][0]);
+        //       setUpperTargetAngle(currentPath[i][1]);
+        //       setExtensionTargetLength(currentPath[i][2]);
+        //       System.out.println(currentPath[i]);
+        //       log(currentPath[i]);
+        //     }
+        //   }else{
+        //     isMP = false;
+        //     i = 0;
+          // }
+
+        // }else{
+        //   i = 0;
+        // }
       }
     }
 
@@ -115,6 +147,7 @@ public class Arm extends SubsystemBase {
   public void periodic() {
     // mechanism2d
     lowerArmLigament.setAngle(getLowerAngle());
+    // mechanism2d expects 0 degrees to be in a different place than our encoder
     upperArmLigament.setAngle(Rotation2d.fromDegrees(getUpperAngle().getDegrees() - 90.0));
     upperArmLigament.setLength(getUpperArmLength());
 
@@ -123,7 +156,7 @@ public class Arm extends SubsystemBase {
     }
 
     if (lowerF_s.hasChanged() || lowerF_v.hasChanged()) {
-      lowerFF = new SimpleMotorFeedforward(lowerF_s.get(), lowerF_v.get());
+      lowerFF = new ArmFeedForward(lowerF_s.get(), lowerF_v.get());
     }
 
     if (upperPID_P.hasChanged() || upperPID_I.hasChanged() || upperPID_D.hasChanged()) {
@@ -131,19 +164,20 @@ public class Arm extends SubsystemBase {
     }
 
     if (upperF_s.hasChanged() || upperF_v.hasChanged()) {
-      upperFF = new SimpleMotorFeedforward(upperF_s.get(), upperF_v.get());
+      upperFF = new ArmFeedForward(upperF_s.get(), upperF_v.get());
     }
     
+    // we use feedforward on the current position; feedforward will hold the current position and is never affected by the setpoint
     double[] gravity = ArmKinematics.gravitationalTorques(getLowerAngle().getDegrees(), getUpperAngle().getDegrees(), getExtensionDistance());
-    double lowerOutput = lowerPID.calculate(getLowerAngle().getDegrees())- lowerFF.calculate(gravity[0]);
-    double upperOutput = upperPID.calculate(getUpperAngle().getDegrees())+ upperFF.calculate(gravity[1]);
+    double lowerOutput = lowerPID.calculate(getLowerAngle().getDegrees()) - lowerFF.calculate(gravity[0]);
+    double upperOutput = upperPID.calculate(getUpperAngle().getDegrees()) + upperFF.calculate(gravity[1]);
 
     SmartDashboard.putNumber("Lower Arm Gravity", gravity[0]);
     SmartDashboard.putNumber("Upper Arm Gravity", gravity[1]);
     SmartDashboard.putNumber("Extension Gravity", gravity[2]);
 
-    lowerMotor.set(lowerOutput);
-    upperMotor.set(upperOutput);
+    lowerMotor.setVoltage(lowerOutput);
+    upperMotor.setVoltage(upperOutput);
 
     this.logger.logAll();
   }

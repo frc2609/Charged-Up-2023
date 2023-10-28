@@ -71,15 +71,15 @@ public class ManualArmControl extends CommandBase {
     upperSetpoint += upperAdjustment * upperAcceleration * delta;
     extensionSetpoint += extensionAdjustment * extensionAcceleration * delta;
 
-    SmartDashboard.putNumber("delta", delta);
-    SmartDashboard.putNumber("lower setpoint", lowerSetpoint);
-    SmartDashboard.putNumber("upper setpoint", upperSetpoint);
-
     lowerSetpoint = lowerAdjustment == 0 ? arm.getLowerAngle().getDegrees() : lowerSetpoint;
     upperSetpoint = upperAdjustment == 0 ? arm.getUpperAngle().getDegrees() : upperSetpoint;
     extensionSetpoint = extensionAdjustment == 0 ? arm.getExtensionDistance() : extensionSetpoint;
 
     // TODO: clamp setpoints to max/min allowable values (so they don't just fly past the maximum)
+
+    SmartDashboard.putNumber("manual/lower_setpoint", lowerSetpoint);
+    SmartDashboard.putNumber("manual/upper_setpoint", upperSetpoint);
+    SmartDashboard.putNumber("manual/extension_setpoint", extensionSetpoint);
 
     arm.setLowerAngle(Rotation2d.fromDegrees(lowerSetpoint));
     arm.setUpperAngle(Rotation2d.fromDegrees(upperSetpoint));

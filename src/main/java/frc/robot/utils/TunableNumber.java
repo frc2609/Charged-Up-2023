@@ -39,7 +39,8 @@ public class TunableNumber implements AutoCloseable {
     public static void updateAll() {
         // it's not particularly necessary to do this periodically, instead
         // update the SmartDashboard value and check whether it has changed
-        // whenever 'hasChanged' is called
+        // whenever 'hasChanged' is called (just make sure to check the robot)
+        // is in an acceptable mode first (i.e. isDisabled())
         for (TunableNumber tunableNumber : tunableNumbers) {
             tunableNumber.update();
         }

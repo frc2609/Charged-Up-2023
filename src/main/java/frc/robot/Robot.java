@@ -87,6 +87,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     robotContainer.setArmBrake(SmartDashboard.getBoolean("Arm Brake", true));
+    TunableNumber.updateAll();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -139,15 +140,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {
-    /* 
-     * You need to switch back to disabled, teleop, or autonomous before most
-     * of the changes are actually applied (e.g. in 'Arm.java', periodic()
-     * doesn't run during test mode, so the PID constants won't change in test
-     * mode).
-     */
-    TunableNumber.updateAll();
-  }
+  public void testPeriodic() {}
 
   /** This function is called once when the robot is first started up. */
   @Override

@@ -16,7 +16,7 @@ public class ArmKinematics {
     private static final double m1 = 1.448;
     private static final double r1 = -0.6536; // center of mass of lower link
     private static final double m2 = 1.31096512;
-    private static final double r2 = -0.254; // center of mass of upper link
+    private static final double r2 = -0.354; // center of mass of upper link
     private static final double m3 = 1.245416864;
     private static final double r3 = -0.2413; // center of mass of extension link
 
@@ -41,8 +41,8 @@ public class ArmKinematics {
         // double z3 = z2 + d3 + r3;
 
         double x1 = (l1+ r1) * Math.cos(theta1);
-        double x2 = ((l1*Math.cos(theta1)) + ((l2+r2)* Math.sin(theta1 + theta2)))*-1;
-        double x3 = ((l1*Math.cos(theta1)) + ((l2+r2+d3)* Math.sin(theta1 + theta2)))*-1;
+        double x2 = ((l1*Math.cos(theta1)) + ((l2+r2)* Math.cos(theta1 + theta2)));
+        double x3 = ((l1*Math.cos(theta1)) + ((l2+d3+r3)* Math.cos(theta1 + theta2)));
 
         SmartDashboard.putNumber("Lower COM", x1);
         SmartDashboard.putNumber("Upper COM", x2);
@@ -63,8 +63,8 @@ public class ArmKinematics {
     public static double[] robotAngleToArray(double theta1, double theta2, double theta3) {
         return new double[]{
             Math.toRadians(theta1),
-            Math.toRadians(180 - theta2),
-            metersToInches(theta3)
+            Math.toRadians(theta2 - 90),
+            theta3
         };
     }
 
@@ -76,7 +76,7 @@ public class ArmKinematics {
         return new double[]{
             Math.toDegrees(arr[0]),
             Math.toDegrees(Math.toRadians(180) - arr[1]),
-            inchesToMeters(arr[2])
+            arr[2]
         };
     }
     
