@@ -81,7 +81,7 @@
               "Visuals/Orientation": "HORIZONTAL"
             }
           },
-          "11,1": {
+          "7,0": {
             "size": [
               1,
               1
@@ -408,6 +408,45 @@
               "_type": "Text View",
               "_source0": "network_table:///SmartDashboard/d3",
               "_title": "d3",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "7,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Lower COM",
+              "_title": "Lower COM",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "8,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Upper COM",
+              "_title": "Upper COM",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "9,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Ext COM",
+              "_title": "Ext COM",
               "_glyph": 148,
               "_showGlyph": false
             }
