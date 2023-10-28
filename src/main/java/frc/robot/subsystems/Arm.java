@@ -48,22 +48,22 @@ public class Arm extends SubsystemBase {
   private final MechanismLigament2d lowerArmLigament = mechanismRoot.append(new MechanismLigament2d("Lower Arm", getLowerArmLength(), 0));
   private final MechanismLigament2d upperArmLigament = lowerArmLigament.append(new MechanismLigament2d("Upper Arm + Extension", getUpperArmLength(), 0));
 
-  private PIDController lowerPID = new PIDController(0, 0, 0);
-  private PIDController upperPID = new PIDController(0, 0, 0);
-  private SimpleMotorFeedforward lowerFF = new SimpleMotorFeedforward(0.0, 0.0);
-  private SimpleMotorFeedforward upperFF = new SimpleMotorFeedforward(0.0, 0.0);
+  private PIDController lowerPID = new PIDController(0.001, 0, 0);
+  private PIDController upperPID = new PIDController(0.001, 0, 0);
+  private SimpleMotorFeedforward lowerFF = new SimpleMotorFeedforward(0.0, 0.002);
+  private SimpleMotorFeedforward upperFF = new SimpleMotorFeedforward(0.0, 0.002);
 
-  private final TunableNumber lowerPID_P = new TunableNumber("arm/pid/lower_p", 0.001);
-  private final TunableNumber lowerPID_I = new TunableNumber("arm/pid/lower_i", 0);
-  private final TunableNumber lowerPID_D = new TunableNumber("arm/pid/lower_d", 0);
-  private final TunableNumber lowerF_s = new TunableNumber("arm/pid/lower_ks", 0);
-  private final TunableNumber lowerF_v = new TunableNumber("arm/pid/lower_kv", 0.002);
+  private final TunableNumber lowerPID_P = new TunableNumber("arm/pid/lower_p", lowerPID.getP());
+  private final TunableNumber lowerPID_I = new TunableNumber("arm/pid/lower_i", lowerPID.getI());
+  private final TunableNumber lowerPID_D = new TunableNumber("arm/pid/lower_d", lowerPID.getD());
+  private final TunableNumber lowerF_s = new TunableNumber("arm/pid/lower_ks", lowerFF.ks);
+  private final TunableNumber lowerF_v = new TunableNumber("arm/pid/lower_kv", lowerFF.kv);
 
-  private final TunableNumber upperPID_P = new TunableNumber("arm/pid/upper_p", 0.001);
-  private final TunableNumber upperPID_I = new TunableNumber("arm/pid/upper_i", 0);
-  private final TunableNumber upperPID_D = new TunableNumber("arm/pid/upper_d", 0);
-  private final TunableNumber upperF_s = new TunableNumber("arm/pid/upper_ks", 0);
-  private final TunableNumber upperF_v = new TunableNumber("arm/pid/upper_kv", 0.002);
+  private final TunableNumber upperPID_P = new TunableNumber("arm/pid/upper_p", upperPID.getP());
+  private final TunableNumber upperPID_I = new TunableNumber("arm/pid/upper_i", upperPID.getI());
+  private final TunableNumber upperPID_D = new TunableNumber("arm/pid/upper_d", upperPID.getD());
+  private final TunableNumber upperF_s = new TunableNumber("arm/pid/upper_ks", lowerFF.ks);
+  private final TunableNumber upperF_v = new TunableNumber("arm/pid/upper_kv", lowerFF.kv);
 
   private final SparkMaxPIDController extensionPID = extensionMotor.getPIDController();
 
@@ -146,12 +146,6 @@ public class Arm extends SubsystemBase {
     upperMotor.set(upperOutput);
 
     this.logger.logAll();
-  }
-  public void openLoopset(double lower, double upper, double extension){
-    
-    lowerMotor.setVoltage(lower*6);
-    upperMotor.setVoltage(upper*6);
-    extensionMotor.setVoltage(extension*6);
   }
 
   private void configureLoggedData() {
@@ -348,6 +342,14 @@ public class Arm extends SubsystemBase {
     setLowerAngle(lowerAngle);
     setUpperAngle(upperAngle);
     setExtensionLength(length);
+  }
+
+  // doesn't the PID & FF override this?
+  public void openLoopSetVoltage(double lower, double upper, double extension){
+    
+    lowerMotor.setVoltage(lower*6); // why is this multiplied by 6
+    upperMotor.setVoltage(upper*6);
+    extensionMotor.setVoltage(extension*6);
   }
 
   public void stopAllMotors() {
