@@ -11,8 +11,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.MP.Loop;
 import frc.robot.Constants.Xbox;
-import frc.robot.commands.arm.ManualArmControl;
+import frc.robot.commands.arm.ArmPositions;
+// import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.ManualDashboardArmControl;
+import frc.robot.commands.arm.MoveArmToPosition;
 import frc.robot.subsystems.Arm;
 import frc.robot.utils.BeaverLogger;
 
@@ -85,7 +87,9 @@ public class RobotContainer {
    * it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {}
+  private void configureButtonBindings() {
+    operatorController.x().onTrue(new MoveArmToPosition(arm, ArmPositions.testPosition, false));
+  }
 
   private void configureDefaultCommands() {
     // arm.setDefaultCommand(new ManualArmControl(

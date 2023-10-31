@@ -15,7 +15,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
-// import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -70,57 +70,57 @@ public class Arm extends SubsystemBase {
 
   private double lowerSetpoint, upperSetpoint, extensionSetpoint = 0;
 
-  // public boolean isMP = false;
-  // public double[][] currentPath = new double[][]{{0.0,0.0,0.0},{0.0,0.0,0.0}};
-  // public double startTime;
-  // public boolean isReverse = false;
+  public boolean isEnabled = false;
+  public double[][] currentPath = new double[][] {{0.0,0.0,0.0},{0.0,0.0,0.0}};
+  public double startTime;
+  public boolean isReverse = false;
 
   public final BeaverLogger logger;
 
   private final Loop loop = new Loop() {
-    // int i = 0;
+    int i = 0;
+    
     @Override
     public void onStart() {
       DataLogManager.log("Starting Arm Loops");
+      logger.addLoggable("Arm Loop Path Length", () -> (double) currentPath.length, false);
+      logger.addLoggable("Arm Loop Index", () -> (double) i, false);
     }
 
     @Override
     public void onLoop() {
-      synchronized (Arm.this){
-        // arm logic here
-        // synchronized (ArmGripper.this){
-        // if(isMP){
-          // i=(int) (Math.ceil((Timer.getFPGATimestamp()-startTime)*50)); // 50 loops per second = 0.02 seconds per loop
-        //   System.out.println("ARM LOOP RUNNING path  len: " + Integer.toString(currentPath.length));
-        //   System.out.println("I = " + Integer.toString(i));
-        //   if(i <= currentPath.length-1){
-        //     if(isReverse){
-        //       setLowerTargetAngle(currentPath[getReverseIndex(i)][0]);
-        //       setUpperTargetAngle(currentPath[getReverseIndex(i)][1]);
-        //       setExtensionTargetLength(currentPath[getReverseIndex(i)][2]);
-        //       System.out.println(currentPath[i]);
-        //       log(currentPath[getReverseIndex(i)]);
-        //     }else{
-        //       setLowerTargetAngle(currentPath[i][0]);
-        //       setUpperTargetAngle(currentPath[i][1]);
-        //       setExtensionTargetLength(currentPath[i][2]);
-        //       System.out.println(currentPath[i]);
-        //       log(currentPath[i]);
-        //     }
-        //   }else{
-        //     isMP = false;
-        //     i = 0;
-          // }
-
-        // }else{
-        //   i = 0;
-        // }
+      synchronized (Arm.this) {
+        if (isEnabled) {
+          i = (int) (Math.ceil((Timer.getFPGATimestamp() - startTime) * 50)); // 50 loops per second = 0.02 seconds per loop
+          if (i <= currentPath.length - 1) {
+            // while there are still setpoints left
+            if (isReverse) {
+              setLowerAngle(Rotation2d.fromDegrees(currentPath[getReverseIndex(i)][0]));
+              setUpperAngle(Rotation2d.fromDegrees(currentPath[getReverseIndex(i)][1]));
+              setExtensionLength(currentPath[getReverseIndex(i)][2]);
+              // log(currentPath[getReverseIndex(i)]);
+            } else {
+              setLowerAngle(Rotation2d.fromDegrees(currentPath[i][0]));
+              setUpperAngle(Rotation2d.fromDegrees(currentPath[i][1]));
+              setExtensionLength(currentPath[i][2]);
+              // log(currentPath[i]);
+            }
+          } else {
+            // stop the profile when the end is reached
+            isEnabled = false;
+            i = 0;
+          }
+        }
       }
     }
 
     @Override
     public void onStop() {
       DataLogManager.log("Ending Arm Loops");
+    }
+
+    public int getReverseIndex(int i) {
+      return (currentPath.length - 1) - i;
     }
   };
   
@@ -141,6 +141,10 @@ public class Arm extends SubsystemBase {
     configureLoggedData();
     configureMotors();
     configurePIDs();
+
+    lowerSetpoint = getLowerAngle().getDegrees();
+    upperSetpoint = getUpperAngle().getDegrees();
+    extensionSetpoint = getExtensionDistance();
   }
 
   @Override
