@@ -28,7 +28,11 @@ public class ManualDashboardArmControl extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    SmartDashboard.putNumber("manual_dashboard/lower_setpoint", arm.getLowerAngle().getDegrees());
+    SmartDashboard.putNumber("manual_dashboard/upper_setpoint", arm.getUpperAngle().getDegrees());
+    SmartDashboard.putNumber("manual_dashboard/extension_setpoint", arm.getExtensionDistance());
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override

@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.MP.Loop;
 import frc.robot.Constants.Xbox;
 import frc.robot.commands.arm.ManualArmControl;
+import frc.robot.commands.arm.ManualDashboardArmControl;
 import frc.robot.subsystems.Arm;
 import frc.robot.utils.BeaverLogger;
 
@@ -87,13 +88,14 @@ public class RobotContainer {
   private void configureButtonBindings() {}
 
   private void configureDefaultCommands() {
-    arm.setDefaultCommand(new ManualArmControl(
-        arm,
-        operatorController::getLeftY,
-        () -> -operatorController.getRightY(),
-        operatorController::getLeftTriggerAxis,
-        operatorController::getRightTriggerAxis
-    ));
+    // arm.setDefaultCommand(new ManualArmControl(
+    //     arm,
+    //     operatorController::getLeftY,
+    //     () -> -operatorController.getRightY(),
+    //     operatorController::getLeftTriggerAxis,
+    //     operatorController::getRightTriggerAxis
+    // ));
+    arm.setDefaultCommand(new ManualDashboardArmControl(arm));
   }
 
   /**
