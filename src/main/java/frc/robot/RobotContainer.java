@@ -15,7 +15,9 @@ import frc.robot.commands.arm.ArmPositions;
 // import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.ManualDashboardArmControl;
 import frc.robot.commands.arm.MoveArmToPosition;
+import frc.robot.commands.gripper.ManualGripperControl;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Gripper;
 import frc.robot.utils.BeaverLogger;
 
 /**
@@ -38,6 +40,7 @@ public class RobotContainer {
    * multiple things at once, which may potentially cause issues.
    */
   private final Arm arm;
+  private final Gripper gripper;
 
   private final CommandXboxController driverController = new CommandXboxController(Xbox.driverControllerPort);
   private final CommandXboxController operatorController = new CommandXboxController(Xbox.operatorControllerPort);
@@ -54,6 +57,7 @@ public class RobotContainer {
   public RobotContainer() {
     CameraServer.startAutomaticCapture();
     arm = new Arm();
+    gripper = new Gripper();
 
     if (RobotBase.isReal()) {
       powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
@@ -100,6 +104,7 @@ public class RobotContainer {
     //     operatorController::getRightTriggerAxis
     // ));
     arm.setDefaultCommand(new ManualDashboardArmControl(arm));
+    gripper.setDefaultCommand(new ManualGripperControl(gripper, operatorController.leftBumper(), operatorController.rightBumper(), true));
   }
 
   /**
