@@ -5,8 +5,8 @@
 package frc.robot.commands.arm;
 
 /** Add your docs here. */
-public class ArmPositions {
-  public static final double[][] testPosition = new double[][] {
+public class ArmPaths {
+  public static final double[][] testPath = new double[][] {
     {104.6,248.91,0.0},
 {104.411493700387,247.96133428795116,0.0},
 {103.93232209514703,245.25642426053813,0.0},
