@@ -27,7 +27,7 @@ import frc.robot.Constants.CurrentLimits;
 
 /** Add your docs here. */
 public class SwerveMotorGroup {
-  private double prevVel = 0;
+  // private double prevVel = 0;
   public class ECVT{
     private RelativeEncoder ringEncoder, sunEncoder;
     // private final double sunTeeth = 36.0;
@@ -269,7 +269,7 @@ public class SwerveMotorGroup {
       m_primaryMotor.set(0);
     }
     
-    prevVel = speedMetersPerSecond;
+    // prevVel = speedMetersPerSecond;
     prevTime = Timer.getFPGATimestamp();
     // m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (boostThrottle * (driveVoltage/driveVoltage)) : 0);
   }

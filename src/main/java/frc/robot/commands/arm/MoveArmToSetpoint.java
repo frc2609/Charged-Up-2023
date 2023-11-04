@@ -77,6 +77,7 @@ public class MoveArmToSetpoint extends CommandBase {
     double lowerError = arm.getLowerAngle().getDegrees() - lowerSetpoint;
     double upperError = arm.getUpperAngle().getDegrees() - upperSetpoint;
     double extensionError = arm.getExtensionDistance() - extensionSetpoint;
+    // there is arm.lowerAtSetpoint() you know
     boolean isLowerInTolerance = Math.abs(lowerError) < Tolerances.lowerAngle; 
     boolean isUpperInTolerance = Math.abs(upperError) < Tolerances.upperAngle;
     boolean isExtensionInTolerance = Math.abs(extensionError) < Tolerances.extensionLength;

@@ -34,12 +34,12 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import edu.wpi.first.wpilibj2.command.InstantCommand;
 // import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
  * Controls all swerve drive modules.
@@ -54,7 +54,7 @@ public class SwerveDrive extends SubsystemBase {
    * <p> The yaw should only be used for updating odometry.
    */
   private static AHRS m_navx;
-  private final XboxController m_driverController;
+  private final CommandXboxController m_driverController;
 
   // x and y are relative to robot (x front/rear, y left/right)
   // private final SlewRateLimiter m_xSpeedLimiter = new SlewRateLimiter(X_SPEED_DELAY);
@@ -126,7 +126,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /** Creates a new SwerveDrive. */
-  public SwerveDrive(XboxController driverController) {
+  public SwerveDrive(CommandXboxController driverController) {
     m_driverController = driverController;
     try {
       m_navx = new AHRS(SerialPort.Port.kMXP);
@@ -434,7 +434,7 @@ public class SwerveDrive extends SubsystemBase {
     //         m_driverController.getRightX(), Xbox.JOYSTICK_DEADBAND))
     //             * TeleopLimits.MAX_ANGULAR_VELOCITY; // radians / second
 
-    m_maxSpeedEnabled = m_driverController.getAButton();
+    m_maxSpeedEnabled = m_driverController.a().getAsBoolean();
     // this does not actually limit boost to 50% of its speed (see SwerveMotorGroup)
     m_boostThrottle = m_driverController.getRightTriggerAxis() * 0.75; // / 2.0; // [0,0.5]
     m_torqueThrottle = m_driverController.getLeftTriggerAxis() * 0.3;

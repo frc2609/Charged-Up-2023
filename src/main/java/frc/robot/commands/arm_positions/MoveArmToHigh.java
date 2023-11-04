@@ -1,19 +1,39 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
 package frc.robot.commands.arm_positions;
 
-import static frc.robot.Constants.Arm.Position.*;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.arm.MoveArmToSetpoint;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.arm.ArmPaths;
+import frc.robot.commands.arm.ManualArmControl;
+import frc.robot.commands.arm.MoveArmToPosition;
 import frc.robot.subsystems.Arm;
 
 public class MoveArmToHigh extends SequentialCommandGroup {
-
   /** Creates a new MoveArmToHigh. */
   public MoveArmToHigh(Arm arm) {
     addCommands(
-        // move arm away from ground
-        new MoveArmToSetpoint(RETRACT_LOWER, RETRACT_UPPER, RETRACT_EXTENSION, false, false, true, arm),
-        new MoveArmToSetpoint(HIGH_LOWER, HIGH_UPPER, 0.0, false, false, true, arm),
-        new MoveArmToSetpoint(0.0, 0.0, HIGH_EXTENSION, true, true, false, arm)
+        new MoveArmToPosition(arm, ArmPaths.stowToIntToHigh, false)
+    );
+  }
+  
+  /** Creates a MoveArmToHigh that runs the path in reverse when the supplied
+   * trigger becomes true. */
+  public MoveArmToHigh(Arm arm, Trigger reverseButton, CommandXboxController operatorController) {
+    this(arm); // copy the forward path
+    addCommands(
+        // wait for reverse trigger
+        new ParallelDeadlineGroup(
+            Commands.waitUntil(reverseButton::getAsBoolean),
+            new ManualArmControl(arm, operatorController)
+        ),
+        // follow path in reverse
+        new MoveArmToPosition(arm, ArmPaths.stowToIntToHigh, true)
     );
   }
 }

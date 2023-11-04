@@ -25,15 +25,16 @@ import frc.robot.Constants.Autonomous;
 import frc.robot.Constants.Xbox;
 import frc.robot.Constants.Swerve.AutonomousLimits;
 import frc.robot.commands.arm.ManualArmControl;
-import frc.robot.commands.arm_positions.MoveArmToLow;
-// import frc.robot.commands.arm_positions.MoveArmToLow;
+// import frc.robot.commands.arm.ManualDashboardArmControl;
 import frc.robot.commands.arm_positions.MoveArmToStow;
-import frc.robot.commands.arm_positions.ShortThrowMid;
-import frc.robot.commands.arm_positions.StowMidToHigh;
+import frc.robot.commands.arm_positions.MoveArmToHigh;
+import frc.robot.commands.arm_positions.MoveArmToMid;
 import frc.robot.commands.auto.ScoreConeHigh;
-import frc.robot.commands.gripper.AutoGroundPickup;
-import frc.robot.commands.gripper.AutoShelfPickup;
+import frc.robot.commands.autogripper.AutoGroundPickup;
+import frc.robot.commands.autogripper.AutoScoreLow;
+import frc.robot.commands.autogripper.AutoShelfPickup;
 import frc.robot.commands.swerve.Autobalance;
+import frc.robot.commands.swerve.ManualDrive;
 import frc.robot.commands.utility.QueueCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
@@ -80,7 +81,7 @@ public class RobotContainer {
     // CameraServer.startAutomaticCapture();
     arm = new Arm();
     gripper = new Gripper();
-    drive = new SwerveDrive(null);
+    drive = new SwerveDrive(driverController);
     drive.resetModuleEncoders();
 
     if (RobotBase.isReal()) {
@@ -125,11 +126,12 @@ public class RobotContainer {
     operatorController.start().onTrue(new InstantCommand(() -> {}, arm));
     operatorController.leftBumper().onTrue(new InstantCommand(gripper::openGripper));
     operatorController.rightBumper().onTrue(new InstantCommand(gripper::closeGripper));
-    operatorController.a().onTrue(new MoveArmToLow(arm));
-    operatorController.b().onTrue(new QueueCommand(executeQueuedCommand, new ShortThrowMid(arm, reverseArmPath, operatorController)));
-    operatorController.y().onTrue(new QueueCommand(executeQueuedCommand, new StowMidToHigh(arm, reverseArmPath, operatorController)));
+    operatorController.a().onTrue(new AutoScoreLow(arm, gripper));
+    operatorController.b().onTrue(new QueueCommand(executeQueuedCommand, new MoveArmToMid(arm, reverseArmPath, operatorController)));
+    operatorController.y().onTrue(new QueueCommand(executeQueuedCommand, new MoveArmToHigh(arm, reverseArmPath, operatorController)));
     operatorController.x().onTrue(new MoveArmToStow(arm));
     // LEDs
+    // DO NOT WORK!
     // blink LEDs while held
     operatorController.leftStick().whileTrue(new InstantCommand(LED.getInstance()::setUrgentCone));
     // set solid while not held (when button no longer held sets to solid)
@@ -141,6 +143,7 @@ public class RobotContainer {
   private void configureDefaultCommands() {
     arm.setDefaultCommand(new ManualArmControl(arm, operatorController));
     // arm.setDefaultCommand(new ManualDashboardArmControl(arm));
+    drive.setDefaultCommand(new ManualDrive(drive));
   }
 
   /**
@@ -167,7 +170,7 @@ public class RobotContainer {
     pathChooser.setDefaultOption("ScoreThenAutobalance", PathPlanner.loadPath("ScoreThenAutobalance", constraints));
     pathChooser.addOption("ScoreThenDriveOut", PathPlanner.loadPath("ScoreThenDriveOut", constraints));
     pathChooser.addOption("ScoreThenDriveOutAndRotate",
-        PathPlanner.loadPath("ScoreThenDriveOutAndRotate", constraints));
+        PathPlanner.loadPath("ScoreThenDriveOutAndRotateBump", constraints));
     pathChooser.addOption("ConeCubeAuto", PathPlanner.loadPath("ConeCubeAuto", constraints));
     pathChooser.addOption("ClearSide2piece", PathPlanner.loadPath("ClearSide2piece", constraints));
     SmartDashboard.putData(pathChooser);
@@ -235,7 +238,6 @@ public class RobotContainer {
    * Update NetworkTables values set by RobotContainer.
    */
   public void updateNetworkTables() {
-    // arm.logger.logAll();
     logger.logAll();
   }
 }
