@@ -15,9 +15,9 @@ import frc.robot.commands.arm.ManualArmControl;
 import frc.robot.commands.arm.MoveArmToPosition;
 import frc.robot.subsystems.Arm;
 
-public class StowMidToHigh extends SequentialCommandGroup {
-  /** Creates a new StowMidToHigh. */
-  public StowMidToHigh(Arm arm) {
+public class StowToMidToHigh extends SequentialCommandGroup {
+  /** Creates a new StowToMidToHigh. */
+  public StowToMidToHigh(Arm arm) {
     addCommands(
         new MoveArmToPosition(arm, ArmPaths.longThrowPickup, false),
         new ParallelRaceGroup(new MoveArmToPosition(arm, ArmPaths.pickupToHigh, false), Commands.waitSeconds(2))
@@ -26,7 +26,7 @@ public class StowMidToHigh extends SequentialCommandGroup {
   
   /** Creates a StowMidToHigh that runs the path in reverse when the supplied
    * trigger becomes true. */
-  public StowMidToHigh(Arm arm, Trigger reverseButton, CommandXboxController operatorController) {
+  public StowToMidToHigh(Arm arm, Trigger reverseButton, CommandXboxController operatorController) {
     this(arm); // copy the forward path
     addCommands(
         // wait for reverse trigger
