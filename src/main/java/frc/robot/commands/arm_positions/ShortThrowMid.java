@@ -19,8 +19,7 @@ public class ShortThrowMid extends SequentialCommandGroup {
   /** Creates a new ShortThrowMid. */
   public ShortThrowMid(Arm arm) {
     addCommands(
-        new MoveArmToPosition(arm, ArmPaths.shortThrowMidPrep, false),
-        new ParallelRaceGroup(new MoveArmToPosition(arm, ArmPaths.reachMid, false), Commands.waitSeconds(2))
+        new ParallelRaceGroup(new MoveArmToPosition(arm, ArmPaths.stowToMid, false), Commands.waitSeconds(2))
     );
   }
 
@@ -35,8 +34,7 @@ public class ShortThrowMid extends SequentialCommandGroup {
         new ManualArmControl(arm, operatorController)
       ),
       // run path in reverse
-      new MoveArmToPosition(arm,  ArmPaths.reachMid, true),
-      new MoveArmToPosition(arm, ArmPaths.shortThrowMidPrep, true)
+      new MoveArmToPosition(arm,  ArmPaths.stowToMid, true)
     );
   }
 }
