@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.Xbox;
 import frc.robot.subsystems.Arm;
 
@@ -38,6 +39,9 @@ public class ManualArmControl extends CommandBase {
   private double lowerSetpoint; // degrees
   private double upperSetpoint; // degrees
   private double extensionSetpoint;
+  private boolean lowerControlledLastLoop = false;
+  private boolean upperControlledLastLoop = false;
+  private boolean extensionControlledLastLoop = false;
 
   /** Creates a new ManualArmControl. */
   public ManualArmControl(Arm arm, Supplier<Double> lowerAdjustmentSupplier, Supplier<Double> upperAdjustmentSupplier, Supplier<Double> extensionExtendSupplier, Supplier<Double> extensionRetractSupplier) {
@@ -48,6 +52,16 @@ public class ManualArmControl extends CommandBase {
     this.extensionRetractSupplier = extensionRetractSupplier;
 
     addRequirements(arm);
+  }
+  
+  public ManualArmControl(Arm arm, CommandXboxController controller) {
+    this(
+      arm,
+      controller::getLeftY,
+      () -> -controller.getRightY(),
+      controller::getLeftTriggerAxis,
+      controller::getRightTriggerAxis
+    );
   }
 
   // Called when the command is initially scheduled.
@@ -71,9 +85,27 @@ public class ManualArmControl extends CommandBase {
     upperSetpoint += upperAdjustment * upperAcceleration * delta;
     extensionSetpoint += extensionAdjustment * extensionAcceleration * delta;
 
-    lowerSetpoint = lowerAdjustment == 0 ? arm.getLowerAngle().getDegrees() : lowerSetpoint;
-    upperSetpoint = upperAdjustment == 0 ? arm.getUpperAngle().getDegrees() : upperSetpoint;
-    extensionSetpoint = extensionAdjustment == 0 ? arm.getExtensionDistance() : extensionSetpoint;
+    // reset setpoint to current position when it is no longer being adjusted
+    // only resets setpoint if the position was being controlled last loop to
+    // prevent the setpoint from drifting if the arm moves
+    if (lowerAdjustment != 0) {
+      lowerControlledLastLoop = true;
+    } else if (lowerControlledLastLoop) {
+      lowerSetpoint = arm.getLowerAngle().getDegrees();
+      lowerControlledLastLoop = false;
+    }
+    if (upperAdjustment != 0) {
+      upperControlledLastLoop = true;
+    } else if (upperControlledLastLoop) {
+      upperSetpoint = arm.getUpperAngle().getDegrees();
+      upperControlledLastLoop = false;
+    }
+    if (extensionAdjustment != 0) {
+      extensionControlledLastLoop = true;
+    } else if (extensionControlledLastLoop) {
+      extensionSetpoint = arm.getExtensionDistance();
+      extensionControlledLastLoop = false;
+    }
 
     // TODO: clamp setpoints to max/min allowable values (so they don't just fly past the maximum)
 
@@ -84,8 +116,6 @@ public class ManualArmControl extends CommandBase {
     arm.setLowerAngle(Rotation2d.fromDegrees(lowerSetpoint));
     arm.setUpperAngle(Rotation2d.fromDegrees(upperSetpoint));
     arm.setExtensionLength(extensionSetpoint);
-
-    // arm.openLoopset(MathUtil.applyDeadband(lowerAdjustmentSupplier.get(), Xbox.JOYSTICK_DEADBAND), MathUtil.applyDeadband(upperAdjustmentSupplier.get(), Xbox.JOYSTICK_DEADBAND), extensionExtendSupplier.get() - extensionRetractSupplier.get());
 
     // reset the timer so it tracks the time it takes to reach this again
     timer.reset();

@@ -4,6 +4,7 @@
 
 package frc.robot.commands.arm;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
 
@@ -16,8 +17,7 @@ public class MoveArmToPosition extends CommandBase {
   public MoveArmToPosition(Arm arm, double[][] path, boolean reverse) {
     this.arm = arm;
     this.path = path;
-    this.reverse = reverse;
-
+    this.reverse = reverse;    
     addRequirements(arm);
   }
 
@@ -26,6 +26,7 @@ public class MoveArmToPosition extends CommandBase {
   public void initialize() {
     arm.currentPath = path;
     arm.isReverse = reverse;
+    arm.startTime = Timer.getFPGATimestamp();
     arm.isEnabled = true;
   }
 
@@ -43,6 +44,15 @@ public class MoveArmToPosition extends CommandBase {
   @Override
   public boolean isFinished() {
     // this is set to false when the path is completed
-    return arm.isEnabled;
+    return !arm.isEnabled;
   }
+
+  // private double[][] fudgePath(double[][] path) {
+  //   // so the fudge factor isn't applied to the original path
+  //   double[][] fudgedPath = path.clone();
+  //   for (int i = 0; i < fudgedPath.length; i++) {
+  //     fudgedPath[i][1] = fudgedPath[i][1] - 90.0; // TODO: remove fudge factor
+  //   }
+  //   return fudgedPath;
+  // }
 }

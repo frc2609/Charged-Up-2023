@@ -26,8 +26,8 @@ import frc.robot.utils.TunableNumber;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private RobotContainer robotContainer;
-  
 	private Looper enabledLooper;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -44,7 +44,7 @@ public class Robot extends TimedRobot {
     robotContainer = new RobotContainer();
     robotContainer.setArmBrake(true);
     PathPlannerServer.startServer(Constants.Autonomous.PATHPLANNER_SERVER_PORT);
-    SmartDashboard.putBoolean("Arm Brake", true);
+
     enabledLooper = new Looper();
     try {
       enabledLooper.register(robotContainer.getArmLoop());
@@ -52,7 +52,9 @@ public class Robot extends TimedRobot {
       System.out.println(t.getMessage());
       System.out.println(t.getStackTrace());
     }
-    robotContainer.armLEDSetup(false);
+    // robotContainer.armLEDSetup(false);
+    SmartDashboard.putBoolean("Arm Brake", true);
+    SmartDashboard.putBoolean("Rotation Brake", true);
   }
 
   /**
@@ -78,26 +80,25 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     robotContainer.setArmBrake(true);
-    // robotContainer.setRotationBrake(true);
-    // SmartDashboard.putBoolean("Arm Brake", true);
-    // SmartDashboard.putBoolean("Rotation Brake", true);
+    robotContainer.setDriveBrake(true);
 		enabledLooper.stop();
   }
 
   @Override
   public void disabledPeriodic() {
     robotContainer.setArmBrake(SmartDashboard.getBoolean("Arm Brake", true));
+    robotContainer.setDriveBrake(SmartDashboard.getBoolean("Rotation Brake", true));
     TunableNumber.updateAll();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    robotContainer.setArmBrake(true);
-    // robotContainer.setRotationBrake(true);
     // Prevent the robot from being driven by the default command during auto.
     robotContainer.disableTeleopControl();
     m_autonomousCommand = robotContainer.getAutonomousCommand();
+    robotContainer.setArmBrake(true);
+    robotContainer.setDriveBrake(true);
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -122,7 +123,7 @@ public class Robot extends TimedRobot {
     }
     robotContainer.enableTeleopControl();
     robotContainer.setArmBrake(true);
-    // robotContainer.setRotationBrake(true);
+    robotContainer.setDriveBrake(true);
     
 		enabledLooper.start();
   }

@@ -167,14 +167,24 @@ public class LED {
 
     led_dev.setData(led);
   }
+  
+  public void setCone() {
+    LED.getInstance().setHuman(Pattern.CONE, BlinkMode.SOLID);
+  }
+
+  public void setCube() {
+    LED.getInstance().setHuman(Pattern.CUBE, BlinkMode.SOLID);
+  }
 
   public void setIdle() {
     this.setDrive(Pattern.SETUP, BlinkMode.SOLID);
   }
-  public void setUrgentCone(){
+
+  public void setUrgentCone() {
     this.setHuman(Pattern.CONE, BlinkMode.BLINKING_ON);
   }
-  public void setUrgentCube(){
+
+  public void setUrgentCube() {
     this.setHuman(Pattern.CUBE, BlinkMode.BLINKING_ON);
   }
 }

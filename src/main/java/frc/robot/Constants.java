@@ -64,6 +64,7 @@ public final class Constants {
             public static final boolean EXTENSION_MOTOR = false;
         }
         public static final class Position {
+            // TODO: change to not use fudge factor on upper (subtract 90 from each setpoint)
             public static final double EXIT_STOW_LOWER = 104.5;
             public static final double EXIT_STOW_UPPER = 38.3;
             public static final double EXIT_STOW_EXTENSION = 0.0;
@@ -92,8 +93,8 @@ public final class Constants {
         public static final class Ratios {
             /** Extension pulley rotations per extension motor rotation. */
             public static final double EXTENSION_MOTOR = UltraPlanetaryRatios.FIVE_TO_ONE * UltraPlanetaryRatios.FOUR_TO_ONE;
-            /** Ratio between shaft pulley (12t) and arm pulley (48t). */
-            public static final double LOWER_ARM_CHAIN = 12.0 / 48.0;
+            /** Ratio between shaft pulley (12t) and arm pulley (32t). */
+            public static final double LOWER_ARM_CHAIN = 12.0 / 32.0;
             /** Arm shaft rotations per motor rotation. (45:1) */
             public static final double LOWER_ARM_MOTOR = 1.0 / 45.0;
             /** Total ratio between lower arm motor and lower arm rotation. */

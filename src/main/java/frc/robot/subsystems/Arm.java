@@ -85,13 +85,18 @@ public class Arm extends SubsystemBase {
       DataLogManager.log("Starting Arm Loops");
       logger.addLoggable("Arm Loop Path Length", () -> (double) currentPath.length, false);
       logger.addLoggable("Arm Loop Index", () -> (double) i, false);
+      holdPosition();
     }
 
     @Override
     public void onLoop() {
       synchronized (Arm.this) {
         if (isEnabled) {
-          i = (int) (Math.ceil((Timer.getFPGATimestamp() - startTime) * 50)); // 50 loops per second = 0.02 seconds per loop
+          
+          System.out.println(Timer.getFPGATimestamp() - startTime);
+          System.out.println("ARM LOOP RUNNING path  len: " + Integer.toString(currentPath.length));
+          System.out.println("I = " + Integer.toString(i));
+          i = (int) (Math.ceil((Timer.getFPGATimestamp() - startTime) * 50.0)); // 50 loops per second = 0.02 seconds per loop
           if (i <= currentPath.length - 1) {
             // while there are still setpoints left
             if (isReverse) {
@@ -111,6 +116,8 @@ public class Arm extends SubsystemBase {
             i = 0;
           }
         }
+        setArmMotors();
+        logger.logAll();
       }
     }
 
@@ -171,19 +178,7 @@ public class Arm extends SubsystemBase {
       upperFF = new ArmFeedForward(upperF_s.get(), upperF_v.get());
     }
     
-    // we use feedforward on the current position; feedforward will hold the current position and is never affected by the setpoint
-    double[] gravity = ArmKinematics.gravitationalTorques(getLowerAngle().getDegrees(), getUpperAngle().getDegrees(), getExtensionDistance());
-    double lowerOutput = lowerPID.calculate(getLowerAngle().getDegrees()) - lowerFF.calculate(gravity[0]);
-    double upperOutput = upperPID.calculate(getUpperAngle().getDegrees()) + upperFF.calculate(gravity[1]);
-
-    SmartDashboard.putNumber("Lower Arm Gravity", gravity[0]);
-    SmartDashboard.putNumber("Upper Arm Gravity", gravity[1]);
-    SmartDashboard.putNumber("Extension Gravity", gravity[2]);
-
-    lowerMotor.setVoltage(lowerOutput);
-    upperMotor.setVoltage(upperOutput);
-
-    this.logger.logAll();
+    // this.logger.logAll();
   }
 
   private void configureLoggedData() {
@@ -207,7 +202,9 @@ public class Arm extends SubsystemBase {
     logger.addLoggable("arm/lower/position_raw", lowerEncoder::getRawValue, true);
     logger.addLoggable("arm/upper/position_raw", upperEncoder::getRawValue, true);
     // gravity
-    // logger.addLoggable("arm/lower/gravity", () -> )
+    logger.addLoggable("arm/lower/gravity", () -> ArmKinematics.gravitationalTorques(getLowerAngle().getDegrees(), getUpperAngle().getDegrees(), getExtensionDistance())[0], true);
+    logger.addLoggable("arm/upper/gravity", () -> ArmKinematics.gravitationalTorques(getLowerAngle().getDegrees(), getUpperAngle().getDegrees(), getExtensionDistance())[1], true);
+    logger.addLoggable("arm/extension/gravity", () -> ArmKinematics.gravitationalTorques(getLowerAngle().getDegrees(), getUpperAngle().getDegrees(), getExtensionDistance())[2], true);
   }
 
   private void configureMotors() {
@@ -248,10 +245,20 @@ public class Arm extends SubsystemBase {
     extensionPID.setI(0);
     extensionPID.setD(0);
     extensionPID.setIZone(0.5);
-    extensionPID.setFF(0);
+    extensionPID.setFF(0); // TODO: put back original FF here
     extensionPID.setOutputRange(-1.0, 1.0);
     extensionPID.setSmartMotionMaxVelocity(11000, 0); // NEO 550 free rpm
     extensionPID.setSmartMotionMaxAccel(15000, 0);
+  }
+
+  private void setArmMotors() {
+    // we use feedforward on the current position; feedforward will hold the current position and is never affected by the setpoint
+    double[] gravity = ArmKinematics.gravitationalTorques(getLowerAngle().getDegrees(), getUpperAngle().getDegrees(), getExtensionDistance());
+    double lowerOutput = lowerPID.calculate(getLowerAngle().getDegrees()) - lowerFF.calculate(gravity[0]);
+    double upperOutput = upperPID.calculate(getUpperAngle().getDegrees()) + upperFF.calculate(gravity[1]);
+
+    lowerMotor.setVoltage(lowerOutput);
+    upperMotor.setVoltage(upperOutput);
   }
 
   public Loop getLoop() {
@@ -382,13 +389,12 @@ public class Arm extends SubsystemBase {
     setExtensionLength(length);
   }
 
-  // doesn't the PID & FF override this?
-  public void openLoopSetVoltage(double lower, double upper, double extension){
-    
-    lowerMotor.setVoltage(lower*6); // why is this multiplied by 6
-    upperMotor.setVoltage(upper*6);
-    extensionMotor.setVoltage(extension*6);
-  }
+  // PID & FF overrides this so it won't work until you disable them
+  // public void openLoopSetVoltage(double lower, double upper, double extension) {
+  //   lowerMotor.setVoltage(lower*6);
+  //   upperMotor.setVoltage(upper*6);
+  //   extensionMotor.setVoltage(extension*6);
+  // }
 
   public void stopAllMotors() {
     lowerMotor.stopMotor();
