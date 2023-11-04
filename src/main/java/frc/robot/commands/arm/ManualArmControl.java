@@ -26,7 +26,7 @@ public class ManualArmControl extends CommandBase {
   /** Change in setpoint in degrees per second. */
   private static final double lowerAcceleration = 40.0;
   /** Change in setpoint in degrees per second. */
-  private static final double upperAcceleration = 80.0;
+  private static final double upperAcceleration = 60.0;
   /** Change in setpoint in metres per second. */
   private static final double extensionAcceleration = 0.40;
 
@@ -59,8 +59,8 @@ public class ManualArmControl extends CommandBase {
       arm,
       controller::getLeftY,
       () -> -controller.getRightY(),
-      controller::getLeftTriggerAxis,
-      controller::getRightTriggerAxis
+      controller::getRightTriggerAxis,
+      controller::getLeftTriggerAxis
     );
   }
 
