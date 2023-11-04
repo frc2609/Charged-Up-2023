@@ -12,7 +12,6 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
@@ -34,6 +33,7 @@ import frc.robot.utils.AbsoluteEncoderHandler;
 import frc.robot.utils.ArmFeedForward;
 import frc.robot.utils.ArmKinematics;
 import frc.robot.utils.BeaverLogger;
+import frc.robot.utils.SimPID;
 import frc.robot.utils.TunableNumber;
 
 public class Arm extends SubsystemBase {
@@ -49,10 +49,10 @@ public class Arm extends SubsystemBase {
   private final MechanismLigament2d lowerArmLigament = mechanismRoot.append(new MechanismLigament2d("Lower Arm", getLowerArmLength(), 0));
   private final MechanismLigament2d upperArmLigament = lowerArmLigament.append(new MechanismLigament2d("Upper Arm + Extension", getUpperArmLength(), 0));
 
-  private PIDController lowerPID = new PIDController(0.1, 0, 0);
-  private PIDController upperPID = new PIDController(0.1, 0, 0);
+  private final SimPID lowerPID = new SimPID(0.15, 0, 0, Tolerances.lowerErrorEpsilon);
+  private final SimPID upperPID = new SimPID(0.2, 0.1, 0, Tolerances.upperErrorEpsilon);
   private ArmFeedForward lowerFF = new ArmFeedForward(0.03, 0.0);
-  private ArmFeedForward upperFF = new ArmFeedForward(-0.09, 0.0);
+  private ArmFeedForward upperFF = new ArmFeedForward(-0.015, 0.0);
 
   private final TunableNumber lowerPID_P = new TunableNumber("arm/pid/lower_p", lowerPID.getP());
   private final TunableNumber lowerPID_I = new TunableNumber("arm/pid/lower_i", lowerPID.getI());
@@ -63,8 +63,8 @@ public class Arm extends SubsystemBase {
   private final TunableNumber upperPID_P = new TunableNumber("arm/pid/upper_p", upperPID.getP());
   private final TunableNumber upperPID_I = new TunableNumber("arm/pid/upper_i", upperPID.getI());
   private final TunableNumber upperPID_D = new TunableNumber("arm/pid/upper_d", upperPID.getD());
-  private final TunableNumber upperF_s = new TunableNumber("arm/pid/upper_ks", lowerFF.ks);
-  private final TunableNumber upperF_v = new TunableNumber("arm/pid/upper_kv", lowerFF.kv);
+  private final TunableNumber upperF_s = new TunableNumber("arm/pid/upper_ks", upperFF.ks);
+  private final TunableNumber upperF_v = new TunableNumber("arm/pid/upper_kv", upperFF.kv);
 
   private final SparkMaxPIDController extensionPID = extensionMotor.getPIDController();
 
@@ -92,7 +92,6 @@ public class Arm extends SubsystemBase {
     public void onLoop() {
       synchronized (Arm.this) {
         if (isEnabled) {
-          
           System.out.println(Timer.getFPGATimestamp() - startTime);
           System.out.println("ARM LOOP RUNNING path  len: " + Integer.toString(currentPath.length));
           System.out.println("I = " + Integer.toString(i));
@@ -140,10 +139,6 @@ public class Arm extends SubsystemBase {
     lowerBackupEncoder = new AbsoluteEncoderHandler(DIO.armLowerBackupEncoder, Encoder.lowerBackupPositionOffset, Encoder.lowerBackupPositionConversion);
     upperEncoder = new AbsoluteEncoderHandler(DIO.armUpperEncoder, Encoder.upperPositionOffset, Encoder.upperPositionConversion);
     upperBackupEncoder = new AbsoluteEncoderHandler(DIO.armUpperBackupEncoder, Encoder.upperBackupPositionOffset, Encoder.upperBackupPositionConversion);
-    
-    extensionEncoder.setPositionConversionFactor(1.0);
-    extensionEncoder.setVelocityConversionFactor(Encoder.extensionVelocityConversion);
-    extensionEncoder.setPosition(0.0);
 
     configureLoggedData();
     configureMotors();
@@ -163,7 +158,7 @@ public class Arm extends SubsystemBase {
     upperArmLigament.setLength(getUpperArmLength());
 
     if (lowerPID_P.hasChanged() || lowerPID_I.hasChanged() || lowerPID_D.hasChanged()) {
-      lowerPID = new PIDController(lowerPID_P.get(), lowerPID_I.get(), lowerPID_D.get());
+      lowerPID.setConstants(lowerPID_P.get(), lowerPID_I.get(), lowerPID_P.get());
     }
 
     if (lowerF_s.hasChanged() || lowerF_v.hasChanged()) {
@@ -171,14 +166,12 @@ public class Arm extends SubsystemBase {
     }
 
     if (upperPID_P.hasChanged() || upperPID_I.hasChanged() || upperPID_D.hasChanged()) {
-      upperPID = new PIDController(upperPID_P.get(), upperPID_I.get(), upperPID_D.get());
+      upperPID.setConstants(upperPID_P.get(), upperPID_I.get(), upperPID_D.get());
     }
 
     if (upperF_s.hasChanged() || upperF_v.hasChanged()) {
       upperFF = new ArmFeedForward(upperF_s.get(), upperF_v.get());
     }
-    
-    // this.logger.logAll();
   }
 
   private void configureLoggedData() {
@@ -235,17 +228,27 @@ public class Arm extends SubsystemBase {
     extensionMotor.setIdleMode(IdleMode.kBrake);
     extensionMotor.setSmartCurrentLimit(CurrentLimits.extension);
     extensionMotor.setInverted(IsInverted.EXTENSION_MOTOR);
+
+    extensionEncoder.setPositionConversionFactor(Encoder.extensionPositionConversion);
+    extensionEncoder.setVelocityConversionFactor(Encoder.extensionVelocityConversion);
+    extensionEncoder.setPosition(0.0);
   }
   
   private void configurePIDs() {
-    lowerPID.setTolerance(Tolerances.lowerAngle);
-    upperPID.setTolerance(Tolerances.upperAngle);
+    lowerPID.setMaxOutput(12); // volts
+    lowerPID.setDoneRange(Tolerances.lowerAngle);
+    // lowerPID.setMinDoneCycles(0);
+
+    upperPID.setMaxOutput(12); // volts
+    upperPID.setDoneRange(Tolerances.upperAngle);
+    // upperPID.setMinDoneCycles(0);
+    upperPID.setErrorIncrement(0.5);
 
     extensionPID.setP(0);
     extensionPID.setI(0);
     extensionPID.setD(0);
     extensionPID.setIZone(0.5);
-    extensionPID.setFF(0); // TODO: put back original FF here
+    extensionPID.setFF(0.001);
     extensionPID.setOutputRange(-1.0, 1.0);
     extensionPID.setSmartMotionMaxVelocity(11000, 0); // NEO 550 free rpm
     extensionPID.setSmartMotionMaxAccel(15000, 0);
@@ -254,8 +257,8 @@ public class Arm extends SubsystemBase {
   private void setArmMotors() {
     // we use feedforward on the current position; feedforward will hold the current position and is never affected by the setpoint
     double[] gravity = ArmKinematics.gravitationalTorques(getLowerAngle().getDegrees(), getUpperAngle().getDegrees(), getExtensionDistance());
-    double lowerOutput = lowerPID.calculate(getLowerAngle().getDegrees()) - lowerFF.calculate(gravity[0]);
-    double upperOutput = upperPID.calculate(getUpperAngle().getDegrees()) + upperFF.calculate(gravity[1]);
+    double lowerOutput = lowerPID.calcPID(getLowerAngle().getDegrees()) - lowerFF.calculate(gravity[0]);
+    double upperOutput = upperPID.calcPID(getUpperAngle().getDegrees()) + upperFF.calculate(gravity[1]);
 
     lowerMotor.setVoltage(lowerOutput);
     upperMotor.setVoltage(upperOutput);
@@ -270,7 +273,7 @@ public class Arm extends SubsystemBase {
    * @return The amount the arm extension has extended in metres.
    */
   public double getExtensionDistance() {
-    return extensionEncoder.getPosition() * Encoder.extensionPositionConversion;
+    return extensionEncoder.getPosition();
   }
 
   /**
@@ -333,11 +336,11 @@ public class Arm extends SubsystemBase {
   }
 
   public boolean lowerAtSetpoint() {
-    return lowerPID.atSetpoint();
+    return lowerPID.isDone();
   }
 
   public boolean upperAtSetpoint() {
-    return upperPID.atSetpoint();
+    return upperPID.isDone();
   }
 
   public boolean extensionAtSetpoint() {
@@ -363,12 +366,12 @@ public class Arm extends SubsystemBase {
 
   public void setLowerAngle(Rotation2d angle) {
     lowerSetpoint = angle.getDegrees();
-    lowerPID.setSetpoint(lowerSetpoint);
+    lowerPID.setDesiredValue(lowerSetpoint);
   }
 
   public void setUpperAngle(Rotation2d angle) {
     upperSetpoint = angle.getDegrees();
-    upperPID.setSetpoint(upperSetpoint);
+    upperPID.setDesiredValue(upperSetpoint);
   }
 
   /** Set the amount to extend the upper arm in metres. */
