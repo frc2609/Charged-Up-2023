@@ -14,6 +14,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -100,6 +101,7 @@ public class SwerveModule { // implements Sendable {
   /** Update data being sent and recieved from NetworkTables. */
   public void updateNetworkTables() {
     SmartDashboard.putNumber(m_name + " Angle (rad)", m_rotationEncoder.getPosition());
+    SmartDashboard.putNumber(m_name + " Angle (deg)", MathUtil.inputModulus(Math.toDegrees(m_rotationEncoder.getPosition()), -180, 180));
     SmartDashboard.putNumber(m_name + " Angular Velocity (rad/s)", m_rotationEncoder.getVelocity());
     SmartDashboard.putNumber(m_name + " Distance Travelled (m)", m_driveMotors.getPosition());
     SmartDashboard.putNumber(m_name + " Velocity (m/s)", m_driveMotors.getVelocity());
