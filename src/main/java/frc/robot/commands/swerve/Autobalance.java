@@ -4,8 +4,6 @@
 
 package frc.robot.commands.swerve;
 
-import static frc.robot.Constants.Autonomous.Balance.*;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,6 +18,15 @@ import frc.robot.subsystems.SwerveDrive;
  * command in order for it to work.
  */
 public class Autobalance extends CommandBase {
+  /** P gain for going up the ramp on the charge station. */
+  private static final double START_P = 0.015;
+  /** P gain for staying on the charge station. */
+  // private static final double HOLD_P = 0.001;
+  /** The acceptable amount of tilt error in degrees. */
+  private static final double ANGLE_TOLERANCE = 8;
+  /** The maximum autobalance speed in metres per second. */
+  private static final double MAX_SPEED = 1.5;
+
   private final PIDController m_anglePIDController 
       = new PIDController(START_P, 0, 0.0015);
   private final SwerveDrive m_swerveDrive;

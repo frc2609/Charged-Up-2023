@@ -117,40 +117,18 @@ public final class Constants {
             public static final float EXTENSION_REVERSE = 0.0f;  // metres
         }
         public static final class Tolerances {
-            public static final double lowerAngle = 0.5; // degrees
-            public static final double upperAngle = 0.5; // degrees
+            public static final double lowerAngle = 2; // degrees
+            public static final double upperAngle = 2; // degrees
             public static final double extensionLength = 0.01; // metres
-        }
-        public static final class ManualControl {
-            // GO PUT THESE IN THE COMMAND AS CONSTANTS!
-            /** How fast to extend the arm extension during manual control.
-             * Range is between -1 to 1, however, should be >= 0.
-             */
-            public static final double MANUAL_EXTENSION_SPEED = 0.1;
-            public static final double MANUAL_UPPER_INCREMENT = 2.5;
-            public static final double MANUAL_EXTENSION_INCREMENT = 0.04;
-            /** Change in setpoint in degrees per second. */
-            public static final double MANUAL_LOWER_ACCELERATION = 80.0;
-            /** Change in setpoint in degrees per second. */
-            public static final double MANUAL_UPPER_ACCELERATION = 80.0;
-            /** Change in setpoint in metres per second. */
-            public static final double MANUAL_EXTENSION_ACCELERATION = 40.0 / 100.0;
+            /* The range which the integral gain operates in. */
+            public static final double lowerErrorEpsilon = lowerAngle * 2;
+            /* The range which the integral gain operates in. */
+            public static final double upperErrorEpsilon = upperAngle * 2;
         }
     }
     
     /** Autonomous-Related Constants */
     public static final class Autonomous {
-        /** Autobalance-related constants. */
-        public static final class Balance {
-            /** P gain for going up the ramp on the charge station. */
-            public static final double START_P = 0.015;
-            /** P gain for staying on the charge station. */
-            public static final double HOLD_P = 0.001;
-            /** The acceptable amount of tilt error in degrees. */
-            public static final double ANGLE_TOLERANCE = 8;
-            /** The maximum autobalance speed in metres per second. */
-            public static final double MAX_SPEED = 1.5;
-        }
         /** Deadlines (in seconds) to wait for a command to finish. */
         public static final class Deadline {
             public static final double MOVE_TO_HIGH = 5.0;
