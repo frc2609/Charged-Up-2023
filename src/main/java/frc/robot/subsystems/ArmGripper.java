@@ -61,7 +61,8 @@ public class ArmGripper extends SubsystemBase {
   private final CANSparkMax m_extensionMotor = new CANSparkMax(CANID.EXTENSION_MOTOR, MotorType.kBrushless);
 
   // Absolute encoder range is 0 to 1
-  private final SparkMaxAbsoluteEncoder m_lowerEncoderAbsolute = m_lowerMotor.getAbsoluteEncoder(Type.kDutyCycle);
+  // private final SparkMaxAbsoluteEncoder m_lowerEncoderAbsolute = m_lowerMotor.getAbsoluteEncoder(Type.kDutyCycle);
+  private final DutyCycleEncoder m_lowerEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_LOWER_ENCODER);
   private final DutyCycleEncoder m_lowerEncoderAbsoluteBak = new DutyCycleEncoder(DIO.ARM_LOWER_ENCODER_BAK);
   private final DutyCycleEncoder m_upperEncoderAbsolute = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER);
   private final DutyCycleEncoder m_upperEncoderAbsoluteBak = new DutyCycleEncoder(DIO.ARM_UPPER_ENCODER_BAK);
@@ -210,7 +211,7 @@ public class ArmGripper extends SubsystemBase {
     SmartDashboard.putNumber("Extension Arm RPM", m_extensionEncoderRelative.getVelocity());
     // absolute encoder value
     SmartDashboard.putNumber("Lower Arm Position Bak (0-1)", m_lowerEncoderAbsoluteBak.getAbsolutePosition());
-    SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getPosition());
+    SmartDashboard.putNumber("Lower Arm Position (0-1)", m_lowerEncoderAbsolute.getAbsolutePosition());
     SmartDashboard.putNumber("Upper Arm Position (0-1)", m_upperEncoderAbsolute.getAbsolutePosition());
     // absolute angle
     SmartDashboard.putNumber("Lower Arm Angle Bak (Deg)", getLowerAngleAbsoluteBak()); // positive away from robot
@@ -243,11 +244,8 @@ public class ArmGripper extends SubsystemBase {
 
   private void configureEncoders() {
     // position
-    REVLibError lowerEncoderPositionConversionError = m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
-    REVLibError lowerAbsoluteOffsetError = m_lowerEncoderAbsolute.setZeroOffset(0.409343);
-    // 0-1 to degrees
-    m_lowerEncoderAbsolute.setPositionConversionFactor(360);
-    m_lowerEncoderAbsolute.setVelocityConversionFactor(360);
+    m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
+    m_lowerEncoderAbsolute.setPositionOffset(0.409343);
 
     m_upperEncoderRelative.setPositionConversionFactor(Encoder.UPPER_POSITION_CONVERSION);
     m_extensionEncoderRelative.setPositionConversionFactor(Encoder.EXTENSION_POSITION_CONVERSION);
@@ -262,29 +260,29 @@ public class ArmGripper extends SubsystemBase {
     m_extensionEncoderRelative.setPosition(0.0);
 
     // " " + is to convert to string, because there is String + REVLibError overload but not a cast to String
-    SmartDashboard.putString("Lower Encoder Position Conversion Error", " " + lowerEncoderPositionConversionError);
+    // SmartDashboard.putString("Lower Encoder Position Conversion Error", " " + lowerEncoderPositionConversionError);
     SmartDashboard.putString("Lower Encoder Set Position Error", " " + lowerEncoderSetPositionError);
 
-    if(lowerAbsoluteOffsetError != REVLibError.kOk){
-      DataLogManager.log("LOWER ABSOLUTE ENCODER POSITION OFFSET FAILED, TRYING AGAIN");
+    // if(lowerAbsoluteOffsetError != REVLibError.kOk){
+    //   DataLogManager.log("LOWER ABSOLUTE ENCODER POSITION OFFSET FAILED, TRYING AGAIN");
 
-    }
+    // }
 
-    // this usually doesn't succeed (the program thinks it does, but it usually has no effect)
-    if (lowerEncoderPositionConversionError != REVLibError.kOk) {
-      DataLogManager.log("LOWER ENCODER POSITION CONVERSION FACTOR SET FAILED, TRYING AGAIN.");
-      lowerEncoderPositionConversionError = m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
-      SmartDashboard.putString("Lower Encoder Position Conversion Error", " " + lowerEncoderPositionConversionError);
-    }
+    // // this usually doesn't succeed (the program thinks it does, but it usually has no effect)
+    // if (lowerEncoderPositionConversionError != REVLibError.kOk) {
+    //   DataLogManager.log("LOWER ENCODER POSITION CONVERSION FACTOR SET FAILED, TRYING AGAIN.");
+    //   lowerEncoderPositionConversionError = m_lowerEncoderRelative.setPositionConversionFactor(Encoder.LOWER_POSITION_CONVERSION);
+    //   SmartDashboard.putString("Lower Encoder Position Conversion Error", " " + lowerEncoderPositionConversionError);
+    // }
 
-    if (lowerEncoderPositionConversionError != REVLibError.kOk) {
-      DataLogManager.log("LOWER ENCODER POSITION CONVERSION FACTOR SET FAILED TWICE, RESET ROBOT CODE!");
-    }
+    // if (lowerEncoderPositionConversionError != REVLibError.kOk) {
+    //   DataLogManager.log("LOWER ENCODER POSITION CONVERSION FACTOR SET FAILED TWICE, RESET ROBOT CODE!");
+    // }
 
     if (lowerEncoderSetPositionError != REVLibError.kOk) {
       DataLogManager.log("LOWER ENCODER SET POSITION FAILED, TRYING AGAIN.");
       lowerEncoderSetPositionError = m_lowerEncoderRelative.setPosition(getLowerAngleAbsolute());
-      SmartDashboard.putString("Lower Encoder Set Position Error", " " + lowerEncoderPositionConversionError);
+      // SmartDashboard.putString("Lower Encoder Set Position Error", " " + lowerEncoderPositionConversionError);
     }
 
     if (lowerEncoderSetPositionError != REVLibError.kOk) {
@@ -386,7 +384,7 @@ public class ArmGripper extends SubsystemBase {
    * @return The robot-relative angle of the lower arm in degrees.
    */
   private double getLowerAngleAbsolute() {
-    return m_lowerEncoderAbsolute.getPosition();
+    return ((m_lowerEncoderAbsolute.getAbsolutePosition() - m_lowerEncoderAbsolute.getPositionOffset()) * 360);
     // DataLogManager.log("Lower Encoder Absolute Position" + Double.toString(absolutePosition));
     // Adds 90 degrees because the offset was measured at a 90 degree angle. <- this is incorrect, why do we add 90?
   }
