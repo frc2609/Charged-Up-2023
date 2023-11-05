@@ -33,7 +33,10 @@ public class MoveArmToHigh extends SequentialCommandGroup {
             new ManualArmControl(arm, operatorController)
         ),
         // follow path in reverse
-        new MoveArmToPosition(arm, ArmPaths.stowToIntToHigh, true)
+        // new MoveArmToPosition(arm, ArmPaths.stowToIntToHigh, true)
+        // the normal high path does not like to clear the mid node in reverse
+        new MoveArmToPosition(arm, ArmPaths.pickupToHigh, true),
+        new MoveArmToPosition(arm, ArmPaths.longThrowPickup, true)
     );
   }
 }
