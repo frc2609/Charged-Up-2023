@@ -194,6 +194,9 @@ public class Arm extends SubsystemBase {
     // absolute encoder raw position
     logger.addLoggable("arm/lower/position_raw", lowerEncoder::getRawValue, true);
     logger.addLoggable("arm/upper/position_raw", upperEncoder::getRawValue, true);
+    // absolute encoder offset position
+    logger.addLoggable("arm/lower/offset_pos", lowerEncoder::getPosition, true);
+    logger.addLoggable("arm/upper/offset_pos", upperEncoder::getPosition, true);
     // gravity
     logger.addLoggable("arm/lower/gravity", () -> ArmKinematics.gravitationalTorques(getLowerAngle().getDegrees(), getUpperAngle().getDegrees(), getExtensionDistance())[0], true);
     logger.addLoggable("arm/upper/gravity", () -> ArmKinematics.gravitationalTorques(getLowerAngle().getDegrees(), getUpperAngle().getDegrees(), getExtensionDistance())[1], true);
@@ -285,7 +288,7 @@ public class Arm extends SubsystemBase {
   }
 
   public Rotation2d getLowerAngle() {
-    return Rotation2d.fromDegrees(lowerEncoder.getPosition());
+    return Rotation2d.fromDegrees(lowerEncoder.getDistance());
   }
 
   /**
@@ -293,15 +296,15 @@ public class Arm extends SubsystemBase {
    * @return The angle of the upper arm relative to the lower arm as a Rotation2d.
    */
   public Rotation2d getUpperAngle() {
-    return Rotation2d.fromDegrees(upperEncoder.getPosition());
+    return Rotation2d.fromDegrees(upperEncoder.getDistance());
   }
 
   public Rotation2d getLowerBackupAngle() {
-    return Rotation2d.fromDegrees(lowerBackupEncoder.getPosition());
+    return Rotation2d.fromDegrees(lowerBackupEncoder.getDistance());
   }
 
   public Rotation2d getUpperBackupAngle() {
-    return Rotation2d.fromDegrees(upperBackupEncoder.getPosition());
+    return Rotation2d.fromDegrees(upperBackupEncoder.getDistance());
   }
 
   /**

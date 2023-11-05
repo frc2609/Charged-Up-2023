@@ -29,9 +29,10 @@ public class AbsoluteEncoderHandler implements AutoCloseable {
         encoder = new DutyCycleEncoder(encoderDIOID);
         this.positionOffset = positionOffset;
         this.positionConversionFactor = positionConversionFactor;
+        encoder.setPositionOffset(positionOffset);
         encoder.setDistancePerRotation(positionConversionFactor);
 
-        previousPosition = getPosition();
+        previousPosition = getDistance();
         previousTime = RobotController.getFPGATime();
 
         absoluteEncoders.add(this);
@@ -51,12 +52,17 @@ public class AbsoluteEncoderHandler implements AutoCloseable {
         }
     }
 
+    public double getDistance() {
+      // no point in % 360... distance is total rotation, % 360 just makes it same as absolute position
+      return (encoder.getDistance() - (positionOffset * positionConversionFactor)) % 360;
+    }
+
     public double getRawValue() {
         return encoder.getAbsolutePosition();
     }
 
     public double getPosition() {
-        return encoder.getDistance() - (positionOffset * positionConversionFactor);
+        return (encoder.getAbsolutePosition() - encoder.getPositionOffset()) * positionConversionFactor;
     }
 
     /* This should be tested before use. */
@@ -65,7 +71,7 @@ public class AbsoluteEncoderHandler implements AutoCloseable {
     }
 
     protected void updateVelocity() {
-        final double position = getPosition();
+        final double position = getDistance();
         final double time = RobotController.getFPGATime();
         velocity = (position - previousPosition) / (time - previousTime);
         previousPosition = position;
