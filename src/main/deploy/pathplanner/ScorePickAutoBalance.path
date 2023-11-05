@@ -19,9 +19,9 @@
         "names": [
           "ScoreHigh"
         ],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
+        "executionBehavior": "sequential",
+        "waitBehavior": "after",
+        "waitTime": 2.0
       }
     },
     {
