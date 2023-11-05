@@ -173,6 +173,7 @@ public class RobotContainer {
         PathPlanner.loadPath("ScoreThenDriveOutAndRotateBump", constraints));
     pathChooser.addOption("ConeCubeAuto", PathPlanner.loadPath("ConeCubeAuto", constraints));
     pathChooser.addOption("ClearSide2piece", PathPlanner.loadPath("ClearSide2piece", constraints));
+    pathChooser.addOption("ScoreThenDoNothing", PathPlanner.loadPath("ScoreThenDoNothing", new PathConstraints(0.01, 0.01)));
     SmartDashboard.putData(pathChooser);
   }
 
@@ -216,7 +217,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoBuilder.fullAuto(pathChooser.getSelected()).andThen(new InstantCommand(drive::stop));
-  }
+    }
 
   // public void armLEDSetup(boolean initial) {
   //     m_armGripper.setupLED(initial);
