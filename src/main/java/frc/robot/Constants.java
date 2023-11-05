@@ -68,9 +68,9 @@ public final class Constants {
             public static final double EXIT_STOW_LOWER = 104.5;
             public static final double EXIT_STOW_UPPER = 38.3;
             public static final double EXIT_STOW_EXTENSION = 0.0;
-            public static final double GROUND_PICKUP_LOWER = 72.0;
-            public static final double GROUND_PICKUP_UPPER = 32.4;
-            public static final double GROUND_PICKUP_EXTENSION = 0.0;
+            public static final double GROUND_PICKUP_LOWER = 104.6; // 72.0;
+            public static final double GROUND_PICKUP_UPPER = 19.0; //32.4;
+            public static final double GROUND_PICKUP_EXTENSION = 0.093; //0.0;
             public static final double LOW_LOWER = 104.6;
             public static final double LOW_UPPER = 41.5;
             public static final double LOW_EXTENSION = 0.22;
