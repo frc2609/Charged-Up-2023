@@ -288,7 +288,7 @@ public class Arm extends SubsystemBase {
   }
 
   public Rotation2d getLowerAngle() {
-    return Rotation2d.fromDegrees(lowerEncoder.getDistance());
+    return Rotation2d.fromDegrees(lowerEncoder.getPosition());
   }
 
   /**
@@ -296,15 +296,15 @@ public class Arm extends SubsystemBase {
    * @return The angle of the upper arm relative to the lower arm as a Rotation2d.
    */
   public Rotation2d getUpperAngle() {
-    return Rotation2d.fromDegrees(upperEncoder.getDistance());
+      return Rotation2d.fromDegrees(upperEncoder.getPosition());
   }
 
   public Rotation2d getLowerBackupAngle() {
-    return Rotation2d.fromDegrees(lowerBackupEncoder.getDistance());
+    return Rotation2d.fromDegrees(lowerBackupEncoder.getPosition());
   }
 
   public Rotation2d getUpperBackupAngle() {
-    return Rotation2d.fromDegrees(upperBackupEncoder.getDistance());
+    return Rotation2d.fromDegrees(upperBackupEncoder.getPosition());
   }
 
   /**

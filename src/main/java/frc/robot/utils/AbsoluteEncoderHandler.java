@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.RobotController;
 public class AbsoluteEncoderHandler implements AutoCloseable {
     private static final ArrayList<AbsoluteEncoderHandler> absoluteEncoders = new ArrayList<AbsoluteEncoderHandler>();
     private final DutyCycleEncoder encoder;
-    private final double positionOffset;
     private final double positionConversionFactor;
     private double previousPosition;
     private double previousTime;
@@ -27,7 +26,6 @@ public class AbsoluteEncoderHandler implements AutoCloseable {
      */
     public AbsoluteEncoderHandler(int encoderDIOID, double positionOffset, double positionConversionFactor) {
         encoder = new DutyCycleEncoder(encoderDIOID);
-        this.positionOffset = positionOffset;
         this.positionConversionFactor = positionConversionFactor;
         encoder.setPositionOffset(positionOffset);
         encoder.setDistancePerRotation(positionConversionFactor);
@@ -53,8 +51,7 @@ public class AbsoluteEncoderHandler implements AutoCloseable {
     }
 
     public double getDistance() {
-      // no point in % 360... distance is total rotation, % 360 just makes it same as absolute position
-      return (encoder.getDistance() - (positionOffset * positionConversionFactor)) % 360;
+        return encoder.getDistance() - (encoder.getPositionOffset() * positionConversionFactor);
     }
 
     public double getRawValue() {
