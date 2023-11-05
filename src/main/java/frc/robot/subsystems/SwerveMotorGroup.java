@@ -224,8 +224,8 @@ public class SwerveMotorGroup {
     // SmartDashboard.putNumber("Boost set voltage", output);
     // SmartDashboard.putNumber("Boost motor rpm", m_primaryEncoder.getVelocity()); // rpm currently as factor is 1
     // SmartDashboard.putNumber("Boost motor current", m_primaryMotor.getOutputCurrent());
-    m_primaryMotor.setVoltage(driveVoltage);//output);
-    m_secondaryMotor.setVoltage(0);//0);//output);
+    // m_primaryMotor.setVoltage();//output);
+    m_secondaryMotor.setVoltage(driveVoltage);//0);//output);
   }
   public double getSecondaryVelocity(){
     return m_secondaryEncoder.getVelocity();
