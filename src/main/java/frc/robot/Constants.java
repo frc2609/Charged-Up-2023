@@ -168,16 +168,16 @@ public final class Constants {
     
     public static final class DIO {
         // normal encoders are the direct drive ones
-        public static final int armLowerEncoder = 3;
-        public static final int armUpperEncoder = 4;
+        public static final int armLowerEncoder = 7;
+        public static final int armUpperEncoder = 8;
         // backup encoders are the geared ones
-        public static final int armLowerBackupEncoder = 0;
+        public static final int armLowerBackupEncoder = 0; // do not exist anymore
         public static final int armUpperBackupEncoder = 1;
-        public static final int intakeSensor = 7;
+        public static final int intakeSensor = 9;
     }
 
     public static final class LED {
-        public static final int CONTROLLER_PWM_ID = 2;
+        public static final int CONTROLLER_PWM_ID = 9;
 
         public static final double BLUE = 0.87;
         public static final double GREEN = 0.77;
