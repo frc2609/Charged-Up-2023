@@ -6,16 +6,11 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.LED.*;
 
-// import java.sql.Driver;
-
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 // import edu.wpi.first.wpilibj.DriverStation.Alliance;
-// import edu.wpi.first.wpilibj.motorcontrol.Spark;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.Constants.PWMID;
 
 /** Add your docs here. */
 public class LED {
@@ -43,7 +38,7 @@ public class LED {
     pattern_human = Pattern.SETUP;
     blinkMode_drive = BlinkMode.SOLID;
     blinkMode_human = BlinkMode.SOLID;
-    led_dev = new AddressableLED(PWMID.LED);
+    led_dev = new AddressableLED(CONTROLLER_PWM_ID);
     led_dev.setLength(LED_LEN);
     led = new AddressableLEDBuffer(LED_LEN);
     setDrive(Pattern.SETUP, BlinkMode.SOLID);
@@ -162,26 +157,32 @@ public class LED {
 
   /** Colour values are located in {@link frc.robot.Constants.LED Constants::LED}. */
   public void setDrive(Pattern pattern, BlinkMode blink) {
-    this.pattern_drive = pattern;
-    this.blinkMode_drive = blink;
+    pattern_drive = pattern;
+    blinkMode_drive = blink;
   }
 
   public void setHuman(Pattern pattern, BlinkMode blink) {
-    this.pattern_human = pattern;
-    this.blinkMode_human = blink;
+    pattern_human = pattern;
+    blinkMode_human = blink;
+  }
+  
+  public void setCone() {
+    LED.getInstance().setHuman(Pattern.CONE, BlinkMode.SOLID);
+  }
 
-    
-    
-    led_dev.setData(led);
+  public void setCube() {
+    LED.getInstance().setHuman(Pattern.CUBE, BlinkMode.SOLID);
   }
 
   public void setIdle() {
     this.setDrive(Pattern.SETUP, BlinkMode.SOLID);
   }
-  public void setUrgentCone(){
+
+  public void setUrgentCone() {
     this.setHuman(Pattern.CONE, BlinkMode.BLINKING_ON);
   }
-  public void setUrgentCube(){
+
+  public void setUrgentCube() {
     this.setHuman(Pattern.CUBE, BlinkMode.BLINKING_ON);
   }
 }

@@ -9,13 +9,13 @@ import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.MP.Looper;
 import frc.robot.subsystems.LED;
-// import frc.robot.utils.BeaverLogger;
+import frc.robot.utils.AbsoluteEncoderHandler;
+import frc.robot.utils.TunableNumber;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -25,9 +25,9 @@ import frc.robot.subsystems.LED;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-  private RobotContainer m_robotContainer;
-  
+  private RobotContainer robotContainer;
 	private Looper enabledLooper;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -39,22 +39,22 @@ public class Robot extends TimedRobot {
     DataLogManager.start(); // log NetworkTables values
     DriverStation.startDataLog(DataLogManager.getLog()); // log DS data
 
-
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
-    m_robotContainer.setArmBrake(true);
+    robotContainer = new RobotContainer();
+    robotContainer.setArmBrake(true);
     PathPlannerServer.startServer(Constants.Autonomous.PATHPLANNER_SERVER_PORT);
 
     enabledLooper = new Looper();
-    try{
-      enabledLooper.register(m_robotContainer.getArmLoop());
-      // enabledLooper.register(m_robotContainer.getDriveTrainLoop());
-    } catch(Throwable t){
+    try {
+      enabledLooper.register(robotContainer.getArmLoop());
+    } catch(Throwable t) {
       System.out.println(t.getMessage());
       System.out.println(t.getStackTrace());
     }
-    m_robotContainer.armLEDSetup(false);
+    // robotContainer.armLEDSetup(false);
+    SmartDashboard.putBoolean("Arm Brake", true);
+    SmartDashboard.putBoolean("Rotation Brake", true);
   }
 
   /**
@@ -71,42 +71,34 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-    m_robotContainer.updateNetworkTables();
     LED.getInstance().periodic();
+    AbsoluteEncoderHandler.updateAllVelocities();
+    robotContainer.updateNetworkTables();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    m_robotContainer.setArmBrake(true);
-    m_robotContainer.setRotationBrake(true);
-    SmartDashboard.putBoolean("Arm Brake", true);
-    SmartDashboard.putBoolean("Rotation Brake", true);
-    // BeaverLogger.getInstance().saveLogs();
+    robotContainer.setArmBrake(true);
+    robotContainer.setDriveBrake(true);
 		enabledLooper.stop();
-    
-    RobotContainer.m_driverController.setRumble(RumbleType.kBothRumble, 0);
   }
 
   @Override
   public void disabledPeriodic() {
-    m_robotContainer.setArmBrake(SmartDashboard.getBoolean("Arm Brake", true));
-    m_robotContainer.setRotationBrake(SmartDashboard.getBoolean("Rotation Brake", true));
-    // A JoystickButton will not trigger during disabled, this forces it to
-    if (m_robotContainer.m_resetArmEncoders.getAsBoolean()) {
-      m_robotContainer.resetArmEncoders();
-    }
-    m_robotContainer.armLEDSetup(false);
+    robotContainer.setArmBrake(SmartDashboard.getBoolean("Arm Brake", true));
+    robotContainer.setDriveBrake(SmartDashboard.getBoolean("Rotation Brake", true));
+    TunableNumber.updateAll();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
     // Prevent the robot from being driven by the default command during auto.
-    m_robotContainer.disableTeleopControl();
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    m_robotContainer.setArmBrake(true);
-    m_robotContainer.setRotationBrake(true);
+    robotContainer.disableTeleopControl();
+    m_autonomousCommand = robotContainer.getAutonomousCommand();
+    robotContainer.setArmBrake(true);
+    robotContainer.setDriveBrake(true);
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -129,9 +121,9 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    m_robotContainer.enableTeleopControl();
-    m_robotContainer.setArmBrake(true);
-    m_robotContainer.setRotationBrake(true);
+    robotContainer.enableTeleopControl();
+    robotContainer.setArmBrake(true);
+    robotContainer.setDriveBrake(true);
     
 		enabledLooper.start();
   }
@@ -144,7 +136,7 @@ public class Robot extends TimedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-    m_robotContainer.disableTeleopControl();
+    robotContainer.disableTeleopControl();
   }
 
   /** This function is called periodically during test mode. */

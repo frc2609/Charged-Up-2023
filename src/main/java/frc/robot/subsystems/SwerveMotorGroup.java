@@ -3,7 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 
 // Move ECVT into SwerveModule???
-// TODO: swap motors properly
 
 package frc.robot.subsystems;
 
@@ -14,34 +13,31 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.DriverStation;
+// import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Timer;
 // import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
-import frc.robot.Constants.Limits;
+import frc.robot.Constants.CurrentLimits;
 
 // velocity conversion factors with/without motors
 // Should this be in its own class?
 
 /** Add your docs here. */
 public class SwerveMotorGroup {
-  private double prevVel = 0;
+  // private double prevVel = 0;
   public class ECVT{
     private RelativeEncoder ringEncoder, sunEncoder;
-    private final double sunTeeth = 36.0;
-    private final double ringInner = 72.0;
-    private final double bevelToWheel = 1.0/3.0;
-    private final double carrierSpur = 24.0;
-    private final double driveSpur = 20.0;
+    // private final double sunTeeth = 36.0;
+    // private final double ringInner = 72.0;
+    // private final double bevelToWheel = 1.0/3.0;
+    // private final double carrierSpur = 24.0;
+    // private final double driveSpur = 20.0;
     // motor B ratios
-    private final double spurTeeth = 33;
-    private final double ringOuter = 66;
+    // private final double spurTeeth = 33;
+    // private final double ringOuter = 66;
     public ECVT(RelativeEncoder ringEncoder, RelativeEncoder sunEncoder){
       this.ringEncoder = ringEncoder;
       this.sunEncoder = sunEncoder;
@@ -81,7 +77,7 @@ public class SwerveMotorGroup {
   public final RelativeEncoder m_secondaryEncoder;
   private final ECVT m_ecvt;
   private double prevTime = -1;
-  private final SlewRateLimiter m_torqueRateLimiter = new SlewRateLimiter(4, -2, 0);
+  // private final SlewRateLimiter m_torqueRateLimiter = new SlewRateLimiter(4, -2, 0);
 
   private final PIDController m_primaryPID =
       new PIDController(drivePID_kP, drivePID_kI, drivePID_kD);
@@ -109,8 +105,8 @@ public class SwerveMotorGroup {
     m_secondaryMotor.setInverted(invertDriveMotors);
     m_primaryMotor.setIdleMode(IdleMode.kBrake);
     m_secondaryMotor.setIdleMode(IdleMode.kBrake);
-    m_primaryMotor.setSmartCurrentLimit(Limits.DRIVE_PRIMARY_CURRENT);
-    m_secondaryMotor.setSmartCurrentLimit(Limits.DRIVE_SECONDARY_CURRENT);
+    m_primaryMotor.setSmartCurrentLimit(CurrentLimits.drivePrimary);
+    m_secondaryMotor.setSmartCurrentLimit(CurrentLimits.driveSecondary);
     m_ecvt = new ECVT(m_secondaryEncoder, m_primaryEncoder);
     m_name = name;
     
@@ -142,9 +138,6 @@ public class SwerveMotorGroup {
     m_secondaryEncoder.setPosition(0);
   }
 
-  /**
-   * TODO: javadoc
-   */
   public void simulateECVT() {
     SmartDashboard.putNumber("Output SIM", m_ecvt.SIM_getOutputSpeed(SmartDashboard.getNumber("Test Primary RPM", 0), SmartDashboard.getNumber("Test Secondary RPM", 0)));
     SmartDashboard.putNumber("SunSetp SIM", m_ecvt.SIM_getSunSetpoint(SmartDashboard.getNumber("Test Target Vel", 0), SmartDashboard.getNumber("Test Secondary RPM", 0)));
@@ -152,14 +145,11 @@ public class SwerveMotorGroup {
   }
 
   /**
-   * TODO: describe
-   * 
    * @param speedMetersPerSecond The target speed in metres per second.
    * @param boostThrottle Boost throttle (0 to 1).
    * @param maxSpeedEnabled Whether or not to use boost.
    */
   public void set(double speedMetersPerSecond, double boostThrottle, double torqueThrottle, boolean maxSpeedEnabled) {
-    // TODO: rewrite this function
     // Calculate the drive output from the drive PID controller.
     
     // m_primaryPID.setP(Constants.Swerve.Gains.drivePID_kP_auto);
@@ -234,22 +224,20 @@ public class SwerveMotorGroup {
     // SmartDashboard.putNumber("Boost set voltage", output);
     // SmartDashboard.putNumber("Boost motor rpm", m_primaryEncoder.getVelocity()); // rpm currently as factor is 1
     // SmartDashboard.putNumber("Boost motor current", m_primaryMotor.getOutputCurrent());
-    m_primaryMotor.setVoltage(driveVoltage);//output);
-    m_secondaryMotor.setVoltage(0);//0);//output);
+    // m_primaryMotor.setVoltage();//output);
+    m_secondaryMotor.setVoltage(driveVoltage);//0);//output);
   }
   public double getSecondaryVelocity(){
     return m_secondaryEncoder.getVelocity();
   }
 
   /**
-   * TODO: describe
    * 
    * @param speedMetersPerSecond
    * @param boostThrottle
    * @param maxSpeedEnabled
    */
   public void setAuto(double speedMetersPerSecond, double boostThrottle, boolean maxSpeedEnabled, boolean isLowTorqueModeEnabled) {
-    // TODO: a bit of cleanup
     // Calculate the drive output from the drive PID controller.
     m_primaryPID.setP(Constants.Swerve.Gains.drivePID_kP_auto);
     m_primaryPID.setI(Constants.Swerve.Gains.drivePID_kI_auto);
@@ -258,9 +246,9 @@ public class SwerveMotorGroup {
         // this also doesn't use metres per second
     final double driveFeedforward = m_primaryFF.calculate(speedMetersPerSecond);
     // swerve has not a clue as to what speed it is going
-    double ff = 0;
+    // double ff = 0;
     if(prevTime != -1){
-      ff = Math.abs(prevVel - speedMetersPerSecond)/Math.abs(Timer.getFPGATimestamp()-prevTime)*1;
+      // ff = Math.abs(prevVel - speedMetersPerSecond)/Math.abs(Timer.getFPGATimestamp()-prevTime)*1;
       // ff = Math.min(Math.abs(ff), Math.abs(driveVoltage*0.15));
 
     }
@@ -281,7 +269,7 @@ public class SwerveMotorGroup {
       m_primaryMotor.set(0);
     }
     
-    prevVel = speedMetersPerSecond;
+    // prevVel = speedMetersPerSecond;
     prevTime = Timer.getFPGATimestamp();
     // m_primaryMotor.setVoltage(maxSpeedEnabled ? driveVoltage * (boostThrottle * (driveVoltage/driveVoltage)) : 0);
   }

@@ -1,0 +1,477 @@
+{
+  "tabPane": [
+    {
+      "title": "SmartDashboard",
+      "autoPopulate": true,
+      "autoPopulatePrefix": "SmartDashboard/",
+      "widgetPane": {
+        "gridSize": 128.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "titleType": 0,
+        "tiles": {
+          "5,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Toggle Button",
+              "_source0": "network_table:///SmartDashboard/Arm Brake",
+              "_title": "Arm Brake",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "9,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Number Bar",
+              "_source0": "network_table:///SmartDashboard/Lower Arm Gravity",
+              "_title": "Lower Arm Gravity",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Range/Min": -1.0,
+              "Range/Max": 1.0,
+              "Range/Center": 0.0,
+              "Visuals/Num tick marks": 5,
+              "Visuals/Show text": true,
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "10,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Number Bar",
+              "_source0": "network_table:///SmartDashboard/Upper Arm Gravity",
+              "_title": "Upper Arm Gravity",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Range/Min": -1.0,
+              "Range/Max": 1.0,
+              "Range/Center": 0.0,
+              "Visuals/Num tick marks": 5,
+              "Visuals/Show text": true,
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "11,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Number Bar",
+              "_source0": "network_table:///SmartDashboard/Extension Gravity",
+              "_title": "Extension Gravity",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Range/Min": -1.0,
+              "Range/Max": 1.0,
+              "Range/Center": 0.0,
+              "Visuals/Num tick marks": 5,
+              "Visuals/Show text": true,
+              "Visuals/Orientation": "HORIZONTAL"
+            }
+          },
+          "7,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/looper_dt",
+              "_title": "looper_dt",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "5,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "Mechanism2D",
+              "_glyph": 149,
+              "_showGlyph": false,
+              "Layout/Label position": "BOTTOM",
+              "_children": [
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Arm Mechanism/Arm/Lower Arm/weight",
+                  "_title": "Arm Mechanism/Arm/Lower Arm/weight",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Arm Mechanism/Arm/Lower Arm/color",
+                  "_title": "Arm Mechanism/Arm/Lower Arm/color",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Arm Mechanism/Arm/Lower Arm/angle",
+                  "_title": "Arm Mechanism/Arm/Lower Arm/angle",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Arm Mechanism/Arm/Lower Arm/length",
+                  "_title": "Arm Mechanism/Arm/Lower Arm/length",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Arm Mechanism/Arm/Lower Arm/Upper Arm + Extension/weight",
+                  "_title": "Arm Mechanism/Arm/Lower Arm/Upper Arm + Extension/weight",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Arm Mechanism/Arm/Lower Arm/Upper Arm + Extension/color",
+                  "_title": "Arm Mechanism/Arm/Lower Arm/Upper Arm + Extension/color",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Arm Mechanism/Arm/Lower Arm/Upper Arm + Extension/angle",
+                  "_title": "Arm Mechanism/Arm/Lower Arm/Upper Arm + Extension/angle",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Arm Mechanism/Arm/Lower Arm/Upper Arm + Extension/length",
+                  "_title": "Arm Mechanism/Arm/Lower Arm/Upper Arm + Extension/length",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Arm Mechanism/Arm/y",
+                  "_title": "Arm Mechanism/Arm/y",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Arm Mechanism/Arm/x",
+                  "_title": "Arm Mechanism/Arm/x",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Arm Mechanism/backgroundColor",
+                  "_title": "Arm Mechanism/backgroundColor",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                }
+              ]
+            }
+          },
+          "0,0": {
+            "size": [
+              5,
+              2
+            ],
+            "content": {
+              "_type": "Grid Layout",
+              "_title": "Gains",
+              "_glyph": 149,
+              "_showGlyph": false,
+              "Layout/Number of columns": 5,
+              "Layout/Number of rows": 2,
+              "Layout/Label position": "BOTTOM",
+              "_children": {
+                "0,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/pid/lower_p",
+                  "_title": "arm/pid/lower_p",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/pid/lower_i",
+                  "_title": "arm/pid/lower_i",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "2,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/pid/lower_d",
+                  "_title": "arm/pid/lower_d",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "3,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/pid/lower_ks",
+                  "_title": "arm/pid/lower_ks",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "4,0": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/pid/lower_kv",
+                  "_title": "arm/pid/lower_kv",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "0,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/pid/upper_p",
+                  "_title": "arm/pid/upper_p",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "1,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/pid/upper_i",
+                  "_title": "arm/pid/upper_i",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "2,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/pid/upper_d",
+                  "_title": "arm/pid/upper_d",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "3,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/pid/upper_ks",
+                  "_title": "arm/pid/upper_ks",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                "4,1": {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/pid/upper_kv",
+                  "_title": "arm/pid/upper_kv",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                }
+              }
+            }
+          },
+          "0,2": {
+            "size": [
+              2,
+              3
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "Arm Data",
+              "_glyph": 149,
+              "_showGlyph": false,
+              "Layout/Label position": "BOTTOM",
+              "_children": [
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/upper/position",
+                  "_title": "arm/upper/position",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/upper/setpoint",
+                  "_title": "arm/upper/setpoint",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/lower/applied_output",
+                  "_title": "arm/lower/applied_output",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/upper/position_raw",
+                  "_title": "arm/upper/position_raw",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/lower/position",
+                  "_title": "arm/lower/position",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/lower/setpoint",
+                  "_title": "arm/lower/setpoint",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/upper/applied_output",
+                  "_title": "arm/upper/applied_output",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/lower/position_raw",
+                  "_title": "arm/lower/position_raw",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/extension/position",
+                  "_title": "arm/extension/position",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/extension/setpoint",
+                  "_title": "arm/extension/setpoint",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/arm/extension/applied_output",
+                  "_title": "arm/extension/applied_output",
+                  "_glyph": 148,
+                  "_showGlyph": false
+                }
+              ]
+            }
+          },
+          "9,3": {
+            "size": [
+              3,
+              1
+            ],
+            "content": {
+              "_type": "Number Slider",
+              "_source0": "network_table:///SmartDashboard/manual/lower_setpoint",
+              "_title": "manual/lower_setpoint",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Slider Settings/Min": 40.0,
+              "Slider Settings/Max": 120.0,
+              "Slider Settings/Block increment": 0.0625,
+              "Visuals/Display value": true
+            }
+          },
+          "9,2": {
+            "size": [
+              3,
+              1
+            ],
+            "content": {
+              "_type": "Number Slider",
+              "_source0": "network_table:///SmartDashboard/manual/upper_setpoint",
+              "_title": "manual/upper_setpoint",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Slider Settings/Min": -75.0,
+              "Slider Settings/Max": 25.0,
+              "Slider Settings/Block increment": 0.0625,
+              "Visuals/Display value": true
+            }
+          },
+          "6,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/d3",
+              "_title": "d3",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "7,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Lower COM",
+              "_title": "Lower COM",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "8,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Upper COM",
+              "_title": "Upper COM",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "9,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Ext COM",
+              "_title": "Ext COM",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "LiveWindow",
+      "autoPopulate": true,
+      "autoPopulatePrefix": "LiveWindow/",
+      "widgetPane": {
+        "gridSize": 128.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "titleType": 0,
+        "tiles": {}
+      }
+    }
+  ],
+  "windowGeometry": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 1920.0,
+    "height": 847.0
+  }
+}

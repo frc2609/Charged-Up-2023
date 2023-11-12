@@ -22,7 +22,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import frc.robot.Constants.Limits;
+import frc.robot.Constants.CurrentLimits;
 
 /**
  * Represents a single swerve drive module.
@@ -36,7 +36,6 @@ public class SwerveModule { // implements Sendable {
 
   private final String m_name;
 
-  // TODO: now using B to drive and A for boost, change documentation accordingly
 
   /** 
    * Creates a new SwerveModule.
@@ -45,7 +44,6 @@ public class SwerveModule { // implements Sendable {
    * @param primaryMotorID The CAN ID of the primary drive motor (always engaged).
    * @param secondaryMotorID The CAN ID of the secondary drive motor (engaged for extra speed).
    * @param rotationMotorID The CAN ID of the rotation motor.
-   * // TODO: this javadoc
    * @param invertDriveMotors name see SwerveMotorGroup//driveMotorsInverted Whether or not to invert both drive motors. The wheel should spin forward on positive inputs.
    * @param invertRotationMotor Whether or not to invert the rotation motor. The module should rotate counterclockwise on positive inputs.
    */
@@ -61,7 +59,6 @@ public class SwerveModule { // implements Sendable {
     m_driveMotors = new SwerveMotorGroup(primaryMotorID, secondaryMotorID, invertDriveMotors, name);
     m_rotationMotor = new CANSparkMax(rotationMotorID, MotorType.kBrushless);
 
-    // TODO: that's not good. SwerveMotorGroup should handle this (or eliminate it if needed)
     // m_driveMotors.getEncoder().setPositionConversionFactor(DRIVE_POSITION_CONVERSION);
     // m_driveMotors.getEncoder().setVelocityConversionFactor(DRIVE_VELOCITY_CONVERSION);
     
@@ -74,7 +71,7 @@ public class SwerveModule { // implements Sendable {
 
     m_rotationMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     m_rotationMotor.setInverted(invertRotationMotor);
-    m_rotationMotor.setSmartCurrentLimit(Limits.DRIVE_ROTATION_CURRENT);
+    m_rotationMotor.setSmartCurrentLimit(CurrentLimits.driveRotation);
 
     m_name = name;
 
@@ -85,7 +82,7 @@ public class SwerveModule { // implements Sendable {
      * before setDesiredState() is called for the first time. */
     SmartDashboard.putNumber(m_name + " Drive Setpoint (m/s)", 0);
     SmartDashboard.putNumber(m_name + " Angle Setpoint (rad)", 0);
-    SmartDashboard.putNumber(m_name + " Drive Voltage", 0); // TODO: 99% sure not used.
+    SmartDashboard.putNumber(m_name + " Drive Voltage", 0);
   }
   public SwerveMotorGroup getDriveMotors(){
     return this.m_driveMotors;
@@ -149,7 +146,6 @@ public class SwerveModule { // implements Sendable {
     // if (kP != m_drivePIDController.getP()) m_drivePIDController.setP(kP);
     // if (kI != m_drivePIDController.getI()) m_drivePIDController.setI(kI);
     // if (kD != m_drivePIDController.getD()) m_drivePIDController.setD(kD);
-    // TODO: make it work for SwerveMotorGroup
   }
 
   /**
@@ -349,7 +345,6 @@ public class SwerveModule { // implements Sendable {
    * @param desiredVelocity The desired velocity in m/s.
    */
   public void setVelocity(double desiredVelocity) {
-    // TODO: this should work with new swerve
     // final double velocity = m_driveEncoder.getVelocity();
     // final double feedback = m_drivePIDController.calculate(velocity, desiredVelocity);
     // final double feedforward = m_driveFeedforward.calculate(desiredVelocity);

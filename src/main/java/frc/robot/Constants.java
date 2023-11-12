@@ -23,83 +23,54 @@ import edu.wpi.first.wpilibj.util.Color;
 public final class Constants {
     /** Arm and Gripper-related Constants */
     public static final class Arm {
+        // These must all be the same unit.
+        public static final class Measurements {
+            public static final double EXTENSION_PULLEY_DIAMETER = 0.055; // metres
+            public static final double EXTENSION_PULLEY_CIRCUMFERENCE = Math.PI * EXTENSION_PULLEY_DIAMETER; // metres
+            /** The distance from the centre of the tube connecting the lower arm
+             * to the robot to the centre of the tube connecting the upper arm to
+             * the lower arm. */
+            public static final double lowerArmLength = 0.51; // metres
+            /** The distance from the centre of the tube connecting both arms to
+             * the beginning of the gripper opening with the extension retracted. */
+            public static final double upperArmBaseLength = 0.67; // metres
+        }
+        public static final class Encoder {
+            // convert position to degrees
+            public static final double lowerPositionConversion = 360.0;
+            public static final double upperPositionConversion = 360.0;
+            /** Backup encoders are geared, so they will only provide correct values for certain arm positions. */
+            public static final double lowerBackupPositionConversion = Ratios.LOWER_ARM_CHAIN * 360.0;
+            /** Backup encoders are geared, so they will only provide correct values for certain arm positions. */
+            public static final double upperBackupPositionConversion = Ratios.UPPER_ARM_CHAIN * 360.0;
+
+            /** Measure at 90 degrees (pointing straight up). */
+            public static final double lowerPositionOffset = 0.667 - (90.0 / lowerPositionConversion); // +- 0.002
+            /** Measure at 0 degrees (parallel with the robot frame). */
+            public static final double upperPositionOffset = 0.526; // - (90.0 / upperPositionConversion); // +- 0.003
+            /** Measure at 90 degrees (pointing straight up). */
+            public static final double lowerBackupPositionOffset = 0.505 - (90.0 / lowerBackupPositionConversion); // +- 0.003
+            /** Measure at 0 degrees (parallel with the robot frame). */
+            public static final double upperBackupPositionOffset = 0.983; // - (90.0 / upperBackupPositionConversion); // +- 0.005
+
+            /** How many metres the extension extends per motor rotation. */
+            public static final double extensionPositionConversion = Ratios.EXTENSION_MOTOR * Measurements.EXTENSION_PULLEY_CIRCUMFERENCE;
+            /** How many metres the extension moves in metres per second. */
+            public static final double extensionVelocityConversion = extensionPositionConversion * 60.0;
+        }
         public static final class IsInverted {
             public static final boolean LOWER_MOTOR = false;
             public static final boolean UPPER_MOTOR = false;
             public static final boolean EXTENSION_MOTOR = false;
         }
-        public static final class Encoder {
-            /** How many metres the extension extends per motor rotation. */
-            public static final double EXTENSION_POSITION_CONVERSION = Ratios.EXTENSION_MOTOR * EXTENSION_PULLEY_CIRCUMFERENCE;
-            /** 
-             * How many degrees the arm moves per absolute encoder rotation.
-             * <p>Make sure to subtract the encoder offset before multiplying
-             * by this value.
-             */
-            public static final double LOWER_BAK_ABSOLUTE_POSITION_CONVERSION = Ratios.LOWER_ARM_CHAIN * 360.0;
-            /** 
-             * How many degrees the arm moves per absolute encoder rotation.
-             * <p>Make sure to subtract the encoder offset before multiplying
-             * by this value.
-             */
-            public static final double UPPER_ABSOLUTE_POSITION_CONVERSION = Ratios.UPPER_ARM_CHAIN * 360.0;
-            /** How many degrees the arm moves per motor rotation. */
-            public static final double LOWER_POSITION_CONVERSION = Ratios.LOWER_ARM * 360.0;
-            /** How many degrees the arm moves per motor rotation. */
-            public static final double UPPER_POSITION_CONVERSION = Ratios.UPPER_ARM * 360.0;
-            /**
-             * Pointing straight up (angle = 90.0 degrees). 
-             * Encoder values increase as the arm moves away from the front of
-             * the robot.
-             */
-            public static final double LOWER_POSITION_OFFSET_BAK = 0.494;
-
-            
-            /**
-             * Pointing straight up (angle = 90.0 degrees). 
-             * Encoder values increase as the arm moves away from the front of
-             * the robot.
-             */
-            public static final double LOWER_POSITION_OFFSET = 0.1645;
-
-            
-            /**
-             * Parallel robot front (angle = 90.0 degrees).
-             * Encoder values increase as the arm moves away from the front of
-             * the robot.
-             */
-            public static final double UPPER_POSITION_OFFSET = 0.52;
-
-            
-            
-            /**
-             * Parallel robot front (angle = 90.0 degrees).
-             * Encoder values increase as the arm moves away from the front osf
-             * the robot.
-             */
-            public static final double UPPER_POSITION_OFFSET_BAK = 0.977; // TODO: Change this when the backup gets wired up
-            /**
-             * How many degrees the arm moves per second.
-             * <p>Default is RPM -> * by LOWER_POSITION_CONVERSION to get
-             * degrees per minute, * by 60 to get degrees per second.
-             */
-            public static final double LOWER_VELOCITY_CONVERSION = LOWER_POSITION_CONVERSION * 60.0;
-            /** How many degrees the arm moves per second. */
-            public static final double UPPER_VELOCITY_CONVERSION = UPPER_POSITION_CONVERSION * 60.0;
-            /** How many metres the extension moves in metres per second. */
-            public static final double EXTENSION_VELOCITY_CONVERSION = EXTENSION_POSITION_CONVERSION * 60.0;
-        }
-        public static final class Pneumatics {
-            public static final int OPEN_SOLENOID_ID = 14;
-            public static final int CLOSE_SOLENOID_ID = 15;
-        }
         public static final class Position {
+            // TODO: change to not use fudge factor on upper (subtract 90 from each setpoint)
             public static final double EXIT_STOW_LOWER = 104.5;
             public static final double EXIT_STOW_UPPER = 38.3;
             public static final double EXIT_STOW_EXTENSION = 0.0;
-            public static final double GROUND_PICKUP_LOWER = 72.0;
-            public static final double GROUND_PICKUP_UPPER = 32.4;
-            public static final double GROUND_PICKUP_EXTENSION = 0.0;
+            public static final double GROUND_PICKUP_LOWER = 104.6; // 72.0;
+            public static final double GROUND_PICKUP_UPPER = 19.0; //32.4;
+            public static final double GROUND_PICKUP_EXTENSION = 0.093; //0.0;
             public static final double LOW_LOWER = 104.6;
             public static final double LOW_UPPER = 41.5;
             public static final double LOW_EXTENSION = 0.22;
@@ -122,8 +93,8 @@ public final class Constants {
         public static final class Ratios {
             /** Extension pulley rotations per extension motor rotation. */
             public static final double EXTENSION_MOTOR = UltraPlanetaryRatios.FIVE_TO_ONE * UltraPlanetaryRatios.FOUR_TO_ONE;
-            /** Ratio between shaft pulley (18t) and arm pulley (48t). */
-            public static final double LOWER_ARM_CHAIN = 18.0 / 48.0;
+            /** Ratio between shaft pulley (12t) and arm pulley (32t). */
+            public static final double LOWER_ARM_CHAIN = 12.0 / 32.0;
             /** Arm shaft rotations per motor rotation. (45:1) */
             public static final double LOWER_ARM_MOTOR = 1.0 / 45.0;
             /** Total ratio between lower arm motor and lower arm rotation. */
@@ -135,6 +106,7 @@ public final class Constants {
             /** Total ratio between upper arm motor and upper arm rotation. */
             public static final double UPPER_ARM = UPPER_ARM_MOTOR * UPPER_ARM_CHAIN;
         }
+        /* TODO: please check these */
         public static final class SoftStop {
             // `f` indicates a float literal
             public static final float LOWER_FORWARD = 148.70f;  // degrees
@@ -145,53 +117,18 @@ public final class Constants {
             public static final float EXTENSION_REVERSE = 0.0f;  // metres
         }
         public static final class Tolerances {
-            public static final double LOWER_ANGLE = 0.5; // degrees
-            public static final double UPPER_ANGLE = 0.5; // degrees
-            public static final double EXTENSION_LENGTH = 0.01; // metres
-            // TODO: is it possible to increase the EXTENSION_LENGTH TOLERANCE?
+            public static final double lowerAngle = 2; // degrees
+            public static final double upperAngle = 2; // degrees
+            public static final double extensionLength = 0.01; // metres
+            /* The range which the integral gain operates in. */
+            public static final double lowerErrorEpsilon = lowerAngle * 2;
+            /* The range which the integral gain operates in. */
+            public static final double upperErrorEpsilon = upperAngle * 2;
         }
-        /** TODO: More accurate measurements should be pulled from the robot CAD.
-         * Arm kinematics can use **ANY UNIT**, as long as all units are
-         * consistent. If inches are easier to use, change any arm-related
-         * constant using metres to inches. (Don't forget 
-         * EXTENSION_POSITION_CONVERSION).
-         */
-        public static final double EXTENSION_PULLEY_DIAMETER = 0.055; // metres
-        public static final double EXTENSION_PULLEY_CIRCUMFERENCE = Math.PI * EXTENSION_PULLEY_DIAMETER; // metres
-        /** The distance from the centre of the tube connecting the lower arm
-         * to the robot to the centre of the tube connecting the upper arm to
-         * the lower arm.
-         */
-        public static final double LOWER_ARM_LENGTH = 0.51; // metres
-        /** The distance from the centre of the tube connecting both arms to
-         * the beginning of the gripper opening with the extension retracted. */
-        public static final double UPPER_ARM_BASE_LENGTH = 0.67; // metres
-        /** How fast to extend the arm extension during manual control.
-         * Range is between -1 to 1, however, should be >= 0.
-         */
-        public static final double MANUAL_EXTENSION_SPEED = 0.1;
-        public static final double MANUAL_UPPER_INCREMENT = 2.5;
-        public static final double MANUAL_EXTENSION_INCREMENT = 0.04;
-        /** Change in setpoint in degrees per second. */
-        public static final double MANUAL_LOWER_ACCELERATION = 80.0;
-        /** Change in setpoint in degrees per second. */
-        public static final double MANUAL_UPPER_ACCELERATION = 80.0;
-        /** Change in setpoint in metres per second. */
-        public static final double MANUAL_EXTENSION_ACCELERATION = 40.0 / 100.0;
     }
+    
     /** Autonomous-Related Constants */
     public static final class Autonomous {
-        /** Autobalance-related constants. */
-        public static final class Balance {
-            /** P gain for going up the ramp on the charge station. */
-            public static final double START_P = 0.015;
-            /** P gain for staying on the charge station. */
-            public static final double HOLD_P = 0.001;
-            /** The acceptable amount of tilt error in degrees. */
-            public static final double ANGLE_TOLERANCE = 8;
-            /** The maximum autobalance speed in metres per second. */
-            public static final double MAX_SPEED = 1.5;
-        }
         /** Deadlines (in seconds) to wait for a command to finish. */
         public static final class Deadline {
             public static final double MOVE_TO_HIGH = 5.0;
@@ -207,6 +144,7 @@ public final class Constants {
         */
         public static final PIDConstants rotationPIDConstants = new PIDConstants(0, 0, 0);
     }
+    
     /** IDs of all CAN bus devices. */
     public final static class CANID {
         public static final int PNEUMATICS_HUB = 2;
@@ -223,18 +161,24 @@ public final class Constants {
         public static final int rearRightPrimary = 15;
         public static final int rearRightSecondary = 16;
         public static final int rearRightRotation = 14;
-        public static final int LOWER_ARM_MOTOR = 20;
-        public static final int UPPER_ARM_MOTOR = 21;
-        public static final int EXTENSION_MOTOR = 22;
+        public static final int lowerArmMotor = 20;
+        public static final int upperArmMotor = 21;
+        public static final int extensionMotor = 22;
     }
+    
     public static final class DIO {
-        public static final int ARM_LOWER_ENCODER_BAK = 0;
-        public static final int ARM_LOWER_ENCODER = 3;
-        public static final int ARM_UPPER_ENCODER = 4;
-        public static final int ARM_UPPER_ENCODER_BAK = 1;
-        public static final int INTAKE_SENSOR = 7;
-    } 
+        // normal encoders are the direct drive ones
+        public static final int armLowerEncoder = 7;
+        public static final int armUpperEncoder = 8;
+        // backup encoders are the geared ones
+        public static final int armLowerBackupEncoder = 0; // do not exist anymore
+        public static final int armUpperBackupEncoder = 1;
+        public static final int intakeSensor = 9;
+    }
+
     public static final class LED {
+        public static final int CONTROLLER_PWM_ID = 9;
+
         public static final double BLUE = 0.87;
         public static final double GREEN = 0.77;
         public static final double LIME = 0.73;
@@ -276,18 +220,22 @@ public final class Constants {
             put(Pattern.INTAKE_EMPTY, new Color(255,0,0));
         }};
     }
+
     /** Smart current limits for Spark Max motor controllers in amps. */
-    public static final class Limits {
-        public static final int DRIVE_PRIMARY_CURRENT = 50;
-        public static final int DRIVE_SECONDARY_CURRENT = 50;
-        public static final int DRIVE_ROTATION_CURRENT = 30;
-        public static final int LOWER_ARM_CURRENT = 40;
-        public static final int UPPER_ARM_CURRENT = 40;
-        public static final int EXTENSION_CURRENT = 40;
+    public static final class CurrentLimits {
+        public static final int drivePrimary = 50;
+        public static final int driveSecondary = 50;
+        public static final int driveRotation = 30;
+        public static final int lowerArm = 40;
+        public static final int upperArm = 40;
+        public static final int extension = 40;
     }
-    public static final class PWMID {
-        public static final int LED = 2;
+
+    public static final class Pneumatics {
+        public static final int OPEN_SOLENOID_ID = 14;
+        public static final int CLOSE_SOLENOID_ID = 15;
     }
+
     /** Swerve drive related constants. */
     public final static class Swerve {
         /** Swerve drive PID and feedforward gains. 
@@ -480,6 +428,7 @@ public final class Constants {
          */
         public static final double ROTATION_VELOCITY_CONVERSION = (2 * Math.PI * ROTATION_GEAR_RATIO) / 60;
     }
+
     /**
      * UltraPlanetary gearbox ratios differ from the ratio printed on
      * the gearbox's side. This class contains the actual ratios of the
@@ -500,8 +449,8 @@ public final class Constants {
      * provides, such as getLeftY() or getXButton().
      */
     public final static class Xbox {
-        public static final int DRIVER_CONTROLLER_PORT = 0;
-        public static final int OPERATOR_CONTROLLER_PORT = 1;
+        public static final int driverControllerPort = 0;
+        public static final int operatorControllerPort = 1;
         public static final double JOYSTICK_DEADBAND = 0.075;
     }
 }
