@@ -383,6 +383,7 @@ public final class Constants {
          * equivalent to before, but has a different value.
          */
         // TODO: fix this math
+        // That's supposed to be (1.0 / 3.0) * (ultraplanetary ratios...), not 3.0
         public static final double ROTATION_GEAR_RATIO = 1.0 / 56.6409;//3.0 * UltraPlanetaryRatios.FIVE_TO_ONE * UltraPlanetaryRatios.FOUR_TO_ONE;//1.0 / 56.6409; 
         public static final double WHEEL_RADIUS = 0.0508; // metres
         public static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS; // metres
