@@ -131,7 +131,6 @@ public class RobotContainer {
     operatorController.y().onTrue(new QueueCommand(executeQueuedCommand, new MoveArmToHigh(arm, reverseArmPath, operatorController)));
     operatorController.x().onTrue(new MoveArmToStow(arm));
     // LEDs
-    // DO NOT WORK!
     // blink LEDs while held
     operatorController.leftStick().whileTrue(new InstantCommand(LED.getInstance()::setUrgentCone));
     // set solid while not held (when button no longer held sets to solid)
