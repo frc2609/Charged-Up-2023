@@ -10,7 +10,8 @@ import static frc.robot.Constants.Swerve.Gains.*;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -95,21 +96,41 @@ public class SwerveMotorGroup {
   ) {
     m_primaryMotor = new SparkMax(primaryDriveMotorID, MotorType.kBrushless);
     m_secondaryMotor = new SparkMax(secondaryDriveMotorID, MotorType.kBrushless);
+    SparkMaxConfig primaryConfig =new SparkMaxConfig();
+    SparkMaxConfig secondryConfig =new SparkMaxConfig();
     m_primaryEncoder = m_primaryMotor.getEncoder();
     m_secondaryEncoder = m_secondaryMotor.getEncoder();
-    m_primaryEncoder.setVelocityConversionFactor(1);
-    m_secondaryEncoder.setVelocityConversionFactor(1);
-    m_primaryEncoder.setPositionConversionFactor(1);
-    m_secondaryEncoder.setPositionConversionFactor(1);
-    m_primaryMotor.setInverted(invertDriveMotors);
-    m_secondaryMotor.setInverted(invertDriveMotors);
-    m_primaryMotor.setIdleMode(IdleMode.kBrake);
-    m_secondaryMotor.setIdleMode(IdleMode.kBrake);
-    m_primaryMotor.setSmartCurrentLimit(CurrentLimits.drivePrimary);
-    m_secondaryMotor.setSmartCurrentLimit(CurrentLimits.driveSecondary);
-    m_ecvt = new ECVT(m_secondaryEncoder, m_primaryEncoder);
-    m_name = name;
+    // m_primaryEncoder.velocityConversionFactor(1);
+    // m_secondaryEncoder.setVelocityConversionFactor(1);
+    // m_primaryEncoder.setPositionConversionFactor(1);
+    // m_secondaryEncoder.setPositionConversionFactor(1);
+    // m_primaryMotor.setInverted(invertDriveMotors);
+    // m_secondaryMotor.setInverted(invertDriveMotors);
+    // m_primaryMotor.setSparkBaseConfig(IdleMode.kBrake);
+    // m_secondaryMotor.setIdleMode(IdleMode.kBrake);
+    // m_primaryMotor.setSmartCurrentLimit(CurrentLimits.drivePrimary);
+    // m_secondaryMotor.setSmartCurrentLimit(CurrentLimits.driveSecondary);
     
+    primaryConfig.encoder
+      .velocityConversionFactor(1)
+      .positionConversionFactor(1);
+    secondryConfig.encoder
+      .velocityConversionFactor(1)
+      .positionConversionFactor(1);
+    primaryConfig
+      .inverted(invertDriveMotors)
+      .idleMode(IdleMode.kBrake)
+      .smartCurrentLimit(CurrentLimits.drivePrimary);
+
+    secondryConfig
+      .inverted(invertDriveMotors)
+      .idleMode(IdleMode.kBrake)
+      .smartCurrentLimit(CurrentLimits.driveSecondary);
+
+    m_ecvt = new ECVT(m_secondaryMotor.getEncoder(), m_primaryMotor.getEncoder());
+    m_name = name;
+    m_primaryMotor.configure(primaryConfig, null, null); 
+    m_secondaryMotor.configure(secondryConfig, null, null);
   }
 
   /** 

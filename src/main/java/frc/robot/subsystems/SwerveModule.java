@@ -23,8 +23,13 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 //import edu.wpi.first.util.sendable.Sendable;
 //import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.studica.frc.jni.AHRSJNI;
+import com.studica.frc.AHRS;
+//import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+import com.studica.frc.AHRS.NavXComType;
 
 import frc.robot.Constants.CurrentLimits;
+import frc.robot.subsystems.SwerveMotorGroup.ECVT;
 
 /**
  * Represents a single swerve drive module.
@@ -69,10 +74,30 @@ public class SwerveModule { // implements Sendable {
     m_rotationEncoder.setPositionConversionFactor(ROTATION_POSITION_CONVERSION);
     m_rotationEncoder.setVelocityConversionFactor(ROTATION_VELOCITY_CONVERSION);
 
+
     m_rotationPIDController = m_rotationMotor.getClosedLoopController();
     configureSparkMaxPID();
 
     m_rotationMotor.setIdleMode(SparkBaseConfig.IdleMode.kBrake);
+    SparkBaseConfig.kBrake
+      .velocityConversionFactor(1)
+      .positionConversionFactor(1);
+    
+    primaryConfig
+      .inverted(invertDriveMotors)
+      .idleMode(IdleMode.kBrake)
+      .smartCurrentLimit(CurrentLimits.drivePrimary);
+
+    secondryConfig
+      .inverted(invertDriveMotors)
+      .idleMode(IdleMode.kBrake)
+      .smartCurrentLimit(CurrentLimits.driveSecondary);
+
+    m_ecvt = new ECVT(m_secondaryMotor.getEncoder(), m_primaryMotor.getEncoder());
+    m_name = name;
+    m_primaryMotor.configure(primaryConfig, null, null); 
+    m_secondaryMotor.configure(secondryConfig, null, null);
+  }
     m_rotationMotor.setInverted(invertRotationMotor);
     m_rotationMotor.setSmartCurrentLimit(CurrentLimits.driveRotation);
 
